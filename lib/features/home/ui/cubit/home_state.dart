@@ -1,3 +1,6 @@
 part of 'home_cubit.dart';
 
-class HomeState {}
+class HomeState extends Equatable {
+  @override
+  List<Object?> get props => [];
+}

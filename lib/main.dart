@@ -17,8 +17,8 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: "Agents-NG",
-      darkTheme: VeriRentTheme.dark,
-      theme: VeriRentTheme.light,
+      darkTheme: AgentsTheme.dark,
+      theme: AgentsTheme.light,
       themeMode: ThemeMode.system,
       routerConfig: VeriRentRoute.router,
       debugShowCheckedModeBanner: false,

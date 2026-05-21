@@ -719,7 +719,7 @@ TextTheme _buildTextTheme(ColorScheme cs) {
 //  SECTION 7 — THEME DATA ASSEMBLY
 // =============================================================================
 
-abstract final class VeriRentTheme {
+abstract final class AgentsTheme {
   // ── Light Theme ────────────────────────────────────────────────────────────
   static final ThemeData light = _build(_lightColorScheme);
 

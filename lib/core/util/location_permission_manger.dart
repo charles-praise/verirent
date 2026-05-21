@@ -55,8 +55,9 @@ class LocationPermissionManager {
     if (!await isServiceEnabled) {
       if (enableServiceIfDisabled) {
         await geo.Geolocator.openLocationSettings();
-        if (!await isServiceEnabled)
+        if (!await isServiceEnabled) {
           return LocationPermissionResult.serviceDisabled;
+        }
       } else {
         return LocationPermissionResult.serviceDisabled;
       }
@@ -93,8 +94,9 @@ class LocationPermissionManager {
     if (!await isServiceEnabled) {
       if (enableServiceIfDisabled) {
         await geo.Geolocator.openLocationSettings();
-        if (!await isServiceEnabled)
+        if (!await isServiceEnabled) {
           return LocationPermissionResult.serviceDisabled;
+        }
       } else {
         return LocationPermissionResult.serviceDisabled;
       }

@@ -4,10 +4,13 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:verirent/features/home/ui/cubit/home_cubit.dart';
 import 'package:verirent/features/home/ui/pages/home.dart';
+import 'package:verirent/features/main/ui/pages/main.dart';
+
+import '../../features/main/ui/cubit/main_cubit.dart';
 
 class _Route {
-  static final String home = '/';
-  static final String discover = '/discover';
+  static final String main = '/';
+  static final String home = '/home';
   static final String profile = '/profile';
   static final String nowPlaying = '/nowPLaying';
 }
@@ -15,21 +18,48 @@ class _Route {
 abstract final class VeriRentRoute {
   static final GoRouter router = GoRouter(
     overridePlatformDefaultLocation: true,
-    initialLocation: _Route.home,
+    initialLocation: _Route.main,
 
-    // Home Route
     routes: [
+      // Main Route
       GoRoute(
-        name: "Home",
+        name: "Main or Landing page",
+        path: _Route.main,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          child: BlocProvider(
+            create: (context) => GetIt.instance<MainCubit>(),
+            child: const Main(),
+          ),
+          transitionsBuilder:
+              (
+                BuildContext context,
+                Animation<double> animation,
+                Animation<double> secondaryAnimation,
+                Widget child,
+              ) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+        ),
+      ),
+
+      //Home Route
+      GoRoute(
+        name: "home",
         path: _Route.home,
         pageBuilder: (context, state) => CustomTransitionPage(
           child: BlocProvider(
             create: (context) => GetIt.instance<HomeCubit>(),
-            child: const Home(),
+            child: Home(),
           ),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
+          transitionsBuilder:
+              (
+                BuildContext context,
+                Animation<double> animation,
+                Animation<double> secondaryAnimation,
+                Widget child,
+              ) {
+                return FadeTransition(opacity: animation, child: child);
+              },
         ),
       ),
     ],
