@@ -1,6 +1,6 @@
 part of 'main_cubit.dart';
 
-enum LocationStatus {
+enum Status {
   initial,
   loading,
   serviceDisabled,
@@ -15,32 +15,42 @@ enum LocationStatus {
 }
 
 final class MainState extends Equatable {
-  final LocationStatus status;
+  final Status status;
   final bool isBackground;
   final Position? position;
   final String? message;
+  final int? navigationIndex;
 
   const MainState({
-    this.status = LocationStatus.initial,
+    this.status = Status.initial,
     this.isBackground = false,
+    this.navigationIndex = 0,
     this.position,
     this.message,
   });
 
   MainState copyWith({
-    LocationStatus? status,
+    Status? status,
     bool? isBackground,
     Position? position,
     String? message,
+    int? navigationIndex,
   }) {
     return MainState(
       status: status ?? this.status,
       isBackground: isBackground ?? this.isBackground,
       position: position ?? this.position,
+      navigationIndex: navigationIndex ?? this.navigationIndex,
       message: message,
     );
   }
 
   @override
-  List<Object> get props => [status, isBackground, ?position, ?message];
+  List<Object> get props => [
+    status,
+    isBackground,
+    ?position,
+    ?message,
+    ?navigationIndex,
+  ];
 }

@@ -1,7 +1,7 @@
 import 'package:get_it/get_it.dart';
 
 import '../../features/home/ui/cubit/home_cubit.dart';
-import '../../features/main/ui/cubit/main_cubit.dart';
+import '../../features/shell/ui/cubit/main_cubit.dart';
 
 final GetIt _getIt = GetIt.instance;
 

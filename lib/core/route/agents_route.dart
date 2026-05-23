@@ -2,11 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:verirent/features/home/ui/cubit/home_cubit.dart';
-import 'package:verirent/features/home/ui/pages/home.dart';
-import 'package:verirent/features/main/ui/pages/main.dart';
 
-import '../../features/main/ui/cubit/main_cubit.dart';
+import '../../features/home/ui/cubit/home_cubit.dart';
+import '../../features/home/ui/pages/home.dart';
+import '../../features/shell/ui/cubit/main_cubit.dart';
+import '../../features/shell/ui/pages/shell.dart';
 
 class _Route {
   static final String main = '/';
@@ -28,7 +28,7 @@ abstract final class VeriRentRoute {
         pageBuilder: (context, state) => CustomTransitionPage(
           child: BlocProvider(
             create: (context) => GetIt.instance<MainCubit>(),
-            child: const Main(),
+            child: Main(),
           ),
           transitionsBuilder:
               (

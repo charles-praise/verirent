@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:verirent/core/di/verirent_di.dart';
-import 'package:verirent/core/route/verrirent_route.dart';
-import 'package:verirent/core/theme/verirent_theme.dart';
+import 'package:verirent/core/di/agents_di.dart';
+import 'package:verirent/core/route/agents_route.dart';
+import 'package:verirent/core/theme/agents_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,14 +17,14 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: "Agents-NG",
-      darkTheme: AgentsTheme.dark,
-      theme: AgentsTheme.light,
+      color: Colors.transparent,
+      darkTheme: AgentsTheme.dark.copyWith(
+        extensions: [VeriRentExtension.dark],
+      ),
+      theme: AgentsTheme.light.copyWith(extensions: [VeriRentExtension.light]),
       themeMode: ThemeMode.system,
       routerConfig: VeriRentRoute.router,
-      debugShowCheckedModeBanner: false,
-      debugShowMaterialGrid: true,
-      showSemanticsDebugger: true,
-      showPerformanceOverlay: true,
+      debugShowCheckedModeBanner: true,
     );
   }
 }

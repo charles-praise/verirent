@@ -32,6 +32,21 @@ abstract final class VeriRentColors {
   static const Color primary700 = Color(0xFF005D69);
   static const Color primary800 = Color(0xFF004D57);
   static const Color primary900 = Color(0xFF003640);
+  static const bg = Color(0xFF07090F); // --bg
+  static const surface = Color(0xFF0F1420); // --surface
+  static const surface2 = Color(0xFF161C2D); // --surface2
+  static const surface3 = Color(0xFF1C2540); // --surface3
+  static const border = Color(0x12FFFFFF); // --border
+  static const primary = Color(0xFF00C9A7); // --primary
+  static const primaryDim = Color(0x1F00C9A7); // --primary-dim
+  static const primaryGlow = Color(0x5900C9A7); // --primary-glow
+  static const gold = Color(0xFFF0C060); // --gold
+  static const goldDim = Color(0x1FF0C060); // --gold-dim
+  static const text = Color(0xFFF0F4FF); // --text
+  static const textMuted = Color(0xFF8892A4); // --text-muted
+  static const textDim = Color(0xFF4A5568); // --text-dim
+  static const red = Color(0xFFFF5A5F); // --red
+  static const green = Color(0xFF4ADE80);
 
   // ── Secondary — Warm Gold ────────────────────────────────────────────────
   // The trust signal. Certification badges, highlights, premium indicators.

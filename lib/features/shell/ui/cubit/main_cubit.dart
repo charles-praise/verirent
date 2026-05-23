@@ -9,16 +9,20 @@ import 'package:permission_handler/permission_handler.dart';
 part 'main_state.dart';
 
 class MainCubit extends Cubit<MainState> {
-  MainCubit() : super(const MainState());
+  MainCubit() : super(const MainState()) {
+    /// TODO implement the auth checking here.
+  }
 
   bool _busy = false;
+
+  void navigate(int value) => emit(state.copyWith(navigationIndex: value));
 
   Future<void> check({bool background = false}) async {
     if (_busy) return;
     _busy = true;
     emit(
       state.copyWith(
-        status: LocationStatus.loading,
+        status: Status.loading,
         isBackground: background,
         message: null,
       ),
@@ -29,7 +33,7 @@ class MainCubit extends Cubit<MainState> {
       if (!serviceEnabled) {
         emit(
           state.copyWith(
-            status: LocationStatus.serviceDisabled,
+            status: Status.serviceDisabled,
             message: 'Location services are disabled.',
           ),
         );
@@ -43,7 +47,7 @@ class MainCubit extends Cubit<MainState> {
       final status = await permission.status;
       emit(_stateFromPermissionStatus(status, background));
     } catch (e) {
-      emit(state.copyWith(status: LocationStatus.error, message: e.toString()));
+      emit(state.copyWith(status: Status.error, message: e.toString()));
     } finally {
       _busy = false;
     }
@@ -57,7 +61,7 @@ class MainCubit extends Cubit<MainState> {
     _busy = true;
     emit(
       state.copyWith(
-        status: LocationStatus.loading,
+        status: Status.loading,
         isBackground: background,
         message: null,
       ),
@@ -73,7 +77,7 @@ class MainCubit extends Cubit<MainState> {
         if (!serviceEnabled) {
           emit(
             state.copyWith(
-              status: LocationStatus.serviceDisabled,
+              status: Status.serviceDisabled,
               message: 'Please enable location services.',
             ),
           );
@@ -96,7 +100,7 @@ class MainCubit extends Cubit<MainState> {
       if (current.isPermanentlyDenied) {
         emit(
           state.copyWith(
-            status: LocationStatus.permanentlyDenied,
+            status: Status.permanentlyDenied,
             isBackground: background,
             message: 'Permission permanently denied.',
           ),
@@ -108,7 +112,7 @@ class MainCubit extends Cubit<MainState> {
       if (current.isDenied) {
         emit(
           state.copyWith(
-            status: LocationStatus.rationaleRequired,
+            status: Status.rationaleRequired,
             isBackground: background,
             message: 'Permission denied; show rationale.',
           ),
@@ -120,7 +124,7 @@ class MainCubit extends Cubit<MainState> {
       if (current.isRestricted) {
         emit(
           state.copyWith(
-            status: LocationStatus.restricted,
+            status: Status.restricted,
             message: 'Permission restricted by OS.',
           ),
         );
@@ -131,7 +135,7 @@ class MainCubit extends Cubit<MainState> {
       // fallback: request
       await _doRequest(background: background);
     } catch (e) {
-      emit(state.copyWith(status: LocationStatus.error, message: e.toString()));
+      emit(state.copyWith(status: Status.error, message: e.toString()));
     } finally {
       _busy = false;
     }
@@ -157,7 +161,7 @@ class MainCubit extends Cubit<MainState> {
     _busy = true;
     emit(
       state.copyWith(
-        status: LocationStatus.requesting,
+        status: Status.requesting,
         isBackground: background,
         message: null,
       ),
@@ -175,7 +179,7 @@ class MainCubit extends Cubit<MainState> {
       final result = await target.request();
       emit(_stateFromPermissionStatus(result, background));
     } catch (e) {
-      emit(state.copyWith(status: LocationStatus.error, message: e.toString()));
+      emit(state.copyWith(status: Status.error, message: e.toString()));
     } finally {
       _busy = false;
     }
@@ -202,55 +206,51 @@ class MainCubit extends Cubit<MainState> {
     try {
       final pos = await geo.Geolocator.getCurrentPosition();
       emit(
-        state.copyWith(
-          status: LocationStatus.granted,
-          position: pos,
-          message: null,
-        ),
+        state.copyWith(status: Status.granted, position: pos, message: null),
       );
     } catch (_) {
-      emit(state.copyWith(status: LocationStatus.granted, position: null));
+      emit(state.copyWith(status: Status.granted, position: null));
     }
   }
 
   MainState _stateFromPermissionStatus(PermissionStatus ps, bool background) {
     if (ps.isGranted || ps == PermissionStatus.provisional) {
       return state.copyWith(
-        status: LocationStatus.granted,
+        status: Status.granted,
         isBackground: background,
         message: null,
       );
     }
     if (ps.isDenied) {
       return state.copyWith(
-        status: LocationStatus.denied,
+        status: Status.denied,
         isBackground: background,
         message: 'Permission denied.',
       );
     }
     if (ps.isPermanentlyDenied) {
       return state.copyWith(
-        status: LocationStatus.permanentlyDenied,
+        status: Status.permanentlyDenied,
         isBackground: background,
         message: 'Permission permanently denied.',
       );
     }
     if (ps.isRestricted) {
       return state.copyWith(
-        status: LocationStatus.restricted,
+        status: Status.restricted,
         isBackground: background,
         message: 'Restricted by OS.',
       );
     }
     if (ps.isLimited) {
       return state.copyWith(
-        status: LocationStatus.limited,
+        status: Status.limited,
         isBackground: background,
         message: 'Limited/approximate location.',
       );
     }
     return state.copyWith(
-      status: LocationStatus.error,
+      status: Status.error,
       message: 'Unknown permission status.',
     );
   }
@@ -258,11 +258,11 @@ class MainCubit extends Cubit<MainState> {
   Future<void> fetchPosition() async {
     try {
       final pos = await geo.Geolocator.getCurrentPosition();
-      emit(state.copyWith(status: LocationStatus.granted, position: pos));
+      emit(state.copyWith(status: Status.granted, position: pos));
     } catch (e) {
       emit(
         state.copyWith(
-          status: LocationStatus.error,
+          status: Status.error,
           message: 'Failed to fetch position: $e',
         ),
       );
