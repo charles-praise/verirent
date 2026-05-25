@@ -1,11 +1,27 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/agents_theme.dart';
+import 'home_search_bar.dart';
 
-class HomeAppBar extends StatelessWidget {
+class HomeAppBar extends StatefulWidget {
   const HomeAppBar({super.key, required this.topPadding});
 
   final double topPadding;
+
+  @override
+  State<HomeAppBar> createState() => _HomeAppBarState();
+}
+
+class _HomeAppBarState extends State<HomeAppBar> {
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocus = FocusNode();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocus.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +30,7 @@ class HomeAppBar extends StatelessWidget {
     return Container(
       padding: EdgeInsets.fromLTRB(
         VeriRentSpacing.base,
-        topPadding + VeriRentSpacing.md,
+        widget.topPadding + VeriRentSpacing.md,
         VeriRentSpacing.base,
         VeriRentSpacing.md,
       ),
@@ -37,7 +53,7 @@ class HomeAppBar extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.location_on_rounded,
-                      size: 16,
+                      size: VeriRentRadius.lg,
                       color: VeriRentColors.secondary300,
                     ),
                     const SizedBox(width: 4),
@@ -50,7 +66,7 @@ class HomeAppBar extends StatelessWidget {
                     const SizedBox(width: 2),
                     Icon(
                       Icons.keyboard_arrow_down_rounded,
-                      size: 16,
+                      size: VeriRentRadius.lg,
                       color: VeriRentColors.white.withOpacity(0.6),
                     ),
                   ],
@@ -85,20 +101,14 @@ class HomeAppBar extends StatelessWidget {
 
           const SizedBox(height: VeriRentSpacing.md),
 
-          Text(
-            'Good morning, Charles 👋',
-            style: VeriRentText.bodySmall.copyWith(
-              color: VeriRentColors.white.withOpacity(0.7),
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            'Find Verified Rentals',
-            style: VeriRentText.displaySmall.copyWith(
-              color: VeriRentColors.white,
-              fontFamily: 'Georgia',
-            ),
-          ),
+          // Text(
+          //   'Good morning, Charles 👋',
+          //   style: VeriRentText.bodySmall.copyWith(
+          //     color: VeriRentColors.white.withOpacity(0.7),
+          //   ),
+          // ),
+          // const SizedBox(height: 2),
+          HomeSearchBar(controller: _searchController, focusNode: _searchFocus),
         ],
       ),
     );

@@ -25,11 +25,11 @@ class SectionHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text(
-            title,
-            style: VeriRentText.headlineSmall.copyWith(color: cs.onSurface),
-          ),
-          const Spacer(),
+          // Text(
+          //   title,
+          //   style: VeriRentText.headlineSmall.copyWith(color: cs.onSurface),
+          // ),
+          // const Spacer(),
           if (onSeeAll != null)
             TextButton(
               onPressed: onSeeAll,
