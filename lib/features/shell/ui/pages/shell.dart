@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:verirent/features/shell/data/localRepo.dart';
 
 import '../../../home/ui/pages/home.dart';
 import '../../../home/ui/pages/home_screen.dart';
 import '../../../home/ui/pages/verirent_home.dart';
 import '../../../shell/ui/cubit/main_cubit.dart';
 import '../../../shell/ui/widgets/shell_custom_bottom_navbar.dart';
+
+final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
 class Main extends StatelessWidget {
   Main({super.key});
@@ -15,8 +18,8 @@ class Main extends StatelessWidget {
   final List<Widget> _mainScreens = [
     VeriRentApp(),
     HomeScreen(),
-    Home(),
-    Home(),
+    Home(scaffoldKey: scaffoldKey),
+    Home(scaffoldKey: scaffoldKey),
   ];
   // build
   @override
@@ -36,6 +39,8 @@ class Main extends StatelessWidget {
               : SystemUiOverlayStyle.light,
           child: Scaffold(
             resizeToAvoidBottomInset: false,
+            key: scaffoldKey,
+            endDrawer: NotificationDrawer(),
             body: Stack(
               children: [
                 //application stack

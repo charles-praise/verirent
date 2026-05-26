@@ -3,20 +3,26 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:verirent/core/theme/agents_theme.dart';
+import 'package:verirent/features/home/domain/use_case/home_featured_listing.dart';
+import 'package:verirent/features/home/domain/use_case/home_recent.dart';
 import 'package:verirent/features/home/ui/cubit/home_cubit.dart';
+import 'package:verirent/features/home/ui/widgets/home_section_header.dart';
 
 import '../widgets/home_custom_appbar.dart';
 
 class Home extends StatefulWidget {
-  const Home({super.key});
+  final GlobalKey<ScaffoldState> scaffoldKey;
+  const Home({super.key, required this.scaffoldKey});
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
+  final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocus = FocusNode();
+  bool _showCompactSearch = false;
 
   final _filters = ['All', 'Apartment', 'Duplex', 'Furnished', 'Corporate'];
   final _filterIcons = [
@@ -28,7 +34,22 @@ class _HomeState extends State<Home> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(() {
+      // Show compact search when first header (160px) has scrolled out
+      if (_scrollController.position.pixels >= 160 && !_showCompactSearch) {
+        setState(() => _showCompactSearch = true);
+      } else if (_scrollController.position.pixels < 160 &&
+          _showCompactSearch) {
+        setState(() => _showCompactSearch = false);
+      }
+    });
+  }
+
+  @override
   void dispose() {
+    _scrollController.dispose();
     _searchController.dispose();
     _searchFocus.dispose();
     super.dispose();
@@ -54,14 +75,37 @@ class _HomeState extends State<Home> {
             return CustomScrollView(
               slivers: [
                 // ── App bar ───────────────────────────────────────────────────────
-                SliverToBoxAdapter(child: HomeAppBar(topPadding: topPad)),
-
+                SliverToBoxAdapter(
+                  child: HomeAppBar(
+                    state: state,
+                    topPadding: topPad,
+                    scaffoldKey: widget.scaffoldKey,
+                  ),
+                ),
                 // ── Filters ─────────────────────────────────────────────
                 SliverToBoxAdapter(
                   child: _buildFilters(context: context, state: state),
                 ),
-                // ── Quick actions ─────────────────────────────────────────────────
-                // const SliverToBoxAdapter(child: QuickActionsGrid()),
+                // ── Featured Listing ─────────────────────────────────────────────────
+                SliverToBoxAdapter(child: FeaturedListingsHorizontalUseCase()),
+                // ── Recent Listing ─────────────────────────────────────────────────
+                SliverToBoxAdapter(
+                  child: SectionHeader(
+                    title: 'Recently Added',
+                    onSeeAll: () {},
+                  ),
+                ),
+                RecentListingUseCase(),
+                // ── Available Listing ─────────────────────────────────────────────────
+                SliverToBoxAdapter(
+                  child: SectionHeader(
+                    title: 'Available Listing',
+                    onSeeAll: () {},
+                  ),
+                ),
+                FeaturedListingsVerticalUseCase(),
+                // ── Extra Spacing  ─────────────────────────────────────────────────
+                SliverToBoxAdapter(child: const SizedBox(height: 80)),
               ],
             );
           },

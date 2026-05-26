@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:verirent/features/auth/ui/cubit/auth_cubit.dart';
+import 'package:verirent/features/auth/ui/pages/login.dart';
 
 import '../../features/home/ui/cubit/home_cubit.dart';
 import '../../features/home/ui/pages/home.dart';
@@ -11,8 +13,8 @@ import '../../features/shell/ui/pages/shell.dart';
 class _Route {
   static final String main = '/';
   static final String home = '/home';
-  static final String profile = '/profile';
-  static final String nowPlaying = '/nowPLaying';
+  static final String auth = '/auth';
+  static final String login = '/login';
 }
 
 abstract final class VeriRentRoute {
@@ -49,7 +51,7 @@ abstract final class VeriRentRoute {
         pageBuilder: (context, state) => CustomTransitionPage(
           child: BlocProvider(
             create: (context) => GetIt.instance<HomeCubit>(),
-            child: Home(),
+            child: Home(scaffoldKey: scaffoldKey),
           ),
           transitionsBuilder:
               (
@@ -61,6 +63,37 @@ abstract final class VeriRentRoute {
                 return FadeTransition(opacity: animation, child: child);
               },
         ),
+      ),
+
+      // Auth Route
+      GoRoute(
+        name: "Auth",
+        path: _Route.auth,
+        builder: (context, state) {
+          return SizedBox();
+        },
+        routes: [
+          // Login
+          GoRoute(
+            path: _Route.login,
+            name: "Login",
+            pageBuilder: (context, state) => CustomTransitionPage(
+              child: BlocProvider(
+                create: (context) => GetIt.instance<AuthCubit>(),
+                child: LoginPage(),
+              ),
+              transitionsBuilder:
+                  (
+                    BuildContext context,
+                    Animation<double> animation,
+                    Animation<double> secondaryAnimation,
+                    Widget child,
+                  ) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
+            ),
+          ),
+        ],
       ),
     ],
   );

@@ -11,23 +11,27 @@ class ShellCustomBottomNavbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //navigate
+    final isLight =
+        Theme.of(context).colorScheme.brightness == Brightness.light;
+
     void onTabTapped(int index) {
-      HapticFeedback.mediumImpact();
-      context.read<MainCubit>().navigate(index);
+      final currentIndex = context.read<MainCubit>().state.navigationIndex;
+      if (index != currentIndex) {
+        HapticFeedback.mediumImpact();
+        context.read<MainCubit>().navigate(index);
+      }
     }
 
-    // list of navigation items
-    final List<NavItem> _navItems = [
+    final List<NavItem> navItems = [
       NavItem(
-        icon: Icons.grid_view_outlined,
-        activeIcon: Icons.grid_view_rounded,
-        label: "Discover",
+        icon: Icons.explore_outlined,
+        activeIcon: Icons.explore_rounded,
+        label: 'Discover',
       ),
       NavItem(
-        icon: Icons.equalizer_outlined,
-        activeIcon: Icons.equalizer_rounded,
-        label: "Popular",
+        icon: Icons.trending_up_outlined,
+        activeIcon: Icons.trending_up_rounded,
+        label: 'Popular',
       ),
       NavItem(
         icon: Icons.bookmark_border_rounded,
@@ -43,79 +47,95 @@ class ShellCustomBottomNavbar extends StatelessWidget {
 
     return BlocBuilder<MainCubit, MainState>(
       builder: (context, state) {
-        return Container(
-          margin: const EdgeInsets.fromLTRB(20, 0, 20, 15),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.brightness == Brightness.light
-                ? VeriRentColors.primary500
-                : VeriRentColors.primary600,
-            borderRadius: BorderRadius.circular(VeriRentRadius.full),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(VeriRentRadius.full),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: List.generate(4, (index) {
-                  final item = _navItems[index];
-                  final isSelected = state.navigationIndex == index;
+        final activeColor = VeriRentColors.primary;
+        final inactiveColor = isLight
+            ? const Color(0xFF8E8E93)
+            : const Color(0xFF8E8E93);
 
-                  return GestureDetector(
-                    onTap: () => onTabTapped(index),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: Column(
-                        children: [
-                          Stack(
-                            children: [
-                              Positioned(
-                                top: 0,
-                                bottom: 0,
-                                right: 0,
-                                left: 0,
-                                child: Container(
-                                  height: double.maxFinite,
-                                  width: double.maxFinite,
-                                  decoration: BoxDecoration(
-                                    color: isSelected
-                                        ? VeriRentColors.primaryDim
-                                        : VeriRentColors.transparent,
-                                    borderRadius: BorderRadius.circular(
-                                      VeriRentRadius.xs,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Icon(
-                                isSelected ? item.activeIcon : item.icon,
-                                size: 30,
-                                color:
-                                    Theme.of(context).colorScheme.brightness ==
-                                        Brightness.light
-                                    ? isSelected
-                                          ? VeriRentColors.primary
-                                          : VeriRentColors.white
-                                    : isSelected
-                                    ? VeriRentColors.primary
-                                    : VeriRentColors.neutral200,
-                              ),
-                            ],
-                          ),
-                          Text(
-                            item.label,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: VeriRentColors.white,
+        return SafeArea(
+          top: false,
+          minimum: const EdgeInsets.only(bottom: 12),
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: 56,
+              margin: const EdgeInsets.symmetric(horizontal: 24),
+              decoration: BoxDecoration(
+                color: isLight
+                    ? Colors.white
+                    : const Color(0xFF1C1C1E).withOpacity(0.94),
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: [
+                  BoxShadow(
+                    color: isLight
+                        ? const Color(0xFF000000).withOpacity(0.08)
+                        : const Color(0xFF000000).withOpacity(0.25),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(28),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: List.generate(navItems.length, (index) {
+                      final item = navItems[index];
+                      final isSelected = state.navigationIndex == index;
+
+                      return Expanded(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => onTabTapped(index),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            curve: Curves.easeOutCubic,
+                            margin: const EdgeInsets.symmetric(
+                              vertical: 6,
+                              horizontal: 4,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? activeColor.withOpacity(0.12)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  isSelected ? item.activeIcon : item.icon,
+                                  size: 22,
+                                  color: isSelected
+                                      ? activeColor
+                                      : inactiveColor,
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  item.label,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.w500,
+                                    color: isSelected
+                                        ? activeColor
+                                        : inactiveColor,
+                                    letterSpacing: 0.2,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
                           ),
-                        ],
-                      ),
-                    ),
-                  );
-                }),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
               ),
             ),
           ),
@@ -124,9 +144,3 @@ class ShellCustomBottomNavbar extends StatelessWidget {
     );
   }
 }
-
-//     BackdropFilter(
-//         filter: ImageFilter.blur(
-//           sigmaX: VeriRentRadius.xl,
-//           sigmaY: VeriRentRadius.xl,
-//         ),

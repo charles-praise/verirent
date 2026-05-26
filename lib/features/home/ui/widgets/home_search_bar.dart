@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/agents_theme.dart';
 
-// ---------------------------------------------------------------------------
-//  Search bar
-// ---------------------------------------------------------------------------
-
 class HomeSearchBar extends StatefulWidget {
   const HomeSearchBar({
     super.key,
@@ -22,7 +18,7 @@ class HomeSearchBar extends StatefulWidget {
 
 class _HomeSearchBarState extends State<HomeSearchBar>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+  late final AnimationController _controller;
 
   @override
   void initState() {
@@ -30,6 +26,80 @@ class _HomeSearchBarState extends State<HomeSearchBar>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _showSearchFilter() {
+    widget.focusNode.unfocus();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      showDragHandle: false,
+      builder: (context) {
+        return FractionallySizedBox(
+          heightFactor: 0.50,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Filters',
+                          style: VeriRentText.titleMedium.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close_rounded),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1),
+                Expanded(
+                  child: DraggableScrollableSheet(
+                    initialChildSize: 1.0,
+                    minChildSize: 1.0,
+                    maxChildSize: 1.0,
+                    expand: true,
+                    builder: (context, scrollController) {
+                      return ListView.builder(
+                        controller: scrollController,
+                        itemCount: 5,
+                        itemBuilder: (context, index) {
+                          return const ListTile(
+                            title: Text("Charles the Greatest !!!"),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -44,9 +114,7 @@ class _HomeSearchBarState extends State<HomeSearchBar>
             controller: widget.controller,
             focusNode: widget.focusNode,
             style: VeriRentText.bodyMedium.copyWith(color: cs.onSurface),
-            onTapOutside: (value) {
-              widget.focusNode.unfocus();
-            },
+            onTapOutside: (_) => widget.focusNode.unfocus(),
             decoration: InputDecoration(
               hintText: 'Search by location, type…',
               prefixIcon: Icon(
@@ -54,7 +122,7 @@ class _HomeSearchBarState extends State<HomeSearchBar>
                 color: cs.onSurfaceVariant,
                 size: 20,
               ),
-              suffixIcon: ValueListenableBuilder(
+              suffixIcon: ValueListenableBuilder<TextEditingValue>(
                 valueListenable: widget.controller,
                 builder: (context, value, _) => value.text.isNotEmpty
                     ? GestureDetector(
@@ -89,18 +157,8 @@ class _HomeSearchBarState extends State<HomeSearchBar>
           ),
         ),
         const SizedBox(width: VeriRentSpacing.sm),
-
-        // Filter button
         GestureDetector(
-          onTap: () {
-            Scaffold.of(context).showBottomSheet(
-              (context) => _buildSearchFilter(context),
-              sheetAnimationStyle: AnimationStyle(
-                duration: Duration(milliseconds: 400),
-                reverseDuration: const Duration(milliseconds: 300),
-              ),
-            );
-          },
+          onTap: _showSearchFilter,
           child: Container(
             width: 48,
             height: 48,
@@ -113,28 +171,5 @@ class _HomeSearchBarState extends State<HomeSearchBar>
         ),
       ],
     );
-  }
-
-  dynamic _buildSearchFilter(BuildContext context) {
-    DraggableScrollableSheet(
-      builder: (BuildContext context, ScrollController scrollController) {
-        return AnimatedBuilder(
-          animation: scrollController,
-          builder: (BuildContext context, Widget? child) {
-            return Container(
-              child: ListView.builder(
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: const Text("Charles the Greatest !!!"),
-                  );
-                },
-                itemCount: 25,
-              ),
-            );
-          },
-        );
-      },
-    );
-    // _controller.forward();
   }
 }

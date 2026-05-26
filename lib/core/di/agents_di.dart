@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:verirent/features/auth/ui/cubit/auth_cubit.dart';
 
 import '../../features/home/ui/cubit/home_cubit.dart';
 import '../../features/shell/ui/cubit/main_cubit.dart';
@@ -11,4 +12,6 @@ Future<void> registerServices() async {
   _getIt.registerSingleton<MainCubit>(MainCubit());
   // HomeCubit
   _getIt.registerSingleton<HomeCubit>(HomeCubit());
+  //AuthCubit
+  _getIt.registerSingleton<AuthCubit>(AuthCubit());
 }

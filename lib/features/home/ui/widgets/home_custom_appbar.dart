@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/agents_theme.dart';
 import 'home_search_bar.dart';
 
 class HomeAppBar extends StatefulWidget {
-  const HomeAppBar({super.key, required this.topPadding});
+  final dynamic state;
+  final GlobalKey<ScaffoldState> scaffoldKey;
+  const HomeAppBar({
+    required this.state,
+    super.key,
+    required this.topPadding,
+    required this.scaffoldKey,
+  });
 
   final double topPadding;
 
@@ -36,6 +44,7 @@ class _HomeAppBarState extends State<HomeAppBar> {
       ),
       decoration: BoxDecoration(
         color: cs.primary,
+        boxShadow: [BoxShadow()],
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -77,14 +86,20 @@ class _HomeAppBarState extends State<HomeAppBar> {
               _AppBarIconButton(
                 icon: Icons.notifications_none_rounded,
                 badgeCount: 3,
-                onTap: () {},
+                onTap: () {
+                  widget.scaffoldKey.currentState!.isEndDrawerOpen
+                      ? widget.scaffoldKey.currentState!.closeEndDrawer()
+                      : widget.scaffoldKey.currentState!.openEndDrawer();
+                },
               ),
 
               const SizedBox(width: VeriRentSpacing.sm),
 
-              // Avatar
+              // User Avatar
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  context.push("/auth/login");
+                },
                 child: CircleAvatar(
                   radius: 18,
                   backgroundColor: VeriRentColors.secondary500,
@@ -109,6 +124,41 @@ class _HomeAppBarState extends State<HomeAppBar> {
           // ),
           // const SizedBox(height: 2),
           HomeSearchBar(controller: _searchController, focusNode: _searchFocus),
+
+          // const SizedBox(height: VeriRentSpacing.md),
+          //
+          // BlocBuilder<HomeCubit, HomeState>(
+          //   builder: (context, state) {
+          //     return SizedBox(
+          //       height: 50,
+          //       child: Row(
+          //         children: [
+          //           Expanded(
+          //             child: TabToggle(
+          //               label: 'Browse Homes',
+          //               active: state.activeIndex == 0,
+          //               onTap: () {
+          //                 context.read<HomeCubit>().activeIndex(0);
+          //               },
+          //             ),
+          //           ),
+          //           const SizedBox(width: 8),
+          //           Expanded(
+          //             child: TabToggle(
+          //               label: 'List Property',
+          //               active: state.activeIndex == 1,
+          //               onTap: () {
+          //                 context.read<HomeCubit>().activeIndex(1);
+          //               },
+          //             ),
+          //           ),
+          //         ],
+          //       ),
+          //     );
+          //   },
+          // ),
+          //
+          // const SizedBox(height: 5),
         ],
       ),
     );

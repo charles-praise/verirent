@@ -7,7 +7,7 @@ import '../../../../core/theme/agents_theme.dart';
 // ---------------------------------------------------------------------------
 
 class SectionHeader extends StatelessWidget {
-  const SectionHeader({required this.title, this.onSeeAll});
+  const SectionHeader({super.key, required this.title, this.onSeeAll});
 
   final String title;
   final VoidCallback? onSeeAll;
@@ -25,11 +25,11 @@ class SectionHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Text(
-          //   title,
-          //   style: VeriRentText.headlineSmall.copyWith(color: cs.onSurface),
-          // ),
-          // const Spacer(),
+          Text(
+            title,
+            style: VeriRentText.headlineSmall.copyWith(color: cs.onSurface),
+          ),
+          const Spacer(),
           if (onSeeAll != null)
             TextButton(
               onPressed: onSeeAll,
