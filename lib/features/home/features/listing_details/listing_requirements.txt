@@ -1,0 +1,350 @@
+# VeriRent NG — Property Listing Requirements & Information Standards
+
+## Essential Information for Property Advertisements
+
+### 1. RESIDENTIAL PROPERTIES (House, Apartment, Duplex, Flat, Bungalow)
+
+#### Core Information
+- **Property Type**: House / Apartment / Duplex / Flat / Bungalow / Maisonette / Terrace
+- **Listing Type**: For Rent / For Sale
+- **Price**:
+  - Rent: Annual amount (₦)
+  - Sale: Full amount (₦)
+  - Payment terms (lump sum, installments, etc.)
+- **Location**:
+  - Full street address
+  - Area/District (e.g., GRA Phase 2, Trans Amadi)
+  - LGA
+  - State
+  - GPS coordinates (optional but valuable)
+
+#### Physical Specifications
+- **Bedrooms**: Number (1BR, 2BR, 3BR, etc.)
+- **Bathrooms**: Number
+- **Toilets**: Number (if separate)
+- **Living Spaces**:
+  - Living room(s)
+  - Dining room
+  - Kitchen (fitted/unfitted)
+  - Study/Office
+  - Guest room
+- **Area/Size**: Square meters (sqm) or plot size
+- **Condition**: New / Recently Renovated / Good / Needs Renovation
+- **Building Age**: Year built / Age of property
+
+#### Amenities & Features
+- **Furnishing**: Unfurnished / Part Furnished / Fully Furnished
+- **Water Supply**: Borehole / Public supply / Both / Water tank
+- **Power Supply**: NEPA / Generator / Solar / All
+- **Air Conditioning**: Central AC / Split units / None
+- **Parking**: Carport / Garage / Street parking / Number of spaces
+- **Garden/Outdoor**: Garden / Balcony / Patio / Terrace
+- **Security Features**: Fenced / Gated / Security guards / CCTV / Alarm system
+- **Additional Features**:
+  - Swimming pool
+  - Gym/Fitness center
+  - Laundry room
+  - Storage room
+  - Servant quarters
+  - Maid's room
+  - Store/Shop space
+
+#### Documentation & Legal
+- **Title Document Status**:
+  - Certified deed / Government certificate / Lease document
+  - Land use certificate
+  - Survey plan reference
+- **Registered/Verified**: Yes/No with certification level
+- **Building Compliance**: Building approval / Completion certificate
+- **Years Left on Lease** (if leasehold)
+
+#### Neighborhood Information
+- **Nearby Facilities**:
+  - Schools (primary, secondary, university)
+  - Hospitals/Clinics
+  - Shopping centers
+  - Markets
+  - Banks
+  - Place of worship
+  - Recreational facilities
+- **Transportation**: Distance to main roads, public transport access
+- **Security Rating**: Area crime rate perception
+
+#### Listing Details
+- **Agency/Owner Details**:
+  - Name
+  - License/Verification status
+  - Contact phone
+  - Email
+  - Office address
+  - Years in business
+  - Rating/Reviews
+- **Listing Date**: When property was listed
+- **Property Images**: Minimum 8-12 high-quality photos
+  - Exterior views (front, side, back)
+  - Living areas
+  - Bedrooms
+  - Bathrooms
+  - Kitchen
+  - Amenities
+  - Neighborhood
+- **Virtual Tour**: 360° photos or video tour
+- **Description**: Professional summary highlighting key features
+- **Inspection Availability**: Appointment booking system
+
+---
+
+### 2. LAND & PLOTS
+
+#### Essential Information
+- **Plot Size**:
+  - Dimensions (e.g., 100ft × 250ft)
+  - Total area in sqm
+  - Acreage (for larger plots)
+- **Land Use**: Residential / Commercial / Industrial / Mixed-use
+- **Location**:
+  - Area name
+  - Estate name (if applicable)
+  - Access road
+  - Proximity to major landmarks
+  - GPS coordinates
+- **Price**: Total amount or per sqm price
+- **Payment Terms**: Installment options, deposit requirements
+- **Documentation**:
+  - Survey plan number
+  - Land registry reference
+  - Proof of ownership
+  - C of O or Deed
+  - Boundary demarcation status
+- **Property Status**:
+  - Undeveloped/Bare
+  - Partially developed
+  - Fenced
+  - Accessible by road
+  - Street frontage
+- **Utilities Available**:
+  - Electricity poles
+  - Water line
+  - Drainage
+  - Tarred road
+- **Zoning Information**:
+  - Development restrictions
+  - Building limitations
+  - Commercial allowance
+  - Height restrictions
+- **Neighborhood Amenities**:
+  - Proximity to schools
+  - Healthcare facilities
+  - Market/shops
+  - Security features
+  - Road network
+- **Investment Potential**:
+  - Appreciation history
+  - Development plans in area
+  - Infrastructure projects nearby
+- **Images**:
+  - Aerial/drone shots
+  - Boundary markers
+  - Surrounding area
+  - Access roads
+  - Utility poles/infrastructure
+
+---
+
+### 3. OFFICE SPACE & COMMERCIAL
+
+#### Essential Information
+- **Property Type**: Office / Shop / Warehouse / Co-working space
+- **Location**:
+  - Building address
+  - Floor/Suite number
+  - CBD/District name
+  - Accessibility via major roads
+- **Space Details**:
+  - Total area (sqm)
+  - Floor area
+  - Number of rooms/offices
+  - Open plan vs. partitioned
+  - Ceiling height (for warehouses)
+- **Price**:
+  - Monthly/Annual rent
+  - Per sqm rate
+  - Service charges included
+  - Security deposit terms
+- **Amenities**:
+  - Parking spaces (number)
+  - HVAC/Climate control
+  - Disabled access
+  - Elevator/Lift
+  - Rest rooms (gender-specific)
+  - Kitchen/Pantry
+  - Conference room
+  - Lounge areas
+  - Reception
+- **Utilities & Services**:
+  - 24-hour power supply
+  - Backup generator
+  - High-speed internet
+  - Water supply
+  - Air conditioning
+  - Fire safety systems
+  - Security system
+- **Lease Terms**:
+  - Minimum lease period
+  - Renewal options
+  - Lock-in period
+  - Escalation clause
+  - Early termination clause
+- **Building Features**:
+  - Security (24/7 guard, CCTV)
+  - Building age/renovation date
+  - Maintenance quality
+  - Pest control
+  - Waste management
+- **Neighborhood**:
+  - Proximity to clients/suppliers
+  - Public transport access
+  - Restaurants/Cafes nearby
+  - Banks/ATM
+  - Hotel accommodations
+  - Parking availability in area
+- **Compliance**:
+  - Building certificate
+  - Fire safety certification
+  - Health & safety compliance
+- **Images**:
+  - Interior spaces
+  - Workstations
+  - Conference rooms
+  - Amenities
+  - Parking
+  - Building exterior
+  - Location context
+
+---
+
+### 4. RESIDENTIAL ESTATES & DEVELOPMENTS
+
+#### Essential Information
+- **Estate Name & Developer**: Official registered name and developer details
+- **Location**: LGA, State, proximity to major areas
+- **Total Area**: Acreage / hectares
+- **Number of Plots**: Total plots and status breakdown
+- **Plot Sizes**: Available plot sizes (100ft × 100ft, etc.)
+- **Development Status**:
+  - Ongoing / Completed / Planned
+  - Percentage completion
+  - Timeline for completion
+- **Infrastructure & Amenities**:
+  - Perimeter fence/wall status
+  - Road network (tarred/untarred)
+  - Street lights
+  - Water supply system
+  - Power supply (poles/transformers)
+  - Drainage system
+  - Waste management
+  - Security features
+  - Gate/Guard house
+  - Recreational areas
+  - Parks/gardens
+  - Playground
+  - Sports facilities
+  - Community center
+- **Utilities**:
+  - Electricity availability
+  - Water supply type
+  - Internet/Fiber optic
+  - Waste disposal system
+- **Documentation**:
+  - Land title/C of O
+  - Government approval
+  - Building plan certification
+  - Environmental impact assessment
+  - Survey plan
+  - Master layout plan
+- **Pricing**:
+  - Cost per plot
+  - Payment terms
+  - Deposit required
+  - Discount (early bird, bulk purchase)
+  - Administrative charges
+- **Legal Status**:
+  - Registered with authorities
+  - Legitimacy verification
+  - Dispute status
+  - Tax compliance
+- **Neighborhood Context**:
+  - Proximity to schools
+  - Healthcare facilities
+  - Shopping centers
+  - Transportation hubs
+  - Workplaces/CBD
+  - Planned developments nearby
+- **Developer Information**:
+  - Company registration
+  - Track record
+  - Previous projects
+  - Contact details
+  - Physical office address
+  - License verification
+- **Images & Documentation**:
+  - Aerial/drone photos
+  - Master plan diagram
+  - Layout plan
+  - Infrastructure photos
+  - Developer profile
+  - Certificate of occupancy/approval
+  - Testimonials from residents
+
+---
+
+## Additional Professional Standards
+
+### Photography Standards
+- Minimum 10-15 high-quality images per property
+- Professional lighting (natural light preferred)
+- Multiple angles of each major space
+- Neighborhood context shots
+- Clear, uncluttered composition
+- Consistent color grading
+- Current/recent photos (within 30 days)
+
+### Description Guidelines
+- Professional tone, 150-300 words
+- Highlight unique selling points
+- Specific amenities and features
+- Location benefits
+- Target audience identification
+- Call-to-action
+
+### Verification Badges
+- ESVARBON Agency verification
+- Individual verified status
+- Property verification (document status)
+- Years in business
+- Client ratings
+- Transaction history
+
+### Legal Compliance
+- Accurate pricing (no hidden charges disclosure)
+- Legal document confirmation
+- Clear lease/sale terms
+- Dispute history (if any)
+- Landlord/Owner consent confirmation
+
+---
+
+## VeriRent NG Quality Standards
+
+All properties on VeriRent NG must meet the following:
+1. **Agent/Owner Verification**: KYC completed
+2. **Property Documentation**: Proof of ownership/authorization
+3. **Accurate Information**: Price, size, amenities verified
+4. **Professional Presentation**: Quality images and descriptions
+5. **Contact Verification**: Active phone number and response time
+6. **Regular Updates**: Re-listed every 30 days or marked unavailable
+7. **Customer Reviews**: Available for completed transactions
+
+---
+
+*Version 1.0.0 | May 2026 | Nixel Technology Global*

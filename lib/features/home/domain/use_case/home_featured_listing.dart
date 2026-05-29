@@ -5,13 +5,15 @@ import '../../../../core/theme/agents_theme.dart';
 import '../../data/local_repo.dart';
 import '../../ui/widgets/home_featured_list.dart';
 
+// ── Featured Listing  UseCase ─────────────────────────────────────────────────────────────────
+
 class FeaturedListingsHorizontalUseCase extends StatelessWidget {
   const FeaturedListingsHorizontalUseCase({super.key});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 230,
+      height: 270,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: VeriRentSpacing.base),
@@ -22,6 +24,8 @@ class FeaturedListingsHorizontalUseCase extends StatelessWidget {
     );
   }
 }
+
+// ── Available Listing UseCase ─────────────────────────────────────────────────────────────────
 
 class FeaturedListingsVerticalUseCase extends StatelessWidget {
   const FeaturedListingsVerticalUseCase({super.key});

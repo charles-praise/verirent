@@ -39,9 +39,9 @@ class ShellCustomBottomNavbar extends StatelessWidget {
         label: 'Saved',
       ),
       NavItem(
-        icon: Icons.person_outline_rounded,
-        activeIcon: Icons.person_rounded,
-        label: 'Profile',
+        icon: Icons.settings_outlined,
+        activeIcon: Icons.settings,
+        label: 'Settings',
       ),
     ];
 

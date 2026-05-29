@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 class ListingCard {
   const ListingCard({
+    this.reviewCount = 0,
+    this.areaSqm = "2",
+    this.propertyType = "House",
     required this.title,
     required this.location,
     required this.price,
@@ -12,8 +15,16 @@ class ListingCard {
     required this.tierColor,
     required this.isVerified,
     required this.emoji, // placeholder for image
+    this.rating,
+    this.agentAvatarUrl,
+    this.agentInitials,
   });
-
+  final double reviewCount;
+  final String areaSqm;
+  final String propertyType;
+  final String? agentInitials;
+  final String? agentAvatarUrl;
+  final int? rating;
   final String title;
   final String location;
   final String price;

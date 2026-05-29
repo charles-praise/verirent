@@ -130,6 +130,7 @@ abstract final class VeriRentText {
     fontWeight: FontWeight.w700,
     letterSpacing: -0.5,
     height: 1.15,
+    overflow: TextOverflow.ellipsis,
   );
 
   static const TextStyle displayMedium = TextStyle(
@@ -138,6 +139,7 @@ abstract final class VeriRentText {
     fontWeight: FontWeight.w700,
     letterSpacing: -0.3,
     height: 1.2,
+    overflow: TextOverflow.ellipsis,
   );
 
   static const TextStyle displaySmall = TextStyle(
@@ -146,6 +148,7 @@ abstract final class VeriRentText {
     fontWeight: FontWeight.w600,
     letterSpacing: -0.2,
     height: 1.25,
+    overflow: TextOverflow.ellipsis,
   );
 
   // Headline — section titles, card headers
@@ -154,6 +157,7 @@ abstract final class VeriRentText {
     fontWeight: FontWeight.w700,
     letterSpacing: -0.1,
     height: 1.3,
+    overflow: TextOverflow.ellipsis,
   );
 
   static const TextStyle headlineMedium = TextStyle(
@@ -161,6 +165,7 @@ abstract final class VeriRentText {
     fontWeight: FontWeight.w600,
     letterSpacing: 0,
     height: 1.35,
+    overflow: TextOverflow.ellipsis,
   );
 
   static const TextStyle headlineSmall = TextStyle(
@@ -168,6 +173,7 @@ abstract final class VeriRentText {
     fontWeight: FontWeight.w600,
     letterSpacing: 0,
     height: 1.4,
+    overflow: TextOverflow.ellipsis,
   );
 
   // Title — list items, app bars, dialog titles
@@ -176,6 +182,7 @@ abstract final class VeriRentText {
     fontWeight: FontWeight.w600,
     letterSpacing: 0.1,
     height: 1.4,
+    overflow: TextOverflow.ellipsis,
   );
 
   static const TextStyle titleMedium = TextStyle(
@@ -183,6 +190,7 @@ abstract final class VeriRentText {
     fontWeight: FontWeight.w600,
     letterSpacing: 0.1,
     height: 1.45,
+    overflow: TextOverflow.ellipsis,
   );
 
   static const TextStyle titleSmall = TextStyle(
@@ -190,6 +198,7 @@ abstract final class VeriRentText {
     fontWeight: FontWeight.w600,
     letterSpacing: 0.1,
     height: 1.45,
+    overflow: TextOverflow.ellipsis,
   );
 
   // Body — paragraph text, descriptions
@@ -205,6 +214,7 @@ abstract final class VeriRentText {
     fontWeight: FontWeight.w400,
     letterSpacing: 0.1,
     height: 1.55,
+    overflow: TextOverflow.ellipsis,
   );
 
   static const TextStyle bodySmall = TextStyle(
@@ -212,6 +222,7 @@ abstract final class VeriRentText {
     fontWeight: FontWeight.w400,
     letterSpacing: 0.15,
     height: 1.5,
+    overflow: TextOverflow.ellipsis,
   );
 
   // Label — buttons, tags, caps text, chips
@@ -220,6 +231,7 @@ abstract final class VeriRentText {
     fontWeight: FontWeight.w600,
     letterSpacing: 0.4,
     height: 1.4,
+    overflow: TextOverflow.ellipsis,
   );
 
   static const TextStyle labelMedium = TextStyle(
@@ -227,6 +239,7 @@ abstract final class VeriRentText {
     fontWeight: FontWeight.w600,
     letterSpacing: 0.4,
     height: 1.4,
+    overflow: TextOverflow.ellipsis,
   );
 
   static const TextStyle labelSmall = TextStyle(
@@ -234,6 +247,7 @@ abstract final class VeriRentText {
     fontWeight: FontWeight.w700,
     letterSpacing: 0.8,
     height: 1.3,
+    overflow: TextOverflow.ellipsis,
   );
 }
 

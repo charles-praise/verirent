@@ -4,6 +4,7 @@ import '../../../../core/theme/agents_theme.dart';
 import '../../data/local_repo.dart';
 import '../../ui/widgets/home_recent_listing.dart';
 
+// ── Recently Added Use Case ─────────────────────────────────────────────────────────────────
 class RecentListingUseCase extends StatelessWidget {
   const RecentListingUseCase({super.key});
 

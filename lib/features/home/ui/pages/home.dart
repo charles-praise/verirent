@@ -7,22 +7,21 @@ import 'package:verirent/features/home/domain/use_case/home_featured_listing.dar
 import 'package:verirent/features/home/domain/use_case/home_recent.dart';
 import 'package:verirent/features/home/ui/cubit/home_cubit.dart';
 import 'package:verirent/features/home/ui/widgets/home_section_header.dart';
+import 'package:verirent/features/shell/ui/pages/shell.dart';
 
 import '../widgets/home_custom_appbar.dart';
+import '../widgets/home_filter.dart';
 
 class Home extends StatefulWidget {
-  final GlobalKey<ScaffoldState> scaffoldKey;
-  const Home({super.key, required this.scaffoldKey});
+  const Home({super.key, required GlobalKey<ScaffoldState> scaffoldKey});
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocus = FocusNode();
-  bool _showCompactSearch = false;
 
   final _filters = ['All', 'Apartment', 'Duplex', 'Furnished', 'Corporate'];
   final _filterIcons = [
@@ -34,22 +33,7 @@ class _HomeState extends State<Home> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(() {
-      // Show compact search when first header (160px) has scrolled out
-      if (_scrollController.position.pixels >= 160 && !_showCompactSearch) {
-        setState(() => _showCompactSearch = true);
-      } else if (_scrollController.position.pixels < 160 &&
-          _showCompactSearch) {
-        setState(() => _showCompactSearch = false);
-      }
-    });
-  }
-
-  @override
   void dispose() {
-    _scrollController.dispose();
     _searchController.dispose();
     _searchFocus.dispose();
     super.dispose();
@@ -58,37 +42,50 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-
-    final topPad = MediaQuery.of(context).padding.top;
+    final topPad = MediaQuery.paddingOf(context).top;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: cs.brightness == Brightness.light
           ? SystemUiOverlayStyle.dark
           : SystemUiOverlayStyle.light,
       child: BlocProvider(
-        create: (context) => GetIt.instance<HomeCubit>(),
+        create: (_) => GetIt.instance<HomeCubit>(),
         child: BlocConsumer<HomeCubit, HomeState>(
-          listener: (context, state) {
-            // TODO: implement listener
-          },
+          listener: (_, _) {},
           builder: (context, state) {
             return CustomScrollView(
               slivers: [
-                // ── App bar ───────────────────────────────────────────────────────
-                SliverToBoxAdapter(
-                  child: HomeAppBar(
-                    state: state,
+                // ── Persistent App bar ─────────────────────────────
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: HomeAppBar(
+                    context: context,
                     topPadding: topPad,
-                    scaffoldKey: widget.scaffoldKey,
+                    scaffoldKey: scaffoldKey,
+                    focusNode: _searchFocus,
+                    controller: _searchController,
                   ),
                 ),
-                // ── Filters ─────────────────────────────────────────────
+
+                // ── STICKY: Search + Filter bar + App bar (scrolls away) ────────────────────────
                 SliverToBoxAdapter(
-                  child: _buildFilters(context: context, state: state),
+                  child: SearchFilter(
+                    filters: _filters,
+                    filterIcons: _filterIcons,
+                    activeIndex: state.activeIndex,
+                    onFilterTap: (i) {
+                      HapticFeedback.lightImpact();
+                      context.read<HomeCubit>().activeIndex(i);
+                    },
+                  ),
                 ),
-                // ── Featured Listing ─────────────────────────────────────────────────
-                SliverToBoxAdapter(child: FeaturedListingsHorizontalUseCase()),
-                // ── Recent Listing ─────────────────────────────────────────────────
+
+                // ── Featured Listing ───────────────────────────────────
+                const SliverToBoxAdapter(
+                  child: FeaturedListingsHorizontalUseCase(),
+                ),
+
+                // ── Recently Added ─────────────────────────────────────
                 SliverToBoxAdapter(
                   child: SectionHeader(
                     title: 'Recently Added',
@@ -96,7 +93,11 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 RecentListingUseCase(),
-                // ── Available Listing ─────────────────────────────────────────────────
+
+                // ── Agency Banner ───────────────────────────────────────
+                SliverToBoxAdapter(child: _buildAgencyBanner()),
+
+                // ── Available Listing ──────────────────────────────────
                 SliverToBoxAdapter(
                   child: SectionHeader(
                     title: 'Available Listing',
@@ -104,8 +105,9 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 FeaturedListingsVerticalUseCase(),
-                // ── Extra Spacing  ─────────────────────────────────────────────────
-                SliverToBoxAdapter(child: const SizedBox(height: 80)),
+
+                // ── Bottom spacing ─────────────────────────────────────
+                const SliverToBoxAdapter(child: SizedBox(height: 80)),
               ],
             );
           },
@@ -114,68 +116,77 @@ class _HomeState extends State<Home> {
     );
   }
 
-  // ── Filters ───────────────────────────────────────────────────────────────
-  Widget _buildFilters({
-    required BuildContext context,
-    required dynamic state,
-  }) => Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: SizedBox(
-      height: 46,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-        itemCount: _filters.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 8),
-        itemBuilder: (ctx, i) {
-          final active = i == state.activeIndex;
-          return GestureDetector(
-            onTap: () {
-              HapticFeedback.lightImpact();
-              context.read<HomeCubit>().activeIndex(i);
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: active
-                    ? VeriRentColors.primaryDim
-                    : Theme.of(context).colorScheme.brightness ==
-                          Brightness.light
-                    ? VeriRentColors.white
-                    : VeriRentColors.surface2,
-                border: Border.all(
-                  color: active
-                      ? VeriRentColors.primary
-                      : VeriRentColors.border,
+  // ── Agency Banner ─────────────────────────────────────────────────────────
+  Widget _buildAgencyBanner() => Padding(
+    padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+    child: Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border.all(
+          color: Theme.of(context).colorScheme.brightness == Brightness.light
+              ? VeriRentColors.primary.withOpacity(0.35)
+              : Theme.of(context).colorScheme.outlineVariant,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.shadow.withOpacity(0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: VeriRentColors.goldDim,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.verified_rounded,
+              color: VeriRentColors.gold,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Are you an agency?', style: VeriRentText.labelMedium),
+                Text(
+                  'Get ESVARBON-certified & join the platform',
+                  style: VeriRentText.labelMedium,
                 ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () {},
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+              decoration: BoxDecoration(
+                color: VeriRentColors.gold,
                 borderRadius: BorderRadius.circular(100),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    _filterIcons[i],
-                    size: VeriRentSpacing.md,
-                    color: active
-                        ? VeriRentColors.primary
-                        : VeriRentColors.textMuted,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    _filters[i],
-                    style: TextStyle(
-                      fontSize: VeriRentSpacing.md,
-                      color: active
-                          ? VeriRentColors.primary
-                          : VeriRentColors.textMuted,
-                    ),
-                  ),
-                ],
+              child: Text(
+                'Apply',
+                style: VeriRentText.labelMedium.copyWith(
+                  color:
+                      Theme.of(context).colorScheme.brightness ==
+                          Brightness.light
+                      ? VeriRentColors.white
+                      : VeriRentColors.black,
+                ),
               ),
             ),
-          );
-        },
+          ),
+        ],
       ),
     ),
   );
