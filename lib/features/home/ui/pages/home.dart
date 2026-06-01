@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -21,6 +22,8 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final ValueNotifier<bool> _isVisible = ValueNotifier<bool>(true);
   final FocusNode _searchFocus = FocusNode();
 
   final _filters = ['All', 'Apartment', 'Duplex', 'Furnished', 'Corporate'];
@@ -32,8 +35,29 @@ class _HomeState extends State<Home> {
     Icons.business_center_rounded,
   ];
 
+  void _listenToScroll() {
+    final direction = _scrollController.position.userScrollDirection;
+
+    if (direction == ScrollDirection.reverse) {
+      if (_isVisible.value) {
+        _isVisible.value = false;
+      }
+    } else if (direction == ScrollDirection.forward) {
+      if (!_isVisible.value) {
+        _isVisible.value = true;
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_listenToScroll);
+  }
+
   @override
   void dispose() {
+    _scrollController.dispose();
     _searchController.dispose();
     _searchFocus.dispose();
     super.dispose();
@@ -54,6 +78,7 @@ class _HomeState extends State<Home> {
           listener: (_, _) {},
           builder: (context, state) {
             return CustomScrollView(
+              controller: _scrollController,
               slivers: [
                 // ── Persistent App bar ─────────────────────────────
                 SliverPersistentHeader(
@@ -67,16 +92,26 @@ class _HomeState extends State<Home> {
                   ),
                 ),
 
-                // ── STICKY: Search + Filter bar + App bar (scrolls away) ────────────────────────
+                // ── Search filter ────────────────────────
                 SliverToBoxAdapter(
-                  child: SearchFilter(
-                    filters: _filters,
-                    filterIcons: _filterIcons,
-                    activeIndex: state.activeIndex,
-                    onFilterTap: (i) {
-                      HapticFeedback.lightImpact();
-                      context.read<HomeCubit>().activeIndex(i);
-                    },
+                  child: ValueListenableBuilder<bool>(
+                    valueListenable: _isVisible,
+                    builder:
+                        (BuildContext context, bool visible, Widget? child) {
+                          return AnimatedOpacity(
+                            duration: const Duration(milliseconds: 250),
+                            opacity: visible ? 1.0 : 0.0,
+                            child: SearchFilter(
+                              filters: _filters,
+                              filterIcons: _filterIcons,
+                              activeIndex: state.activeIndex,
+                              onFilterTap: (i) {
+                                HapticFeedback.lightImpact();
+                                context.read<HomeCubit>().activeIndex(i);
+                              },
+                            ),
+                          );
+                        },
                   ),
                 ),
 

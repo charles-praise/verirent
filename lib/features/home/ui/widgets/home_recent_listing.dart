@@ -1,21 +1,63 @@
+// TODO: Implement the following
+//
+// Widget buildPropertyCard(PropertyModel property) {
+//   switch (property.category) {
+//     case PropertyCategory.land:
+//       return LandCard(property);
+//
+//     case PropertyCategory.commercial:
+//       return CommercialCard(property);
+//
+//     case PropertyCategory.estate:
+//       return EstateCard(property);
+//
+//     case PropertyCategory.shortlet:
+//       return ShortletCard(property);
+//
+//     case PropertyCategory.residential:
+//     default:
+//       return ResidentialCard(property);
+//   }
+// }
+//
+// | Property Type   | Card Style               |
+// | --------------- | ------------------------ |
+// | Apartment       | Residential Card         |
+// | Duplex          | Residential Card         |
+// | House           | Residential Card         |
+// | Penthouse       | Premium Residential Card |
+// | Land            | Land Card                |
+// | Farm Land       | Land Card                |
+// | Commercial Plot | Land Card                |
+// | Office          | Commercial Card          |
+// | Shop            | Commercial Card          |
+// | Plaza           | Commercial Card          |
+// | Mall            | Commercial Card          |
+// | Estate          | Estate Card              |
+// | Shortlet        | Airbnb Card              |
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
 
 import '../../../../core/theme/agents_theme.dart';
-import '../../domain/entities/home_listing_card.dart';
+import '../../domain/entities/property_model.dart';
 import 'home_room_chip.dart';
 import 'home_tier_badge.dart';
 
 class RecentListingCard extends StatelessWidget {
   const RecentListingCard({super.key, required this.card});
 
-  final ListingCard card;
+  final PropertyModel card;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        context.push("/listing_details", extra: card);
+      },
       child: Container(
         height: 100,
         decoration: BoxDecoration(
@@ -33,20 +75,13 @@ class RecentListingCard extends StatelessWidget {
         child: Row(
           children: [
             // Thumbnail
-            Container(
+            SizedBox(
               width: 90,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [cs.primaryContainer, cs.secondaryContainer],
-                ),
+              child: CustomNetworkImage(
+                imgUrl: card.imageUrls.first,
                 borderRadius: const BorderRadius.horizontal(
                   left: Radius.circular(VeriRentRadius.lg),
                 ),
-              ),
-              child: Center(
-                child: Text(card.emoji, style: const TextStyle(fontSize: 32)),
               ),
             ),
 

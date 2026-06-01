@@ -1,5 +1,9 @@
 import 'package:get_it/get_it.dart';
+import 'package:verirent/core/shared/location/ui/cubit/location_dropdown_cubit.dart';
 import 'package:verirent/features/auth/ui/cubit/auth_cubit.dart';
+import 'package:verirent/features/home/features/listing_details/ui/cubit/listing_details_cubit.dart';
+import 'package:verirent/features/message/ui/cubit/message_cubit.dart';
+import 'package:verirent/features/saved/ui/cubit/saved_cubit.dart';
 import 'package:verirent/features/search/ui/cubit/search_cubit.dart';
 import 'package:verirent/features/settings/ui/cubit/settings_cubit.dart';
 
@@ -21,6 +25,14 @@ Future<void> registerServices() async {
   _getIt.registerSingleton<SearchCubit>(SearchCubit());
   // ProfileCubit
   _getIt.registerSingleton<ProfileCubit>(ProfileCubit());
-  // Settings
+  // Settings Cubit
   _getIt.registerSingleton<SettingsCubit>(SettingsCubit());
+  //Details Cubit
+  _getIt.registerSingleton<ListingDetailsCubit>(ListingDetailsCubit());
+  // Messages Cubit
+  _getIt.registerSingleton<MessagesCubit>(MessagesCubit());
+  // Location Cubit
+  _getIt.registerSingleton<LocationDropdownCubit>(LocationDropdownCubit());
+  // Saved Cubit
+  _getIt.registerSingleton<SavedCubit>(SavedCubit());
 }

@@ -11,8 +11,8 @@ class RecentListingUseCase extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, i) => Padding(
+      delegate: SliverChildBuilderDelegate((context, i) {
+        return Padding(
           padding: const EdgeInsets.fromLTRB(
             VeriRentSpacing.base,
             0,
@@ -20,9 +20,8 @@ class RecentListingUseCase extends StatelessWidget {
             VeriRentSpacing.sm,
           ),
           child: RecentListingCard(card: kRecent[i]),
-        ),
-        childCount: kRecent.length,
-      ),
+        );
+      }, childCount: 3),
     );
   }
 }

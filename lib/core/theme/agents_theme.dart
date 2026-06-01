@@ -32,12 +32,12 @@ abstract final class VeriRentColors {
   static const Color primary700 = Color(0xFF005D69);
   static const Color primary800 = Color(0xFF004D57);
   static const Color primary900 = Color(0xFF003640);
-  static const bg = Color(0xFF07090F); // --bg
-  static const surface = Color(0xFF0F1420); // --surface
-  static const surface2 = Color(0xFF161C2D); // --surface2
-  static const surface3 = Color(0xFF1C2540); // --surface3
+  static const bg = Color(0xFF0B1120);
+  static const surface = Color(0xFF111827);
+  static const surface2 = Color(0xFF1F2937);
+  static const surface3 = Color(0xFF374151);
   static const border = Color(0x12FFFFFF); // --border
-  static const primary = Color(0xFF00C9A7); // --primary
+  static const Color primary = Color(0xFF0F766E);
   static const primaryDim = Color(0x1F00C9A7); // --primary-dim
   static const primaryGlow = Color(0x5900C9A7); // --primary-glow
   static const gold = Color(0xFFF0C060); // --gold
@@ -104,12 +104,13 @@ abstract final class VeriRentColors {
 
   // ── Trust Tier Badge Colors ──────────────────────────────────────────────
   // Visual identity for each verification tier.
-  static const Color tierBasic = Color(0xFF90A4AE); // slate grey
-  static const Color tierVerified = Color(0xFF3AADBB); // teal (primary400)
-  static const Color tierPro = Color(0xFFC9A84C); // gold
-  static const Color tierStarterAgency = Color(0xFF2E7D32); // green
-  static const Color tierProfessional = Color(0xFF0D47A1); // deep blue
-  static const Color tierEnterprise = Color(0xFF4A148C); // deep purple
+  static const Color tierBasic = Color(0xFFB0BEC5); // Silver
+  static const Color tierVerified = Color(0xFF4DD0E1); // Aqua
+  static const Color tierPro = Color(0xFFFFCA28); // Rich Gold
+
+  static const Color tierStarterAgency = Color(0xFF81C784); // Emerald
+  static const Color tierProfessional = Color(0xFF64B5F6); // Sapphire
+  static const Color tierEnterprise = Color(0xFFE1BEE7); // Lavender Platinum
 
   // ── Absolute ─────────────────────────────────────────────────────────────
   static const Color white = Color(0xFFFFFFFF);
@@ -125,7 +126,7 @@ abstract final class VeriRentColors {
 abstract final class VeriRentText {
   // Display — hero section headings, splash screen
   static const TextStyle displayLarge = TextStyle(
-    fontFamily: 'Georgia', // serif for trust/authority feel
+    fontFamily: 'Inter', // serif for trust/authority feel
     fontSize: 40,
     fontWeight: FontWeight.w700,
     letterSpacing: -0.5,
@@ -134,7 +135,7 @@ abstract final class VeriRentText {
   );
 
   static const TextStyle displayMedium = TextStyle(
-    fontFamily: 'Georgia',
+    fontFamily: 'Inter',
     fontSize: 32,
     fontWeight: FontWeight.w700,
     letterSpacing: -0.3,
@@ -143,7 +144,7 @@ abstract final class VeriRentText {
   );
 
   static const TextStyle displaySmall = TextStyle(
-    fontFamily: 'Georgia',
+    fontFamily: 'Inter',
     fontSize: 26,
     fontWeight: FontWeight.w600,
     letterSpacing: -0.2,

@@ -29,9 +29,9 @@ class ShellCustomBottomNavbar extends StatelessWidget {
         label: 'Discover',
       ),
       NavItem(
-        icon: Icons.trending_up_outlined,
-        activeIcon: Icons.trending_up_rounded,
-        label: 'Popular',
+        icon: Icons.messenger_outline_outlined,
+        activeIcon: Icons.messenger,
+        label: 'Message',
       ),
       NavItem(
         icon: Icons.bookmark_border_rounded,

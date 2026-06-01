@@ -49,25 +49,25 @@ class _SettingsPageState extends State<SettingsPage> {
                 padding: EdgeInsets.fromLTRB(16, topPad + 12, 16, 12),
                 child: Row(
                   children: [
-                    GestureDetector(
-                      onTap: () => Navigator.maybePop(context),
-                      child: Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: cs.surfaceVariant,
-                          borderRadius: BorderRadius.circular(
-                            VeriRentRadius.sm,
-                          ),
-                          border: Border.all(color: cs.outlineVariant),
-                        ),
-                        child: Icon(
-                          Icons.arrow_back_rounded,
-                          size: 18,
-                          color: cs.onSurface,
-                        ),
-                      ),
-                    ),
+                    // GestureDetector(
+                    //   onTap: () => Navigator.maybePop(context),
+                    //   child: Container(
+                    //     width: 38,
+                    //     height: 38,
+                    //     decoration: BoxDecoration(
+                    //       color: cs.surfaceVariant,
+                    //       borderRadius: BorderRadius.circular(
+                    //         VeriRentRadius.sm,
+                    //       ),
+                    //       border: Border.all(color: cs.outlineVariant),
+                    //     ),
+                    //     child: Icon(
+                    //       Icons.arrow_back_rounded,
+                    //       size: 18,
+                    //       color: cs.onSurface,
+                    //     ),
+                    //   ),
+                    // ),
                     const SizedBox(width: 12),
                     Text(
                       'Settings',

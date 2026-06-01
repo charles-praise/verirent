@@ -8,4 +8,8 @@ class HomeCubit extends Cubit<HomeState> {
 
   // active Index
   void activeIndex(int index) => emit(state.copyWith(activeIndex: index));
+
+  // filter visibility
+  void filterVisibility(bool isFilterVisible) =>
+      emit(state.copyWith(isFilterVisible: isFilterVisible));
 }

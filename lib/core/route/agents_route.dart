@@ -4,8 +4,15 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:verirent/features/auth/ui/cubit/auth_cubit.dart';
 import 'package:verirent/features/auth/ui/pages/login.dart';
+import 'package:verirent/features/home/domain/entities/property_model.dart';
+import 'package:verirent/features/home/features/listing_details/ui/cubit/listing_details_cubit.dart';
+import 'package:verirent/features/home/features/listing_details/ui/pages/listing_deatils.dart';
+import 'package:verirent/features/message/ui/cubit/message_cubit.dart';
+import 'package:verirent/features/message/ui/pages/messages.dart';
 import 'package:verirent/features/profile/ui/cubit/profile_cubit.dart';
 import 'package:verirent/features/profile/ui/pages/profile.dart';
+import 'package:verirent/features/saved/ui/cubit/saved_cubit.dart';
+import 'package:verirent/features/saved/ui/pages/saved.dart';
 import 'package:verirent/features/search/ui/cubit/search_cubit.dart';
 import 'package:verirent/features/search/ui/search.dart';
 import 'package:verirent/features/settings/ui/cubit/settings_cubit.dart';
@@ -26,6 +33,9 @@ class _Route {
   static final String signup = "/signup";
   static final String profile = "/profile";
   static final String settings = "/settings";
+  static final String listing_details = "/listing_details";
+  static final String message = "/message";
+  static final String saved = "/saved'";
 }
 
 abstract final class VeriRentRoute {
@@ -34,7 +44,7 @@ abstract final class VeriRentRoute {
     initialLocation: _Route.main,
 
     routes: [
-      // Main Route
+      // Shell Route
       GoRoute(
         name: "Main or Landing page",
         path: _Route.main,
@@ -189,6 +199,76 @@ abstract final class VeriRentRoute {
                 return FadeTransition(opacity: animation, child: child);
               },
         ),
+      ),
+
+      //Details Page
+      GoRoute(
+        name: "Details Page",
+        path: _Route.listing_details,
+        pageBuilder: (context, state) {
+          final listing = state.extra as PropertyModel;
+          return CustomTransitionPage(
+            child: BlocProvider(
+              create: (context) => GetIt.instance<ListingDetailsCubit>(),
+              child: ListingDetailsPage(listing: listing),
+            ),
+            transitionsBuilder:
+                (
+                  BuildContext context,
+                  Animation<double> animation,
+                  Animation<double> secondaryAnimation,
+                  Widget child,
+                ) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+          );
+        },
+      ),
+
+      //   Saved Page
+      GoRoute(
+        name: "Saved Page",
+        path: _Route.saved,
+        pageBuilder: (context, state) {
+          return CustomTransitionPage(
+            child: BlocProvider(
+              create: (context) => GetIt.instance<SavedCubit>(),
+              child: SavedPage(),
+            ),
+            transitionsBuilder:
+                (
+                  BuildContext context,
+                  Animation<double> animation,
+                  Animation<double> secondaryAnimation,
+                  Widget child,
+                ) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+          );
+        },
+      ),
+
+      // Message Page
+      GoRoute(
+        name: "Message Page",
+        path: _Route.message,
+        pageBuilder: (context, state) {
+          return CustomTransitionPage(
+            child: BlocProvider(
+              create: (context) => GetIt.instance<MessagesCubit>(),
+              child: MessagesPage(),
+            ),
+            transitionsBuilder:
+                (
+                  BuildContext context,
+                  Animation<double> animation,
+                  Animation<double> secondaryAnimation,
+                  Widget child,
+                ) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+          );
+        },
       ),
     ],
   );

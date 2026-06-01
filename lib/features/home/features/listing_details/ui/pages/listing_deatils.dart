@@ -1,152 +1,35 @@
-// =============================================================================
-//  VeriRent NG — Listing Details Page (Multi-Property Type)
+// TODO: IMPLEMENT A LAYOUT PREFERENCE PER PROPERTY TYPE.
+// switch (listing.propertyType) {
+//   case PropertyType.house:
+//   case PropertyType.apartment:
+//   case PropertyType.duplex:
+//     return ResidentialDetailsPage(listing);
 //
-//  Displays comprehensive property information for:
-//  - Residential (House, Apartment, Duplex)
-//  - Land & Plots
-//  - Office & Commercial
-//  - Residential Estates
-// =============================================================================
+//   case PropertyType.land:
+//     return LandDetailsPage(listing);
+//
+//   case PropertyType.office:
+//   case PropertyType.commercial:
+//     return CommercialDetailsPage(listing);
+//
+//   case PropertyType.estate:
+//     return EstateDetailsPage(listing);
+// }
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
 
 import '../../../../../../core/theme/agents_theme.dart';
+import '../../../../domain/entities/property_model.dart';
 
 class ListingDetailsPage extends StatefulWidget {
   const ListingDetailsPage({super.key, required this.listing});
 
-  final PropertyListing listing;
+  final PropertyModel listing;
 
   @override
   State<ListingDetailsPage> createState() => _ListingDetailsPageState();
-}
-
-class PropertyListing {
-  final String id;
-  final String propertyType; // House, Apartment, Duplex, Land, Office, Estate
-  final String listingType; // Rent, Sale
-
-  final String title;
-  final String address;
-  final String area;
-  final String lga;
-  final String state;
-
-  final double price;
-  final String priceUnit; // "per year" / "per month" / "one-time"
-  final String paymentTerms; // "Lump sum" / "Installments available"
-
-  final int? bedrooms;
-  final int? bathrooms;
-  final int? toilets;
-  final double areaSqm;
-  final String condition; // "New" / "Renovated" / "Good"
-
-  final bool isVerified;
-  final bool isFeatured;
-  final double rating;
-  final int reviewCount;
-
-  final List<String> imageUrls;
-  final String description;
-
-  final AgencyProfile agency;
-  final DocumentStatus documents;
-
-  final List<String> amenities;
-  final List<String> features;
-  final Map<String, String> utilities;
-
-  final List<NearbyFacility> nearbyFacilities;
-
-  PropertyListing({
-    required this.id,
-    required this.propertyType,
-    required this.listingType,
-    required this.title,
-    required this.address,
-    required this.area,
-    required this.lga,
-    required this.state,
-    required this.price,
-    required this.priceUnit,
-    required this.paymentTerms,
-    this.bedrooms,
-    this.bathrooms,
-    this.toilets,
-    required this.areaSqm,
-    required this.condition,
-    required this.isVerified,
-    required this.isFeatured,
-    required this.rating,
-    required this.reviewCount,
-    required this.imageUrls,
-    required this.description,
-    required this.agency,
-    required this.documents,
-    required this.amenities,
-    required this.features,
-    required this.utilities,
-    required this.nearbyFacilities,
-  });
-}
-
-class AgencyProfile {
-  final String id;
-  final String name;
-  final String logo;
-  final String
-  verificationTier; // Basic, Verified, Pro, Professional, Enterprise
-  final int yearsInBusiness;
-  final double rating;
-  final int transactions;
-  final String phone;
-  final String email;
-  final String address;
-
-  AgencyProfile({
-    required this.id,
-    required this.name,
-    required this.logo,
-    required this.verificationTier,
-    required this.yearsInBusiness,
-    required this.rating,
-    required this.transactions,
-    required this.phone,
-    required this.email,
-    required this.address,
-  });
-}
-
-class DocumentStatus {
-  final bool hasOwnershipDoc;
-  final bool hasLandRegistry;
-  final bool hasCompletionCert;
-  final bool hasLandUseCert;
-  final bool hasBuiltingApproval;
-  final String overallStatus; // Verified, Pending, Unverified
-
-  DocumentStatus({
-    required this.hasOwnershipDoc,
-    required this.hasLandRegistry,
-    required this.hasCompletionCert,
-    required this.hasLandUseCert,
-    required this.hasBuiltingApproval,
-    required this.overallStatus,
-  });
-}
-
-class NearbyFacility {
-  final String name;
-  final String type; // School, Hospital, Market, Bank, etc.
-  final String distance;
-
-  NearbyFacility({
-    required this.name,
-    required this.type,
-    required this.distance,
-  });
 }
 
 class _ListingDetailsPageState extends State<ListingDetailsPage> {
@@ -195,22 +78,17 @@ class _ListingDetailsPageState extends State<ListingDetailsPage> {
                   child: Container(
                     margin: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
                       color: _isSaved
                           ? VeriRentColors.red.withOpacity(0.15)
-                          : cs.surfaceVariant,
-                      borderRadius: BorderRadius.circular(VeriRentRadius.sm),
-                      border: Border.all(
-                        color: _isSaved
-                            ? VeriRentColors.red.withOpacity(0.4)
-                            : cs.outlineVariant,
-                      ),
+                          : VeriRentColors.transparent,
                     ),
                     child: Icon(
                       _isSaved
                           ? Icons.favorite_rounded
                           : Icons.favorite_border_rounded,
                       color: _isSaved ? VeriRentColors.red : cs.onSurface,
-                      size: 18,
+                      size: 20,
                     ),
                   ),
                 ),
@@ -219,11 +97,7 @@ class _ListingDetailsPageState extends State<ListingDetailsPage> {
                   onTap: () {},
                   child: Container(
                     margin: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: cs.surfaceVariant,
-                      borderRadius: BorderRadius.circular(VeriRentRadius.sm),
-                      border: Border.all(color: cs.outlineVariant),
-                    ),
+
                     child: Icon(
                       Icons.share_rounded,
                       color: cs.onSurface,
@@ -262,11 +136,8 @@ class _ListingDetailsPageState extends State<ListingDetailsPage> {
             // ── Title & Location ───────────────────────────────
             SliverToBoxAdapter(child: _TitleSection(listing: listing)),
 
-            // ── Key Specs ──────────────────────────────────────
-            if (listing.bedrooms != null ||
-                listing.bathrooms != null ||
-                listing.areaSqm > 0)
-              SliverToBoxAdapter(child: _KeySpecsSection(listing: listing)),
+            // ── CTA Buttons ────────────────────────────────────
+            SliverToBoxAdapter(child: _CTASection(listing: listing)),
 
             // ── Price & Terms ─────────────────────────────────
             SliverToBoxAdapter(child: _PriceSection(listing: listing)),
@@ -292,16 +163,14 @@ class _ListingDetailsPageState extends State<ListingDetailsPage> {
             // ── Description ────────────────────────────────────
             SliverToBoxAdapter(child: _DescriptionSection(listing: listing)),
 
-            // ── Documents & Verification ───────────────────────
-            SliverToBoxAdapter(child: _DocumentsSection(listing: listing)),
+            // // ── Documents & Verification ───────────────────────
+            if (listing.agency != null)
+              SliverToBoxAdapter(child: _DocumentsSection(listing: listing)),
 
-            // ── Agent Profile ─────────────────────────────────
-            SliverToBoxAdapter(child: _AgentSection(listing: listing)),
-
-            // ── CTA Buttons ────────────────────────────────────
-            SliverToBoxAdapter(child: _CTASection(listing: listing)),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 32)),
+            // // ── Agent Profile ─────────────────────────────────
+            if (listing.documents != null)
+              SliverToBoxAdapter(child: _AgentSection(listing: listing)),
+            const SliverToBoxAdapter(child: SizedBox(height: 36)),
           ],
         ),
       ),
@@ -358,11 +227,7 @@ class _ImageGalleryState extends State<_ImageGallery> {
                 .map(
                   (img) => Container(
                     color: Colors.grey[900],
-                    child: const Icon(
-                      Icons.image_rounded,
-                      size: 60,
-                      color: Colors.grey,
-                    ),
+                    child: CustomNetworkImage(imgUrl: img),
                   ),
                 )
                 .toList(),
@@ -492,7 +357,7 @@ class _ImageGalleryState extends State<_ImageGallery> {
 // ── Quick Info Bar ────────────────────────────────────────────────────────────
 class _QuickInfoBar extends StatelessWidget {
   const _QuickInfoBar({required this.listing});
-  final PropertyListing listing;
+  final PropertyModel listing;
 
   @override
   Widget build(BuildContext context) {
@@ -507,7 +372,7 @@ class _QuickInfoBar extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '₦${(listing.price / 1000000).toStringAsFixed(1)}M',
+                '₦ ${(listing.price)}',
                 style: VeriRentText.headlineMedium.copyWith(
                   color: cs.primary,
                   fontWeight: FontWeight.w800,
@@ -568,7 +433,7 @@ class _QuickInfoBar extends StatelessWidget {
 // ── Title Section ─────────────────────────────────────────────────────────────
 class _TitleSection extends StatelessWidget {
   const _TitleSection({required this.listing});
-  final PropertyListing listing;
+  final PropertyModel listing;
 
   @override
   Widget build(BuildContext context) {
@@ -618,22 +483,53 @@ class _TitleSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              _RatingChip(
-                icon: Icons.star_rounded,
-                label: '${listing.rating.toStringAsFixed(1)}',
-                value: '${listing.reviewCount} reviews',
-                color: VeriRentColors.gold,
-              ),
-              const SizedBox(width: 8),
-              _RatingChip(
-                icon: Icons.location_on_rounded,
-                label: listing.lga,
-                value: listing.state,
-                color: VeriRentColors.primary,
-              ),
-            ],
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _RatingChip(
+                  icon: Icons.star_rounded,
+                  label: '${listing.rating}',
+                  value: '${listing.reviewCount} reviews',
+                  color: VeriRentColors.gold,
+                ),
+                const SizedBox(width: 8),
+                _RatingChip(
+                  icon: Icons.location_on_rounded,
+                  label: listing.lga,
+                  value: listing.state,
+                  color: VeriRentColors.primary,
+                ),
+
+                // ── Key Specs ──────────────────────────────────────
+                if (listing.bedrooms != null)
+                  if (listing.bathrooms != null) const SizedBox(width: 8),
+                _RatingChip(
+                  icon: Icons.square_foot_rounded,
+                  value: listing.areaSqm,
+                  label: 'sqm',
+                  color: VeriRentColors.primary,
+                ),
+
+                if (listing.bedrooms != null)
+                  if (listing.bathrooms != null) const SizedBox(width: 8),
+                _RatingChip(
+                  icon: Icons.bathtub_outlined,
+                  value: '${listing.bathrooms}',
+                  label: 'Bath',
+                  color: VeriRentColors.primary,
+                ),
+
+                if (listing.bedrooms != null)
+                  if (listing.bathrooms != null) const SizedBox(width: 8),
+                _RatingChip(
+                  icon: Icons.bed_rounded,
+                  value: '${listing.bedrooms}',
+                  label: 'Bed',
+                  color: VeriRentColors.primary,
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -696,7 +592,7 @@ class _RatingChip extends StatelessWidget {
 // ── Key Specs ─────────────────────────────────────────────────────────────────
 class _KeySpecsSection extends StatelessWidget {
   const _KeySpecsSection({required this.listing});
-  final PropertyListing listing;
+  final PropertyModel listing;
 
   @override
   Widget build(BuildContext context) {
@@ -732,7 +628,7 @@ class _KeySpecsSection extends StatelessWidget {
           Expanded(
             child: _SpecItem(
               icon: Icons.square_foot_rounded,
-              value: '${listing.areaSqm.toInt()}',
+              value: '${listing.areaSqm}',
               label: 'sqm',
             ),
           ),
@@ -778,7 +674,7 @@ class _SpecItem extends StatelessWidget {
 // ── Price Section ─────────────────────────────────────────────────────────────
 class _PriceSection extends StatelessWidget {
   const _PriceSection({required this.listing});
-  final PropertyListing listing;
+  final PropertyModel listing;
 
   @override
   Widget build(BuildContext context) {
@@ -805,7 +701,7 @@ class _PriceSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '₦${listing.price.toStringAsFixed(0)}',
+                '₦${listing.price}',
                 style: VeriRentText.headlineMedium.copyWith(
                   color: VeriRentColors.primary,
                 ),
@@ -841,7 +737,7 @@ class _PriceSection extends StatelessWidget {
 // ── Amenities Section ─────────────────────────────────────────────────────────
 class _AmenitiesSection extends StatelessWidget {
   const _AmenitiesSection({required this.listing});
-  final PropertyListing listing;
+  final PropertyModel listing;
 
   @override
   Widget build(BuildContext context) {
@@ -901,7 +797,7 @@ class _AmenitiesSection extends StatelessWidget {
 // ── Features Section ──────────────────────────────────────────────────────────
 class _FeaturesSection extends StatelessWidget {
   const _FeaturesSection({required this.listing});
-  final PropertyListing listing;
+  final PropertyModel listing;
 
   @override
   Widget build(BuildContext context) {
@@ -944,7 +840,7 @@ class _FeaturesSection extends StatelessWidget {
                         ),
                       ),
                       title: Text(
-                        listing.features[i],
+                        listing!.features[i],
                         style: VeriRentText.bodyMedium.copyWith(
                           color: cs.onSurface,
                         ),
@@ -970,7 +866,7 @@ class _FeaturesSection extends StatelessWidget {
 // ── Utilities Section ─────────────────────────────────────────────────────────
 class _UtilitiesSection extends StatelessWidget {
   const _UtilitiesSection({required this.listing});
-  final PropertyListing listing;
+  final PropertyModel listing;
 
   @override
   Widget build(BuildContext context) {
@@ -1032,7 +928,7 @@ class _UtilitiesSection extends StatelessWidget {
 // ── Nearby Facilities ─────────────────────────────────────────────────────────
 class _NearbyFacilitiesSection extends StatelessWidget {
   const _NearbyFacilitiesSection({required this.listing});
-  final PropertyListing listing;
+  final PropertyModel listing;
 
   @override
   Widget build(BuildContext context) {
@@ -1114,7 +1010,7 @@ class _NearbyFacilitiesSection extends StatelessWidget {
 // ── Description Section ───────────────────────────────────────────────────────
 class _DescriptionSection extends StatelessWidget {
   const _DescriptionSection({required this.listing});
-  final PropertyListing listing;
+  final PropertyModel listing;
 
   @override
   Widget build(BuildContext context) {
@@ -1151,7 +1047,7 @@ class _DescriptionSection extends StatelessWidget {
 // ── Documents Section ─────────────────────────────────────────────────────────
 class _DocumentsSection extends StatelessWidget {
   const _DocumentsSection({required this.listing});
-  final PropertyListing listing;
+  final PropertyModel listing;
 
   @override
   Widget build(BuildContext context) {
@@ -1169,12 +1065,12 @@ class _DocumentsSection extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: listing.documents.overallStatus == 'Verified'
+              color: listing.documents!.overallStatus == 'Verified'
                   ? VeriRentColors.success500.withOpacity(0.12)
                   : VeriRentColors.warning500.withOpacity(0.12),
               borderRadius: BorderRadius.circular(VeriRentRadius.lg),
               border: Border.all(
-                color: listing.documents.overallStatus == 'Verified'
+                color: listing.documents!.overallStatus == 'Verified'
                     ? VeriRentColors.success500.withOpacity(0.4)
                     : VeriRentColors.warning500.withOpacity(0.4),
               ),
@@ -1182,10 +1078,10 @@ class _DocumentsSection extends StatelessWidget {
             child: Row(
               children: [
                 Icon(
-                  listing.documents.overallStatus == 'Verified'
+                  listing.documents!.overallStatus == 'Verified'
                       ? Icons.verified_rounded
                       : Icons.warning_amber_rounded,
-                  color: listing.documents.overallStatus == 'Verified'
+                  color: listing.documents!.overallStatus == 'Verified'
                       ? VeriRentColors.success500
                       : VeriRentColors.warning500,
                   size: 20,
@@ -1196,11 +1092,11 @@ class _DocumentsSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        listing.documents.overallStatus == 'Verified'
+                        listing.documents!.overallStatus == 'Verified'
                             ? 'All Documents Verified'
                             : 'Pending Verification',
                         style: VeriRentText.titleSmall.copyWith(
-                          color: listing.documents.overallStatus == 'Verified'
+                          color: listing.documents!.overallStatus == 'Verified'
                               ? VeriRentColors.success500
                               : VeriRentColors.warning500,
                         ),
@@ -1227,7 +1123,7 @@ class _DocumentsSection extends StatelessWidget {
 // ── Agent Section ─────────────────────────────────────────────────────────────
 class _AgentSection extends StatelessWidget {
   const _AgentSection({required this.listing});
-  final PropertyListing listing;
+  final PropertyModel listing;
 
   @override
   Widget build(BuildContext context) {
@@ -1274,7 +1170,7 @@ class _AgentSection extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            agency.name,
+                            agency!.name,
                             style: VeriRentText.titleSmall.copyWith(
                               color: cs.onSurface,
                             ),
@@ -1373,7 +1269,7 @@ class _AgentSection extends StatelessWidget {
 // ── CTA Section ───────────────────────────────────────────────────────────────
 class _CTASection extends StatelessWidget {
   const _CTASection({required this.listing});
-  final PropertyListing listing;
+  final PropertyModel listing;
 
   @override
   Widget build(BuildContext context) {

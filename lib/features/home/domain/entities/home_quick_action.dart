@@ -8,6 +8,6 @@ class QuickAction {
   });
 
   final String label;
-  final IconData icon;
+  final Icon icon;
   final Color color;
 }

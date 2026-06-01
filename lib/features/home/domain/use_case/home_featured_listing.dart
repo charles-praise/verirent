@@ -19,7 +19,9 @@ class FeaturedListingsHorizontalUseCase extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: VeriRentSpacing.base),
         itemCount: kFeatured.length,
         separatorBuilder: (_, _) => const SizedBox(width: VeriRentSpacing.sm),
-        itemBuilder: (context, i) => FeaturedCard(card: kFeatured[i]),
+        itemBuilder: (context, index) {
+          return FeaturedCard(card: kFeatured[index]);
+        },
       ),
     );
   }

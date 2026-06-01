@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:verirent/features/home/ui/pages/verirent_home.dart';
+import 'package:verirent/features/message/ui/pages/messages.dart';
+import 'package:verirent/features/saved/ui/pages/saved.dart';
 import 'package:verirent/features/settings/ui/pages/settings.dart';
 import 'package:verirent/features/shell/data/localRepo.dart';
 
 import '../../../home/ui/pages/home.dart';
-import '../../../home/ui/pages/home_screen.dart';
 import '../../../shell/ui/cubit/main_cubit.dart';
 import '../../../shell/ui/widgets/shell_custom_bottom_navbar.dart';
 
@@ -19,8 +19,8 @@ class Main extends StatelessWidget {
   // primary widgets
   final List<Widget> _mainScreens = [
     Home(scaffoldKey: scaffoldKey),
-    HomeScreen(),
-    VeriRentApp(),
+    MessagesPage(),
+    SavedPage(),
     SettingsPage(),
   ];
   // build

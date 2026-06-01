@@ -58,7 +58,7 @@ class _QuickActionTile extends StatelessWidget {
                 width: 1,
               ),
             ),
-            child: Icon(action.icon, size: 22, color: action.color),
+            child: Icon(action.icon.icon, size: 22, color: action.color),
           ),
           const SizedBox(height: 6),
           Text(
