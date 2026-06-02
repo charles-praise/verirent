@@ -38,7 +38,7 @@ class _Route {
   static final String saved = "/saved'";
 }
 
-abstract final class VeriRentRoute {
+abstract final class _VeriRentRoute {
   static final GoRouter router = GoRouter(
     overridePlatformDefaultLocation: true,
     initialLocation: _Route.main,
@@ -180,7 +180,7 @@ abstract final class VeriRentRoute {
         ),
       ),
 
-      //Settings Page
+      //Settings Route
       GoRoute(
         name: "Settings Page",
         path: _Route.settings,
@@ -201,7 +201,7 @@ abstract final class VeriRentRoute {
         ),
       ),
 
-      //Details Page
+      //Details Route
       GoRoute(
         name: "Details Page",
         path: _Route.listing_details,
@@ -210,7 +210,7 @@ abstract final class VeriRentRoute {
           return CustomTransitionPage(
             child: BlocProvider(
               create: (context) => GetIt.instance<ListingDetailsCubit>(),
-              child: ListingDetailsPage(listing: listing),
+              child: ListingDetailsFactory.build(context, listing),
             ),
             transitionsBuilder:
                 (
@@ -225,7 +225,7 @@ abstract final class VeriRentRoute {
         },
       ),
 
-      //   Saved Page
+      //Saved Route
       GoRoute(
         name: "Saved Page",
         path: _Route.saved,
@@ -248,7 +248,7 @@ abstract final class VeriRentRoute {
         },
       ),
 
-      // Message Page
+      // Message Route
       GoRoute(
         name: "Message Page",
         path: _Route.message,
@@ -273,3 +273,5 @@ abstract final class VeriRentRoute {
     ],
   );
 }
+
+GoRouter get VeriRentRoute => _VeriRentRoute.router;

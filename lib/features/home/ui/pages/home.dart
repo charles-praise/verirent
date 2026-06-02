@@ -139,7 +139,7 @@ class _HomeState extends State<Home> {
                     onSeeAll: () {},
                   ),
                 ),
-                FeaturedListingsVerticalUseCase(),
+                AvailableListingsVerticalUseCase(),
 
                 // ── Bottom spacing ─────────────────────────────────────
                 const SliverToBoxAdapter(child: SizedBox(height: 80)),

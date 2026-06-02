@@ -166,29 +166,22 @@ class _TriggerButton extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        height: 48,
+        height: 25,
         padding: const EdgeInsets.symmetric(horizontal: 14),
-        decoration: BoxDecoration(
-          color: cs.surfaceVariant,
-          borderRadius: BorderRadius.circular(VeriRentRadius.md),
-          border: Border.all(
-            color: isOpen ? cs.primary : cs.outline,
-            width: isOpen ? 2 : 1,
-          ),
-        ),
+
         child: Row(
           children: [
             Icon(
               Icons.location_on_rounded,
               size: 18,
-              color: isOpen ? cs.primary : cs.onSurfaceVariant,
+              color: VeriRentColors.secondary400,
             ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 label,
                 style: VeriRentText.bodyMedium.copyWith(
-                  color: hasSelection ? cs.onSurface : cs.onSurfaceVariant,
+                  color: VeriRentColors.white,
                   fontWeight: hasSelection ? FontWeight.w500 : FontWeight.w400,
                 ),
                 maxLines: 1,
@@ -209,7 +202,7 @@ class _TriggerButton extends StatelessWidget {
                   child: Icon(
                     Icons.close_rounded,
                     size: 12,
-                    color: cs.onSurfaceVariant,
+                    color: VeriRentColors.white,
                   ),
                 ),
               ),
@@ -218,7 +211,7 @@ class _TriggerButton extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               child: Icon(
                 Icons.keyboard_arrow_down_rounded,
-                color: isOpen ? cs.primary : cs.onSurfaceVariant,
+                color: VeriRentColors.white,
                 size: 20,
               ),
             ),

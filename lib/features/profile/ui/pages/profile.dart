@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/agents_theme.dart';
 
@@ -229,7 +230,9 @@ class _ProfileHero extends StatelessWidget {
               ),
               const Spacer(),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  context.push("/settings");
+                },
                 child: Container(
                   width: 36,
                   height: 36,

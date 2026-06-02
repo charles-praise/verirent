@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:verirent/features/search/ui/search.dart';
 
 import '../../../../core/theme/agents_theme.dart';
 
@@ -35,73 +37,73 @@ class _HomeSearchBarState extends State<HomeSearchBar>
     super.dispose();
   }
 
-  void _showSearchFilter() {
-    widget.focusNode.unfocus();
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      showDragHandle: false,
-      builder: (context) {
-        return FractionallySizedBox(
-          heightFactor: 0.50,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(20),
-              ),
-            ),
-            child: Column(
-              children: [
-                const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Filters',
-                          style: VeriRentText.titleMedium.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.close_rounded),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1),
-                Expanded(
-                  child: DraggableScrollableSheet(
-                    initialChildSize: 1.0,
-                    minChildSize: 1.0,
-                    maxChildSize: 1.0,
-                    expand: true,
-                    builder: (context, scrollController) {
-                      return ListView.builder(
-                        controller: scrollController,
-                        itemCount: 5,
-                        itemBuilder: (context, index) {
-                          return const ListTile(
-                            title: Text("Charles the Greatest !!!"),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  // void _showSearchFilter() {
+  //   widget.focusNode.unfocus();
+  //
+  //   showModalBottomSheet(
+  //     context: context,
+  //     isScrollControlled: true,
+  //     backgroundColor: Colors.transparent,
+  //     showDragHandle: false,
+  //     builder: (context) {
+  //       return FractionallySizedBox(
+  //         heightFactor: 0.50,
+  //         child: Container(
+  //           decoration: BoxDecoration(
+  //             color: Theme.of(context).colorScheme.surface,
+  //             borderRadius: const BorderRadius.vertical(
+  //               top: Radius.circular(20),
+  //             ),
+  //           ),
+  //           child: Column(
+  //             children: [
+  //               const SizedBox(height: 8),
+  //               Padding(
+  //                 padding: const EdgeInsets.symmetric(horizontal: 16),
+  //                 child: Row(
+  //                   children: [
+  //                     Expanded(
+  //                       child: Text(
+  //                         'Filters',
+  //                         style: VeriRentText.titleMedium.copyWith(
+  //                           color: Theme.of(context).colorScheme.onSurface,
+  //                         ),
+  //                       ),
+  //                     ),
+  //                     IconButton(
+  //                       onPressed: () => Navigator.pop(context),
+  //                       icon: const Icon(Icons.close_rounded),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //               const Divider(height: 1),
+  //               Expanded(
+  //                 child: DraggableScrollableSheet(
+  //                   initialChildSize: 1.0,
+  //                   minChildSize: 1.0,
+  //                   maxChildSize: 1.0,
+  //                   expand: true,
+  //                   builder: (context, scrollController) {
+  //                     return ListView.builder(
+  //                       controller: scrollController,
+  //                       itemCount: 5,
+  //                       itemBuilder: (context, index) {
+  //                         return const ListTile(
+  //                           title: Text("Charles the Greatest !!!"),
+  //                         );
+  //                       },
+  //                     );
+  //                   },
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -111,10 +113,14 @@ class _HomeSearchBarState extends State<HomeSearchBar>
       children: [
         Expanded(
           child: TextField(
-            controller: widget.controller,
-            focusNode: widget.focusNode,
+            readOnly: true,
+            showCursor: false,
+            canRequestFocus: false,
             style: VeriRentText.bodyMedium.copyWith(color: cs.onSurface),
             onTapOutside: (_) => widget.focusNode.unfocus(),
+            onTap: () {
+              context.push("/search");
+            },
             decoration: InputDecoration(
               hintText: 'Search by location, type…',
               prefixIcon: Icon(
@@ -158,7 +164,15 @@ class _HomeSearchBarState extends State<HomeSearchBar>
         ),
         const SizedBox(width: VeriRentSpacing.sm),
         GestureDetector(
-          onTap: _showSearchFilter,
+          onTap: () {
+            widget.focusNode.unfocus();
+            SearchPage(
+              showSearchFilter: () {
+                context.push("/search");
+                setState(() => filtersExpanded = !filtersExpanded);
+              },
+            );
+          },
           child: Container(
             width: 48,
             height: 48,

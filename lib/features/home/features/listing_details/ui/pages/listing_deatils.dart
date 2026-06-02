@@ -1,20 +1,17 @@
-// TODO: IMPLEMENT A LAYOUT PREFERENCE PER PROPERTY TYPE.
-// switch (listing.propertyType) {
-//   case PropertyType.house:
-//   case PropertyType.apartment:
-//   case PropertyType.duplex:
-//     return ResidentialDetailsPage(listing);
+// =============================================================================
+//  VeriRent NG — Category Detail Pages
+//  Each property category gets a layout tuned to its key buying signals.
 //
-//   case PropertyType.land:
-//     return LandDetailsPage(listing);
+//  Factory usage:
+//    ListingDetailsFactory.build(context, listing)
 //
-//   case PropertyType.office:
-//   case PropertyType.commercial:
-//     return CommercialDetailsPage(listing);
-//
-//   case PropertyType.estate:
-//     return EstateDetailsPage(listing);
-// }
+//  | Category    | Page                   | Layout emphasis               |
+//  | ----------- | ---------------------- | ----------------------------- |
+//  | Residential | ResidentialDetailsPage | Rooms, furnishing, lifestyle  |
+//  | Land        | LandDetailsPage        | Docs, dimensions, zoning      |
+//  | Commercial  | CommercialDetailsPage  | Sqm, floor, facilities        |
+//  | Estate      | EstateDetailsPage      | Units, security, communal     |
+// =============================================================================
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,23 +20,315 @@ import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
 import '../../../../../../core/theme/agents_theme.dart';
 import '../../../../domain/entities/property_model.dart';
 
-class ListingDetailsPage extends StatefulWidget {
-  const ListingDetailsPage({super.key, required this.listing});
+// =============================================================================
+//  DISPATCHER
+// =============================================================================
 
-  final PropertyModel listing;
-
-  @override
-  State<ListingDetailsPage> createState() => _ListingDetailsPageState();
+abstract final class ListingDetailsFactory {
+  static Widget build(BuildContext context, PropertyModel listing) {
+    switch (listing.category) {
+      case PropertyCategory.land:
+        return LandDetailsPage(listing: listing);
+      case PropertyCategory.commercial:
+        return CommercialDetailsPage(listing: listing);
+      case PropertyCategory.estate:
+        return EstateDetailsPage(listing: listing);
+      case PropertyCategory.residential:
+      default:
+        return ResidentialDetailsPage(listing: listing);
+    }
+  }
 }
 
-class _ListingDetailsPageState extends State<ListingDetailsPage> {
-  int _currentImageIndex = 0;
-  bool _isSaved = false;
+// =============================================================================
+//  SHARED SECTION WIDGETS
+//  All detail pages compose from these building blocks.
+// =============================================================================
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.text);
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
+    child: Text(
+      text,
+      style: VeriRentText.titleMedium.copyWith(
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
+    ),
+  );
+}
+
+class _InfoCard extends StatelessWidget {
+  const _InfoCard({required this.children, this.margin});
+  final List<Widget> children;
+  final EdgeInsets? margin;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final topPad = MediaQuery.of(context).padding.top;
+    return Container(
+      margin: margin ?? const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(VeriRentRadius.lg),
+        border: Border.all(color: cs.outlineVariant),
+      ),
+      child: Column(children: children),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.isLast = false,
+    this.accentColor,
+  });
+  final IconData icon;
+  final String label;
+  final String value;
+  final bool isLast;
+  final Color? accentColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final color = accentColor ?? cs.primary;
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(VeriRentRadius.sm),
+                ),
+                child: Icon(icon, size: 15, color: color),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  style: VeriRentText.bodyMedium.copyWith(color: cs.onSurface),
+                ),
+              ),
+              Text(
+                value,
+                style: VeriRentText.labelMedium.copyWith(
+                  color: cs.onSurface,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (!isLast)
+          Divider(
+            height: 1,
+            color: cs.outlineVariant,
+            indent: 58,
+            endIndent: 14,
+          ),
+      ],
+    );
+  }
+}
+
+class _BoolRow extends StatelessWidget {
+  const _BoolRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.isLast = false,
+    this.trueColor,
+  });
+  final IconData icon;
+  final String label;
+  final bool value;
+  final bool isLast;
+  final Color? trueColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final okColor = trueColor ?? VeriRentColors.success500;
+    return _InfoRow(
+              icon: icon,
+              label: label,
+              value: '',
+              isLast: isLast,
+              accentColor: value ? okColor : cs.onSurfaceVariant,
+            ).build ==
+            null // force override trailing
+        ? const SizedBox()
+        : Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: (value ? okColor : cs.onSurfaceVariant)
+                            .withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(VeriRentRadius.sm),
+                      ),
+                      child: Icon(
+                        icon,
+                        size: 15,
+                        color: value ? okColor : cs.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        label,
+                        style: VeriRentText.bodyMedium.copyWith(
+                          color: cs.onSurface,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      value ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                      size: 18,
+                      color: value ? okColor : cs.onSurfaceVariant,
+                    ),
+                  ],
+                ),
+              ),
+              if (!isLast)
+                Divider(
+                  height: 1,
+                  color: cs.outlineVariant,
+                  indent: 58,
+                  endIndent: 14,
+                ),
+            ],
+          );
+  }
+}
+
+/// Horizontal stats bar (3-4 hero metrics side by side).
+class _HeroStatsBar extends StatelessWidget {
+  const _HeroStatsBar({required this.stats, this.accentColor});
+  final List<_StatItem> stats;
+  final Color? accentColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final color = accentColor ?? cs.primary;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(VeriRentRadius.lg),
+        border: Border.all(color: cs.outlineVariant),
+      ),
+      child: Row(
+        children: List.generate(stats.length, (i) {
+          final isLast = i == stats.length - 1;
+          return Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    child: Column(
+                      children: [
+                        Icon(stats[i].icon, size: 20, color: color),
+                        const SizedBox(height: 4),
+                        Text(
+                          stats[i].value,
+                          style: VeriRentText.titleSmall.copyWith(
+                            color: cs.onSurface,
+                          ),
+                        ),
+                        Text(
+                          stats[i].label,
+                          style: VeriRentText.bodySmall.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (!isLast)
+                  Container(width: 1, height: 48, color: cs.outlineVariant),
+              ],
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
+
+class _StatItem {
+  const _StatItem({
+    required this.icon,
+    required this.value,
+    required this.label,
+  });
+  final IconData icon;
+  final String value;
+  final String label;
+}
+
+/// Shared image gallery + CTA scaffold that wraps all detail pages.
+class _DetailScaffold extends StatefulWidget {
+  const _DetailScaffold({
+    required this.listing,
+    required this.accentColor,
+    required this.categoryLabel,
+    required this.categoryIcon,
+    required this.body,
+  });
+  final PropertyModel listing;
+  final Color accentColor;
+  final String categoryLabel;
+  final IconData categoryIcon;
+  final List<Widget> body; // slivers
+
+  @override
+  State<_DetailScaffold> createState() => _DetailScaffoldState();
+}
+
+class _DetailScaffoldState extends State<_DetailScaffold> {
+  int _imgIndex = 0;
+  bool _isSaved = false;
+  late final PageController _pageCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageCtrl = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final listing = widget.listing;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -50,12 +339,12 @@ class _ListingDetailsPageState extends State<ListingDetailsPage> {
         backgroundColor: cs.surfaceVariant,
         body: CustomScrollView(
           slivers: [
-            // ── Sticky Header ──────────────────────────────────
+            // ── App Bar ─────────────────────────────────────────
             SliverAppBar(
               pinned: true,
-              elevation: 0,
               backgroundColor: cs.surface,
               foregroundColor: cs.onSurface,
+              elevation: 0,
               leading: GestureDetector(
                 onTap: () => Navigator.maybePop(context),
                 child: Container(
@@ -72,16 +361,62 @@ class _ListingDetailsPageState extends State<ListingDetailsPage> {
                   ),
                 ),
               ),
+              title: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: widget.accentColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(VeriRentRadius.full),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          widget.categoryIcon,
+                          size: 12,
+                          color: widget.accentColor,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          widget.categoryLabel,
+                          style: VeriRentText.labelSmall.copyWith(
+                            color: widget.accentColor,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      listing.area ?? "_",
+                      style: VeriRentText.labelMedium.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
               actions: [
                 GestureDetector(
-                  onTap: () => setState(() => _isSaved = !_isSaved),
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    setState(() => _isSaved = !_isSaved);
+                  },
                   child: Container(
                     margin: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
                       color: _isSaved
                           ? VeriRentColors.red.withOpacity(0.15)
-                          : VeriRentColors.transparent,
+                          : Colors.transparent,
                     ),
                     child: Icon(
                       _isSaved
@@ -92,12 +427,10 @@ class _ListingDetailsPageState extends State<ListingDetailsPage> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 4),
                 GestureDetector(
                   onTap: () {},
                   child: Container(
                     margin: const EdgeInsets.all(10),
-
                     child: Icon(
                       Icons.share_rounded,
                       color: cs.onSurface,
@@ -107,70 +440,196 @@ class _ListingDetailsPageState extends State<ListingDetailsPage> {
                 ),
                 const SizedBox(width: 4),
               ],
-              title: Text(
-                listing.area,
-                style: VeriRentText.labelMedium.copyWith(
-                  color: cs.onSurfaceVariant,
-                ),
-              ),
               bottom: PreferredSize(
                 preferredSize: const Size.fromHeight(1),
                 child: Divider(color: cs.outlineVariant, height: 1),
               ),
             ),
 
-            // ── Image Gallery ──────────────────────────────────
+            // ── Image gallery ────────────────────────────────────
             SliverToBoxAdapter(
-              child: _ImageGallery(
-                images: listing.imageUrls,
-                onIndexChanged: (i) => setState(() => _currentImageIndex = i),
-                currentIndex: _currentImageIndex,
-                isFeatured: listing.isFeatured,
-                isVerified: listing.isVerified,
+              child: Container(
+                height: 300,
+                color: Colors.black,
+                child: Stack(
+                  children: [
+                    PageView(
+                      controller: _pageCtrl,
+                      onPageChanged: (i) => setState(() => _imgIndex = i),
+                      children: listing.imageUrls!
+                          .map(
+                            (img) => Container(
+                              color: Colors.grey[900],
+                              child: CustomNetworkImage(imgUrl: img),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                    // Accent-colored category overlay strip
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(height: 3, color: widget.accentColor),
+                    ),
+                    // Badges
+                    Positioned(
+                      top: 16,
+                      left: 16,
+                      right: 16,
+                      child: Row(
+                        children: [
+                          if (listing.isFeatured!)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: VeriRentColors.gold.withOpacity(0.9),
+                                borderRadius: BorderRadius.circular(
+                                  VeriRentRadius.full,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.workspace_premium_rounded,
+                                    size: 13,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Featured',
+                                    style: VeriRentText.labelSmall.copyWith(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          const Spacer(),
+                          if (listing.isVerified!)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: VeriRentColors.success500.withOpacity(
+                                  0.9,
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                  VeriRentRadius.full,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.verified_rounded,
+                                    size: 13,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Verified',
+                                    style: VeriRentText.labelSmall.copyWith(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    // Counter + dots
+                    Positioned(
+                      bottom: 12,
+                      right: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(
+                            VeriRentRadius.full,
+                          ),
+                        ),
+                        child: Text(
+                          '${_imgIndex + 1} / ${listing.imageUrls!.length}',
+                          style: VeriRentText.labelSmall.copyWith(
+                            color: Colors.white,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 12,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            listing.imageUrls!.length,
+                            (i) => Container(
+                              width: 6,
+                              height: 6,
+                              margin: const EdgeInsets.symmetric(horizontal: 3),
+                              decoration: BoxDecoration(
+                                color: i == _imgIndex
+                                    ? Colors.white
+                                    : Colors.white30,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
 
-            // ── Quick Info ─────────────────────────────────────
-            SliverToBoxAdapter(child: _QuickInfoBar(listing: listing)),
+            // ── Quick Info Bar ───────────────────────────────────
+            SliverToBoxAdapter(
+              child: _QuickInfoBar(
+                listing: listing,
+                accentColor: widget.accentColor,
+              ),
+            ),
 
-            // ── Title & Location ───────────────────────────────
-            SliverToBoxAdapter(child: _TitleSection(listing: listing)),
+            // ── Title + Location ─────────────────────────────────
+            SliverToBoxAdapter(child: _TitleBlock(listing: listing)),
 
-            // ── CTA Buttons ────────────────────────────────────
-            SliverToBoxAdapter(child: _CTASection(listing: listing)),
+            // ── CTA ──────────────────────────────────────────────
+            SliverToBoxAdapter(child: _CTARow(accentColor: widget.accentColor)),
 
-            // ── Price & Terms ─────────────────────────────────
-            SliverToBoxAdapter(child: _PriceSection(listing: listing)),
+            // ── Category-specific body ────────────────────────────
+            ...widget.body,
 
-            // ── Amenities Grid ────────────────────────────────
-            if (listing.amenities.isNotEmpty)
-              SliverToBoxAdapter(child: _AmenitiesSection(listing: listing)),
+            // ── Shared: Description ──────────────────────────────
+            SliverToBoxAdapter(child: _DescriptionBlock(listing: listing)),
 
-            // ── Features ───────────────────────────────────────
-            if (listing.features.isNotEmpty)
-              SliverToBoxAdapter(child: _FeaturesSection(listing: listing)),
-
-            // ── Utilities ──────────────────────────────────────
-            if (listing.utilities.isNotEmpty)
-              SliverToBoxAdapter(child: _UtilitiesSection(listing: listing)),
-
-            // ── Nearby Facilities ──────────────────────────────
-            if (listing.nearbyFacilities.isNotEmpty)
+            // ── Shared: Agency ───────────────────────────────────
+            if (listing.agency != null)
               SliverToBoxAdapter(
-                child: _NearbyFacilitiesSection(listing: listing),
+                child: _AgencyBlock(
+                  listing: listing,
+                  accent: widget.accentColor,
+                ),
               ),
 
-            // ── Description ────────────────────────────────────
-            SliverToBoxAdapter(child: _DescriptionSection(listing: listing)),
-
-            // // ── Documents & Verification ───────────────────────
-            if (listing.agency != null)
-              SliverToBoxAdapter(child: _DocumentsSection(listing: listing)),
-
-            // // ── Agent Profile ─────────────────────────────────
-            if (listing.documents != null)
-              SliverToBoxAdapter(child: _AgentSection(listing: listing)),
-            const SliverToBoxAdapter(child: SizedBox(height: 36)),
+            const SliverToBoxAdapter(child: SizedBox(height: 40)),
           ],
         ),
       ),
@@ -178,186 +637,12 @@ class _ListingDetailsPageState extends State<ListingDetailsPage> {
   }
 }
 
-// ── Image Gallery ─────────────────────────────────────────────────────────────
-class _ImageGallery extends StatefulWidget {
-  const _ImageGallery({
-    required this.images,
-    required this.onIndexChanged,
-    required this.currentIndex,
-    required this.isFeatured,
-    required this.isVerified,
-  });
-  final List<String> images;
-  final ValueChanged<int> onIndexChanged;
-  final int currentIndex;
-  final bool isFeatured;
-  final bool isVerified;
+// ── Shared inner widgets ──────────────────────────────────────────────────────
 
-  @override
-  State<_ImageGallery> createState() => _ImageGalleryState();
-}
-
-class _ImageGalleryState extends State<_ImageGallery> {
-  late PageController _pageController;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController();
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.black,
-      height: 320,
-      child: Stack(
-        children: [
-          // Pages
-          PageView(
-            controller: _pageController,
-            onPageChanged: widget.onIndexChanged,
-            children: widget.images
-                .map(
-                  (img) => Container(
-                    color: Colors.grey[900],
-                    child: CustomNetworkImage(imgUrl: img),
-                  ),
-                )
-                .toList(),
-          ),
-
-          // Badges
-          Positioned(
-            top: 16,
-            left: 16,
-            right: 16,
-            child: Row(
-              children: [
-                if (widget.isFeatured)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: VeriRentColors.gold.withOpacity(0.85),
-                      borderRadius: BorderRadius.circular(VeriRentRadius.full),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.workspace_premium_rounded,
-                          size: 13,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Featured',
-                          style: VeriRentText.labelSmall.copyWith(
-                            color: Colors.white,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                const Spacer(),
-                if (widget.isVerified)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: VeriRentColors.success500.withOpacity(0.85),
-                      borderRadius: BorderRadius.circular(VeriRentRadius.full),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.verified_rounded,
-                          size: 13,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Verified',
-                          style: VeriRentText.labelSmall.copyWith(
-                            color: Colors.white,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
-          ),
-
-          // Counter
-          Positioned(
-            bottom: 12,
-            right: 12,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(VeriRentRadius.full),
-              ),
-              child: Text(
-                '${widget.currentIndex + 1} / ${widget.images.length}',
-                style: VeriRentText.labelSmall.copyWith(
-                  color: Colors.white,
-                  fontSize: 10,
-                ),
-              ),
-            ),
-          ),
-
-          // Dots
-          Positioned(
-            bottom: 12,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  widget.images.length,
-                  (i) => Container(
-                    width: 6,
-                    height: 6,
-                    margin: const EdgeInsets.symmetric(horizontal: 3),
-                    decoration: BoxDecoration(
-                      color: i == widget.currentIndex
-                          ? Colors.white
-                          : Colors.white30,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Quick Info Bar ────────────────────────────────────────────────────────────
 class _QuickInfoBar extends StatelessWidget {
-  const _QuickInfoBar({required this.listing});
+  const _QuickInfoBar({required this.listing, required this.accentColor});
   final PropertyModel listing;
+  final Color accentColor;
 
   @override
   Widget build(BuildContext context) {
@@ -372,14 +657,14 @@ class _QuickInfoBar extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '₦ ${(listing.price)}',
+                '₦ ${listing.price}',
                 style: VeriRentText.headlineMedium.copyWith(
-                  color: cs.primary,
+                  color: accentColor,
                   fontWeight: FontWeight.w800,
                 ),
               ),
               Text(
-                listing.priceUnit,
+                listing.priceUnit!,
                 style: VeriRentText.bodySmall.copyWith(
                   color: cs.onSurfaceVariant,
                 ),
@@ -389,33 +674,37 @@ class _QuickInfoBar extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: listing.isVerified
-                  ? VeriRentColors.success500.withOpacity(0.12)
-                  : VeriRentColors.warning500.withOpacity(0.12),
+              color:
+                  (listing.isVerified!
+                          ? VeriRentColors.success500
+                          : VeriRentColors.warning500)
+                      .withOpacity(0.12),
               borderRadius: BorderRadius.circular(VeriRentRadius.md),
               border: Border.all(
-                color: listing.isVerified
-                    ? VeriRentColors.success500.withOpacity(0.4)
-                    : VeriRentColors.warning500.withOpacity(0.4),
+                color:
+                    (listing.isVerified!
+                            ? VeriRentColors.success500
+                            : VeriRentColors.warning500)
+                        .withOpacity(0.4),
               ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  listing.isVerified
+                  listing.isVerified!
                       ? Icons.verified_rounded
                       : Icons.warning_amber_rounded,
                   size: 14,
-                  color: listing.isVerified
+                  color: listing.isVerified!
                       ? VeriRentColors.success500
                       : VeriRentColors.warning500,
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  listing.isVerified ? 'Verified' : 'Pending',
+                  listing.isVerified! ? 'Verified' : 'Pending',
                   style: VeriRentText.labelSmall.copyWith(
-                    color: listing.isVerified
+                    color: listing.isVerified!
                         ? VeriRentColors.success500
                         : VeriRentColors.warning500,
                     fontSize: 10,
@@ -430,9 +719,8 @@ class _QuickInfoBar extends StatelessWidget {
   }
 }
 
-// ── Title Section ─────────────────────────────────────────────────────────────
-class _TitleSection extends StatelessWidget {
-  const _TitleSection({required this.listing});
+class _TitleBlock extends StatelessWidget {
+  const _TitleBlock({required this.listing});
   final PropertyModel listing;
 
   @override
@@ -444,144 +732,29 @@ class _TitleSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      listing.title,
-                      style: VeriRentText.headlineSmall.copyWith(
-                        color: cs.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.location_on_rounded,
-                          size: 14,
-                          color: cs.onSurfaceVariant,
-                        ),
-                        const SizedBox(width: 3),
-                        Expanded(
-                          child: Text(
-                            '${listing.address}, ${listing.area}',
-                            style: VeriRentText.bodySmall.copyWith(
-                              color: cs.onSurfaceVariant,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _RatingChip(
-                  icon: Icons.star_rounded,
-                  label: '${listing.rating}',
-                  value: '${listing.reviewCount} reviews',
-                  color: VeriRentColors.gold,
-                ),
-                const SizedBox(width: 8),
-                _RatingChip(
-                  icon: Icons.location_on_rounded,
-                  label: listing.lga,
-                  value: listing.state,
-                  color: VeriRentColors.primary,
-                ),
-
-                // ── Key Specs ──────────────────────────────────────
-                if (listing.bedrooms != null)
-                  if (listing.bathrooms != null) const SizedBox(width: 8),
-                _RatingChip(
-                  icon: Icons.square_foot_rounded,
-                  value: listing.areaSqm,
-                  label: 'sqm',
-                  color: VeriRentColors.primary,
-                ),
-
-                if (listing.bedrooms != null)
-                  if (listing.bathrooms != null) const SizedBox(width: 8),
-                _RatingChip(
-                  icon: Icons.bathtub_outlined,
-                  value: '${listing.bathrooms}',
-                  label: 'Bath',
-                  color: VeriRentColors.primary,
-                ),
-
-                if (listing.bedrooms != null)
-                  if (listing.bathrooms != null) const SizedBox(width: 8),
-                _RatingChip(
-                  icon: Icons.bed_rounded,
-                  value: '${listing.bedrooms}',
-                  label: 'Bed',
-                  color: VeriRentColors.primary,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RatingChip extends StatelessWidget {
-  const _RatingChip({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.10),
-        borderRadius: BorderRadius.circular(VeriRentRadius.md),
-        border: Border.all(color: color.withOpacity(0.25)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 12, color: color),
-              const SizedBox(width: 4),
-              Text(
-                label,
-                style: VeriRentText.labelSmall.copyWith(
-                  color: color,
-                  fontSize: 10,
-                ),
-              ),
-            ],
-          ),
           Text(
-            value,
-            style: VeriRentText.bodySmall.copyWith(
-              color: cs.onSurfaceVariant,
-              fontSize: 9,
-            ),
+            listing.title!,
+            style: VeriRentText.headlineSmall.copyWith(color: cs.onSurface),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Icon(
+                Icons.location_on_rounded,
+                size: 14,
+                color: cs.onSurfaceVariant,
+              ),
+              const SizedBox(width: 3),
+              Expanded(
+                child: Text(
+                  '${listing.address}, ${listing.area}, ${listing.lga}',
+                  style: VeriRentText.bodySmall.copyWith(
+                    color: cs.onSurfaceVariant,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -589,47 +762,28 @@ class _RatingChip extends StatelessWidget {
   }
 }
 
-// ── Key Specs ─────────────────────────────────────────────────────────────────
-class _KeySpecsSection extends StatelessWidget {
-  const _KeySpecsSection({required this.listing});
-  final PropertyModel listing;
+class _CTARow extends StatelessWidget {
+  const _CTARow({required this.accentColor});
+  final Color accentColor;
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cs.surface,
-        borderRadius: BorderRadius.circular(VeriRentRadius.lg),
-        border: Border.all(color: cs.outlineVariant),
-      ),
+    return Padding(
+      padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          if (listing.bedrooms != null)
-            Expanded(
-              child: _SpecItem(
-                icon: Icons.bed_rounded,
-                value: '${listing.bedrooms}',
-                label: 'Bed',
-              ),
-            ),
-          if (listing.bathrooms != null)
-            Container(width: 1, color: cs.outlineVariant),
-          if (listing.bathrooms != null)
-            Expanded(
-              child: _SpecItem(
-                icon: Icons.bathtub_outlined,
-                value: '${listing.bathrooms}',
-                label: 'Bath',
-              ),
-            ),
-          Container(width: 1, color: cs.outlineVariant),
           Expanded(
-            child: _SpecItem(
-              icon: Icons.square_foot_rounded,
-              value: '${listing.areaSqm}',
-              label: 'sqm',
+            child: OutlinedButton(
+              onPressed: () {},
+              child: const Text('Schedule Visit'),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: accentColor),
+              onPressed: () {},
+              child: const Text('Request Details'),
             ),
           ),
         ],
@@ -638,378 +792,8 @@ class _KeySpecsSection extends StatelessWidget {
   }
 }
 
-class _SpecItem extends StatelessWidget {
-  const _SpecItem({
-    required this.icon,
-    required this.value,
-    required this.label,
-  });
-  final IconData icon;
-  final String value;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14),
-      child: Column(
-        children: [
-          Icon(icon, size: 20, color: cs.primary),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: VeriRentText.titleSmall.copyWith(color: cs.onSurface),
-          ),
-          Text(
-            label,
-            style: VeriRentText.bodySmall.copyWith(color: cs.onSurfaceVariant),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Price Section ─────────────────────────────────────────────────────────────
-class _PriceSection extends StatelessWidget {
-  const _PriceSection({required this.listing});
-  final PropertyModel listing;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: VeriRentColors.primaryDim,
-        borderRadius: BorderRadius.circular(VeriRentRadius.lg),
-        border: Border.all(color: VeriRentColors.primary.withOpacity(0.25)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Pricing & Terms',
-            style: VeriRentText.titleSmall.copyWith(
-              color: VeriRentColors.primary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '₦${listing.price}',
-                style: VeriRentText.headlineMedium.copyWith(
-                  color: VeriRentColors.primary,
-                ),
-              ),
-              Text(
-                listing.priceUnit,
-                style: VeriRentText.labelMedium.copyWith(
-                  color: VeriRentColors.primary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: VeriRentColors.primary.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(VeriRentRadius.xs),
-            ),
-            child: Text(
-              listing.paymentTerms,
-              style: VeriRentText.bodySmall.copyWith(
-                color: VeriRentColors.primary,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Amenities Section ─────────────────────────────────────────────────────────
-class _AmenitiesSection extends StatelessWidget {
-  const _AmenitiesSection({required this.listing});
-  final PropertyModel listing;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Amenities',
-            style: VeriRentText.titleMedium.copyWith(color: cs.onSurface),
-          ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: listing.amenities
-                .map(
-                  (a) => Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: cs.surfaceVariant,
-                      borderRadius: BorderRadius.circular(VeriRentRadius.full),
-                      border: Border.all(color: cs.outlineVariant),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.check_circle_rounded,
-                          size: 12,
-                          color: VeriRentColors.success500,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          a,
-                          style: VeriRentText.bodySmall.copyWith(
-                            color: cs.onSurface,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-                .toList(),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Features Section ──────────────────────────────────────────────────────────
-class _FeaturesSection extends StatelessWidget {
-  const _FeaturesSection({required this.listing});
-  final PropertyModel listing;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Features',
-            style: VeriRentText.titleMedium.copyWith(color: cs.onSurface),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            decoration: BoxDecoration(
-              color: cs.surface,
-              borderRadius: BorderRadius.circular(VeriRentRadius.lg),
-              border: Border.all(color: cs.outlineVariant),
-            ),
-            child: Column(
-              children: List.generate(listing.features.length, (i) {
-                final isLast = i == listing.features.length - 1;
-                return Column(
-                  children: [
-                    ListTile(
-                      leading: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: cs.surfaceVariant,
-                          borderRadius: BorderRadius.circular(
-                            VeriRentRadius.sm,
-                          ),
-                        ),
-                        child: Icon(
-                          Icons.info_rounded,
-                          size: 14,
-                          color: cs.primary,
-                        ),
-                      ),
-                      title: Text(
-                        listing!.features[i],
-                        style: VeriRentText.bodyMedium.copyWith(
-                          color: cs.onSurface,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                    ),
-                    if (!isLast)
-                      Divider(height: 1, color: cs.outlineVariant, indent: 54),
-                  ],
-                );
-              }),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Utilities Section ─────────────────────────────────────────────────────────
-class _UtilitiesSection extends StatelessWidget {
-  const _UtilitiesSection({required this.listing});
-  final PropertyModel listing;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Utilities & Services',
-            style: VeriRentText.titleMedium.copyWith(color: cs.onSurface),
-          ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: listing.utilities.entries
-                .map(
-                  (e) => Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: cs.surface,
-                      borderRadius: BorderRadius.circular(VeriRentRadius.md),
-                      border: Border.all(color: cs.outlineVariant),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          e.key,
-                          style: VeriRentText.labelSmall.copyWith(
-                            color: cs.primary,
-                            fontSize: 10,
-                          ),
-                        ),
-                        Text(
-                          e.value,
-                          style: VeriRentText.bodySmall.copyWith(
-                            color: cs.onSurface,
-                            fontSize: 9,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-                .toList(),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Nearby Facilities ─────────────────────────────────────────────────────────
-class _NearbyFacilitiesSection extends StatelessWidget {
-  const _NearbyFacilitiesSection({required this.listing});
-  final PropertyModel listing;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Nearby Facilities',
-            style: VeriRentText.titleMedium.copyWith(color: cs.onSurface),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            decoration: BoxDecoration(
-              color: cs.surface,
-              borderRadius: BorderRadius.circular(VeriRentRadius.lg),
-              border: Border.all(color: cs.outlineVariant),
-            ),
-            child: Column(
-              children: List.generate(listing.nearbyFacilities.length, (i) {
-                final isLast = i == listing.nearbyFacilities.length - 1;
-                final f = listing.nearbyFacilities[i];
-                return Column(
-                  children: [
-                    ListTile(
-                      leading: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: VeriRentColors.primaryDim,
-                          borderRadius: BorderRadius.circular(
-                            VeriRentRadius.sm,
-                          ),
-                        ),
-                        child: Icon(
-                          Icons.location_on_rounded,
-                          size: 14,
-                          color: VeriRentColors.primary,
-                        ),
-                      ),
-                      title: Text(
-                        f.name,
-                        style: VeriRentText.bodyMedium.copyWith(
-                          color: cs.onSurface,
-                        ),
-                      ),
-                      subtitle: Text(
-                        f.type,
-                        style: VeriRentText.bodySmall.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
-                      ),
-                      trailing: Text(
-                        f.distance,
-                        style: VeriRentText.labelSmall.copyWith(
-                          color: cs.primary,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                    ),
-                    if (!isLast)
-                      Divider(height: 1, color: cs.outlineVariant, indent: 54),
-                  ],
-                );
-              }),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Description Section ───────────────────────────────────────────────────────
-class _DescriptionSection extends StatelessWidget {
-  const _DescriptionSection({required this.listing});
+class _DescriptionBlock extends StatelessWidget {
+  const _DescriptionBlock({required this.listing});
   final PropertyModel listing;
 
   @override
@@ -1032,7 +816,7 @@ class _DescriptionSection extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            listing.description,
+            listing.description!,
             style: VeriRentText.bodyMedium.copyWith(
               color: cs.onSurfaceVariant,
               height: 1.6,
@@ -1044,91 +828,15 @@ class _DescriptionSection extends StatelessWidget {
   }
 }
 
-// ── Documents Section ─────────────────────────────────────────────────────────
-class _DocumentsSection extends StatelessWidget {
-  const _DocumentsSection({required this.listing});
+class _AgencyBlock extends StatelessWidget {
+  const _AgencyBlock({required this.listing, required this.accent});
   final PropertyModel listing;
+  final Color accent;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Verification & Documents',
-            style: VeriRentText.titleMedium.copyWith(color: cs.onSurface),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: listing.documents!.overallStatus == 'Verified'
-                  ? VeriRentColors.success500.withOpacity(0.12)
-                  : VeriRentColors.warning500.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(VeriRentRadius.lg),
-              border: Border.all(
-                color: listing.documents!.overallStatus == 'Verified'
-                    ? VeriRentColors.success500.withOpacity(0.4)
-                    : VeriRentColors.warning500.withOpacity(0.4),
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  listing.documents!.overallStatus == 'Verified'
-                      ? Icons.verified_rounded
-                      : Icons.warning_amber_rounded,
-                  color: listing.documents!.overallStatus == 'Verified'
-                      ? VeriRentColors.success500
-                      : VeriRentColors.warning500,
-                  size: 20,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        listing.documents!.overallStatus == 'Verified'
-                            ? 'All Documents Verified'
-                            : 'Pending Verification',
-                        style: VeriRentText.titleSmall.copyWith(
-                          color: listing.documents!.overallStatus == 'Verified'
-                              ? VeriRentColors.success500
-                              : VeriRentColors.warning500,
-                        ),
-                      ),
-                      Text(
-                        'Title deed · Land registry · Building approval',
-                        style: VeriRentText.bodySmall.copyWith(
-                          color: cs.onSurfaceVariant,
-                          fontSize: 10,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Agent Section ─────────────────────────────────────────────────────────────
-class _AgentSection extends StatelessWidget {
-  const _AgentSection({required this.listing});
-  final PropertyModel listing;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final agency = listing.agency;
+    final agency = listing.agency!;
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(14),
@@ -1148,72 +856,30 @@ class _AgentSection extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 56,
-                height: 56,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
-                  color: cs.surfaceVariant,
+                  color: accent.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(VeriRentRadius.md),
-                  border: Border.all(color: cs.outlineVariant),
+                  border: Border.all(color: accent.withOpacity(0.3)),
                 ),
-                child: Icon(
-                  Icons.business_rounded,
-                  size: 28,
-                  color: cs.onSurfaceVariant,
-                ),
+                child: Icon(Icons.business_rounded, size: 24, color: accent),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            agency!.name,
-                            style: VeriRentText.titleSmall.copyWith(
-                              color: cs.onSurface,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        if (agency.verificationTier == 'Professional')
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: VeriRentColors.info500.withOpacity(0.12),
-                              borderRadius: BorderRadius.circular(
-                                VeriRentRadius.xs,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.verified_rounded,
-                                  size: 8,
-                                  color: VeriRentColors.info500,
-                                ),
-                                const SizedBox(width: 2),
-                                Text(
-                                  'Pro',
-                                  style: VeriRentText.labelSmall.copyWith(
-                                    color: VeriRentColors.info500,
-                                    fontSize: 8,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                      ],
+                    Text(
+                      agency.name!,
+                      style: VeriRentText.titleSmall.copyWith(
+                        color: cs.onSurface,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.star_rounded,
                           size: 12,
                           color: VeriRentColors.gold,
@@ -1266,30 +932,824 @@ class _AgentSection extends StatelessWidget {
   }
 }
 
-// ── CTA Section ───────────────────────────────────────────────────────────────
-class _CTASection extends StatelessWidget {
-  const _CTASection({required this.listing});
+// =============================================================================
+//  1. RESIDENTIAL DETAILS PAGE
+//  Focus: Rooms, furnishing, utilities, lifestyle amenities
+// =============================================================================
+
+class ResidentialDetailsPage extends StatelessWidget {
+  const ResidentialDetailsPage({super.key, required this.listing});
   final PropertyModel listing;
 
   @override
   Widget build(BuildContext context) {
+    final res = listing.asResidential; // typed subclass accessor
+    return _DetailScaffold(
+      listing: listing,
+      accentColor: VeriRentColors.primary,
+      categoryLabel: listing.propertyType!,
+      categoryIcon: Icons.home_rounded,
+      body: [
+        // ── Key Specs ──────────────────────────────────────
+        SliverToBoxAdapter(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _SectionTitle('Key Specs'),
+              _HeroStatsBar(
+                accentColor: VeriRentColors.primary,
+                stats: [
+                  _StatItem(
+                    icon: Icons.bed_rounded,
+                    value: '${listing.bedrooms}',
+                    label: 'Bed',
+                  ),
+                  _StatItem(
+                    icon: Icons.bathtub_outlined,
+                    value: '${listing.bathrooms}',
+                    label: 'Bath',
+                  ),
+                  if (listing.toilets != null)
+                    _StatItem(
+                      icon: Icons.wc_rounded,
+                      value: '${listing.toilets}',
+                      label: 'WC',
+                    ),
+                  _StatItem(
+                    icon: Icons.square_foot_rounded,
+                    value: listing.area!,
+                    label: 'sqm',
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        // ── Furnishing & Condition ──────────────────────────
+        if (res != null)
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _SectionTitle('Furnishing & Condition'),
+                _InfoCard(
+                  children: [
+                    _InfoRow(
+                      icon: Icons.chair_rounded,
+                      label: 'Furnishing',
+                      value: res.furnishing ?? "_",
+                    ),
+                    _InfoRow(
+                      icon: Icons.build_rounded,
+                      label: 'Condition',
+                      value: res.residentialCondition!.name!.replaceAll(
+                        '_',
+                        ' ',
+                      ),
+                    ),
+                    _InfoRow(
+                      icon: Icons.water_drop_rounded,
+                      label: 'Water Supply',
+                      value: res.waterSupply ?? "_",
+                    ),
+                    _InfoRow(
+                      icon: Icons.bolt_rounded,
+                      label: 'Power Supply',
+                      value: res.powerSupply ?? "_",
+                      isLast: true,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+        // ── Security & Features ─────────────────────────────
+        if (res != null)
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _SectionTitle('Security & Features'),
+                _InfoCard(
+                  children: [
+                    _BoolRowSimple(
+                      icon: Icons.ac_unit_rounded,
+                      label: 'Air Conditioning',
+                      value: res.hasAC ?? false,
+                    ),
+                    _BoolRowSimple(
+                      icon: Icons.local_parking_rounded,
+                      label: 'Parking Space',
+                      value: res.hasParking ?? false,
+                    ),
+                    _BoolRowSimple(
+                      icon: Icons.park_rounded,
+                      label: 'Garden',
+                      value: res.hasGarden ?? false,
+                    ),
+                    _BoolRowSimple(
+                      icon: Icons.fence_rounded,
+                      label: 'Fenced',
+                      value: res.isFenced ?? false,
+                    ),
+                    _BoolRowSimple(
+                      icon: Icons.security_rounded,
+                      label: 'Security Guard',
+                      value: res.hasSecurityGuard ?? false,
+                    ),
+                    _BoolRowSimple(
+                      icon: Icons.videocam_rounded,
+                      label: 'CCTV',
+                      value: res.hasCCTV ?? false,
+                      isLast: true,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+        // ── Amenities ───────────────────────────────────────
+        if (listing.amenities!.isNotEmpty)
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _SectionTitle('Amenities'),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: listing.amenities!
+                        .map((a) => _AmenityPill(label: a))
+                        .toList(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+        // ── Pricing ─────────────────────────────────────────
+        SliverToBoxAdapter(
+          child: _PricingBlock(
+            listing: listing,
+            accent: VeriRentColors.primary,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// =============================================================================
+//  2. LAND DETAILS PAGE
+//  Focus: Legal docs, dimensions, zoning, infrastructure
+// =============================================================================
+
+class LandDetailsPage extends StatelessWidget {
+  const LandDetailsPage({super.key, required this.listing});
+  final PropertyModel listing;
+
+  static const _green = Color(0xFF4CAF50);
+
+  @override
+  Widget build(BuildContext context) {
+    final land = listing.asLand;
+    return _DetailScaffold(
+      listing: listing,
+      accentColor: _green,
+      categoryLabel: 'Land',
+      categoryIcon: Icons.landscape_rounded,
+      body: [
+        // ── Plot Dimensions ─────────────────────────────────
+        SliverToBoxAdapter(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _SectionTitle('Plot Details'),
+              _HeroStatsBar(
+                accentColor: _green,
+                stats: [
+                  _StatItem(
+                    icon: Icons.square_foot_rounded,
+                    value: listing.area!,
+                    label: 'sqm',
+                  ),
+                  if (land != null) ...[
+                    _StatItem(
+                      icon: Icons.straighten_rounded,
+                      value: land.dimensions ?? "_",
+                      label: 'Dimensions',
+                    ),
+                    _StatItem(
+                      icon: Icons.grass_rounded,
+                      value: land.landUse ?? "_",
+                      label: 'Land Use',
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        // ── Legal Documents ─────────────────────────────────
+        if (land != null)
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _SectionTitle('Legal Documents'),
+                _InfoCard(
+                  children: [
+                    _InfoRow(
+                      icon: Icons.description_rounded,
+                      label: 'Document Type',
+                      value: land.documentType ?? "_",
+                      accentColor: _green,
+                    ),
+                    _InfoRow(
+                      icon: Icons.assignment_rounded,
+                      label: 'Survey Plan No.',
+                      value: land.surveyPlanNumber!.isNotEmpty
+                          ? land.surveyPlanNumber!
+                          : 'Pending',
+                      accentColor: _green,
+                    ),
+                    _InfoRow(
+                      icon: Icons.folder_rounded,
+                      label: 'Registry Reference',
+                      value: land.landRegistryReference!.isNotEmpty
+                          ? land.landRegistryReference!
+                          : 'Pending',
+                      accentColor: _green,
+                      isLast: true,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+        // ── Infrastructure ──────────────────────────────────
+        if (land != null)
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _SectionTitle('Infrastructure'),
+                _InfoCard(
+                  children: [
+                    _BoolRowSimple(
+                      icon: Icons.bolt_rounded,
+                      label: 'Electricity Poles',
+                      value: land.hasElectricityPoles ?? false,
+                      trueColor: _green,
+                    ),
+                    _BoolRowSimple(
+                      icon: Icons.water_rounded,
+                      label: 'Water Line',
+                      value: land.hasWaterLine ?? false,
+                      trueColor: _green,
+                    ),
+                    _BoolRowSimple(
+                      icon: Icons.drag_handle_sharp,
+                      label: 'Drainage',
+                      value: land.hasDrainage ?? false,
+                      trueColor: _green,
+                    ),
+                    _BoolRowSimple(
+                      icon: Icons.add_road_rounded,
+                      label: 'Tarred Road Access',
+                      value: land.hasTarredRoad ?? false,
+                      trueColor: _green,
+                    ),
+                    _BoolRowSimple(
+                      icon: Icons.directions_car_rounded,
+                      label: 'Road Access',
+                      value: land.isAccessibleByRoad ?? false,
+                      trueColor: _green,
+                      isLast: true,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+        // ── Zoning ─────────────────────────────────────────
+        if (land != null)
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _SectionTitle('Zoning & Restrictions'),
+                _InfoCard(
+                  children: [
+                    _InfoRow(
+                      icon: Icons.map_rounded,
+                      label: 'Zoning Class',
+                      value: land.zoningClassification ?? "_",
+                      accentColor: _green,
+                    ),
+                    _InfoRow(
+                      icon: Icons.height_rounded,
+                      label: 'Max Building Height',
+                      value: land.maxBuildingHeight != null
+                          ? '${land.maxBuildingHeight} floors'
+                          : 'No limit',
+                      accentColor: _green,
+                    ),
+                    _BoolRowSimple(
+                      icon: Icons.store_rounded,
+                      label: 'Commercial Use Allowed',
+                      value: land.allowsCommercial ?? false,
+                      trueColor: _green,
+                      isLast: true,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+        // ── Pricing ─────────────────────────────────────────
+        SliverToBoxAdapter(
+          child: _PricingBlock(listing: listing, accent: _green),
+        ),
+      ],
+    );
+  }
+}
+
+// =============================================================================
+//  3. COMMERCIAL DETAILS PAGE
+//  Focus: Sqm, floors, office facilities, lease terms
+// =============================================================================
+
+class CommercialDetailsPage extends StatelessWidget {
+  const CommercialDetailsPage({super.key, required this.listing});
+  final PropertyModel listing;
+
+  static const _blue = VeriRentColors.info500;
+
+  @override
+  Widget build(BuildContext context) {
+    final office = listing.asOffice;
+    return _DetailScaffold(
+      listing: listing,
+      accentColor: _blue,
+      categoryLabel: listing.propertyType!,
+      categoryIcon: Icons.business_center_rounded,
+      body: [
+        // ── Key Specs ───────────────────────────────────────
+        SliverToBoxAdapter(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _SectionTitle('Space Details'),
+              _HeroStatsBar(
+                accentColor: _blue,
+                stats: [
+                  _StatItem(
+                    icon: Icons.square_foot_rounded,
+                    value: listing.area!,
+                    label: 'sqm',
+                  ),
+                  if (office != null) ...[
+                    _StatItem(
+                      icon: Icons.layers_rounded,
+                      value: office.floorLevel != null
+                          ? '${office.floorLevel}F'
+                          : 'GF',
+                      label: 'Floor',
+                    ),
+                    _StatItem(
+                      icon: Icons.local_parking_rounded,
+                      value: '${office.parkingSpaces}',
+                      label: 'Parking',
+                    ),
+                    _StatItem(
+                      icon: Icons.people_alt_rounded,
+                      value: office.layoutType ?? "_",
+                      label: 'Layout',
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        // ── Office Facilities ───────────────────────────────
+        if (office != null)
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _SectionTitle('Facilities'),
+                _InfoCard(
+                  children: [
+                    _BoolRowSimple(
+                      icon: Icons.ac_unit_rounded,
+                      label: 'HVAC System',
+                      value: office.hasHVAC ?? false,
+                      trueColor: _blue,
+                    ),
+                    _BoolRowSimple(
+                      icon: Icons.elevator_rounded,
+                      label: 'Elevator',
+                      value: office.hasElevator ?? false,
+                      trueColor: _blue,
+                    ),
+                    _BoolRowSimple(
+                      icon: Icons.accessible_rounded,
+                      label: 'Disabled Access',
+                      value: office.hasDisabledAccess ?? false,
+                      trueColor: _blue,
+                    ),
+                    _BoolRowSimple(
+                      icon: Icons.kitchen_rounded,
+                      label: 'Kitchen',
+                      value: office.hasKitchen ?? false,
+                      trueColor: _blue,
+                    ),
+                    _BoolRowSimple(
+                      icon: Icons.meeting_room_rounded,
+                      label: 'Conference Room',
+                      value: office.hasConferenceRoom ?? false,
+                      trueColor: _blue,
+                    ),
+                    _BoolRowSimple(
+                      icon: Icons.wifi_rounded,
+                      label: 'Internet',
+                      value: office.hasInternet ?? false,
+                      trueColor: _blue,
+                    ),
+                    _BoolRowSimple(
+                      icon: Icons.bolt_rounded,
+                      label: '24hr Power',
+                      value: office.has24HourPower ?? false,
+                      trueColor: _blue,
+                    ),
+                    _BoolRowSimple(
+                      icon: Icons.videocam_rounded,
+                      label: 'CCTV',
+                      value: office.hasCCTV ?? false,
+                      trueColor: _blue,
+                      isLast: true,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+        // ── Lease Terms ─────────────────────────────────────
+        if (office != null)
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _SectionTitle('Lease Terms'),
+                _InfoCard(
+                  children: [
+                    _InfoRow(
+                      icon: Icons.calendar_month_rounded,
+                      label: 'Minimum Lease',
+                      value: '${office.minLeaseMonths ?? 0} months',
+                      accentColor: _blue,
+                    ),
+                    _BoolRowSimple(
+                      icon: Icons.autorenew_rounded,
+                      label: 'Renewal Option',
+                      value: office.hasRenewalOption ?? false,
+                      trueColor: _blue,
+                    ),
+                    if (office.escalationPercentage != null)
+                      _InfoRow(
+                        icon: Icons.trending_up_rounded,
+                        label: 'Annual Escalation',
+                        value: '${office.escalationPercentage}%',
+                        accentColor: _blue,
+                        isLast: true,
+                      )
+                    else
+                      _InfoRow(
+                        icon: Icons.trending_flat_rounded,
+                        label: 'Annual Escalation',
+                        value: 'Negotiable',
+                        accentColor: _blue,
+                        isLast: true,
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+        // ── Pricing ─────────────────────────────────────────
+        SliverToBoxAdapter(
+          child: _PricingBlock(listing: listing, accent: _blue),
+        ),
+      ],
+    );
+  }
+}
+
+// =============================================================================
+//  4. ESTATE DETAILS PAGE
+//  Focus: Unit count, communal amenities, security, developer info
+// =============================================================================
+
+class EstateDetailsPage extends StatelessWidget {
+  const EstateDetailsPage({super.key, required this.listing});
+  final PropertyModel listing;
+
+  @override
+  Widget build(BuildContext context) {
+    return _DetailScaffold(
+      listing: listing,
+      accentColor: VeriRentColors.gold,
+      categoryLabel: 'Estate',
+      categoryIcon: Icons.domain_rounded,
+      body: [
+        // ── Estate Overview ─────────────────────────────────
+        SliverToBoxAdapter(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _SectionTitle('Estate Overview'),
+              _HeroStatsBar(
+                accentColor: VeriRentColors.gold,
+                stats: [
+                  _StatItem(
+                    icon: Icons.domain_rounded,
+                    value: '${listing.unitCount ?? '—'}',
+                    label: 'Units',
+                  ),
+                  _StatItem(
+                    icon: Icons.square_foot_rounded,
+                    value: listing.area!,
+                    label: 'sqm',
+                  ),
+                  _StatItem(
+                    icon: Icons.bed_rounded,
+                    value: '${listing.bedrooms}bd',
+                    label: 'Per Unit',
+                  ),
+                  _StatItem(
+                    icon: Icons.bathtub_outlined,
+                    value: '${listing.bathrooms}bth',
+                    label: 'Per Unit',
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        // ── Security & Facilities ───────────────────────────
+        SliverToBoxAdapter(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _SectionTitle('Security & Communal'),
+              _InfoCard(
+                children: [
+                  _BoolRowSimple(
+                    icon: Icons.security_rounded,
+                    label: 'Gated Community',
+                    value: true,
+                    trueColor: VeriRentColors.gold,
+                  ),
+                  _BoolRowSimple(
+                    icon: Icons.videocam_rounded,
+                    label: 'CCTV Surveillance',
+                    value: listing.amenities!.any(
+                      (a) => a.toLowerCase().contains('cctv'),
+                    ),
+                    trueColor: VeriRentColors.gold,
+                  ),
+                  _BoolRowSimple(
+                    icon: Icons.pool_rounded,
+                    label: 'Swimming Pool',
+                    value: listing.amenities!.any(
+                      (a) => a.toLowerCase().contains('pool'),
+                    ),
+                    trueColor: VeriRentColors.gold,
+                  ),
+                  _BoolRowSimple(
+                    icon: Icons.fitness_center_rounded,
+                    label: 'Gym / Fitness',
+                    value: listing.amenities!.any(
+                      (a) => a.toLowerCase().contains('gym'),
+                    ),
+                    trueColor: VeriRentColors.gold,
+                  ),
+                  _BoolRowSimple(
+                    icon: Icons.local_parking_rounded,
+                    label: 'Visitor Parking',
+                    value: listing.amenities!.any(
+                      (a) => a.toLowerCase().contains('parking'),
+                    ),
+                    trueColor: VeriRentColors.gold,
+                    isLast: true,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        // ── All Amenities ───────────────────────────────────
+        if (listing.amenities!.isNotEmpty)
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _SectionTitle('Estate Amenities'),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: listing.amenities!
+                        .map(
+                          (a) => _AmenityPill(
+                            label: a,
+                            accentColor: VeriRentColors.gold,
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+        // ── Pricing ─────────────────────────────────────────
+        SliverToBoxAdapter(
+          child: _PricingBlock(listing: listing, accent: VeriRentColors.gold),
+        ),
+      ],
+    );
+  }
+}
+
+// =============================================================================
+//  SHARED DETAIL WIDGETS
+// =============================================================================
+
+class _BoolRowSimple extends StatelessWidget {
+  const _BoolRowSimple({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.isLast = false,
+    this.trueColor,
+  });
+  final IconData icon;
+  final String label;
+  final bool value;
+  final bool isLast;
+  final Color? trueColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final okColor = trueColor ?? VeriRentColors.success500;
+    final activeColor = value ? okColor : cs.onSurfaceVariant;
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+          child: Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: activeColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(VeriRentRadius.sm),
+                ),
+                child: Icon(icon, size: 15, color: activeColor),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  style: VeriRentText.bodyMedium.copyWith(color: cs.onSurface),
+                ),
+              ),
+              Icon(
+                value ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                size: 18,
+                color: value ? okColor : cs.outlineVariant,
+              ),
+            ],
+          ),
+        ),
+        if (!isLast)
+          Divider(
+            height: 1,
+            color: cs.outlineVariant,
+            indent: 58,
+            endIndent: 14,
+          ),
+      ],
+    );
+  }
+}
+
+class _AmenityPill extends StatelessWidget {
+  const _AmenityPill({required this.label, this.accentColor});
+  final String label;
+  final Color? accentColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: cs.surfaceVariant,
+        borderRadius: BorderRadius.circular(VeriRentRadius.full),
+        border: Border.all(color: cs.outlineVariant),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.check_circle_rounded,
+            size: 12,
+            color: accentColor ?? VeriRentColors.success500,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: VeriRentText.bodySmall.copyWith(color: cs.onSurface),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PricingBlock extends StatelessWidget {
+  const _PricingBlock({required this.listing, required this.accent});
+  final PropertyModel listing;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.all(16),
-      child: Row(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: accent.withOpacity(0.06),
+        borderRadius: BorderRadius.circular(VeriRentRadius.lg),
+        border: Border.all(color: accent.withOpacity(0.25)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: OutlinedButton(
-              onPressed: () {},
-              child: const Text('Schedule Visit'),
-            ),
+          Text(
+            'Pricing & Terms',
+            style: VeriRentText.titleSmall.copyWith(color: accent),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: FilledButton(
-              onPressed: () {},
-              child: const Text('Request Details'),
-            ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '₦${listing.price}',
+                style: VeriRentText.headlineMedium.copyWith(color: accent),
+              ),
+              Text(
+                listing.priceUnit!,
+                style: VeriRentText.labelMedium.copyWith(color: accent),
+              ),
+            ],
           ),
+          if (listing.paymentTerms!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: accent.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(VeriRentRadius.xs),
+              ),
+              child: Text(
+                listing.paymentTerms!,
+                style: VeriRentText.bodySmall.copyWith(color: accent),
+              ),
+            ),
+          ],
         ],
       ),
     );

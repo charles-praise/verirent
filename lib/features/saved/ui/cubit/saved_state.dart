@@ -42,7 +42,7 @@ class SavedState extends Equatable {
     return items.where((p) {
       if (filter == 'Rent') return p.listingType == 'rent';
       if (filter == 'Sale') return p.listingType == 'sale';
-      if (filter == 'Verified') return p.isVerified;
+      if (filter == 'Verified') return p.isVerified!;
       return true;
     }).toList();
   }

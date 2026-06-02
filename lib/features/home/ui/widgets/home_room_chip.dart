@@ -3,10 +3,16 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/agents_theme.dart';
 
 class RoomChip extends StatelessWidget {
-  const RoomChip({super.key, required this.icon, required this.label});
+  const RoomChip({
+    super.key,
+    required this.icon,
+    required this.label,
+    this.accentColor,
+  });
 
   final IconData icon;
   final String label;
+  final Color? accentColor;
 
   @override
   Widget build(BuildContext context) {

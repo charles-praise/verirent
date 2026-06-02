@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:verirent/core/shared/location/ui/page/location_dropdown.dart';
 import 'package:verirent/features/home/ui/widgets/home_search_bar.dart';
 
 import '../../../../core/theme/agents_theme.dart';
@@ -85,57 +86,7 @@ class HomeAppBar extends SliverPersistentHeaderDelegate {
           // ── Top Row: Location · Notification · Avatar ─────────────────
           Row(
             children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: VeriRentColors.white.withOpacity(0),
-                      borderRadius: BorderRadius.circular(VeriRentRadius.full),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 18,
-                          height: 18,
-                          decoration: BoxDecoration(
-                            color: VeriRentColors.secondary500.withOpacity(
-                              0.25,
-                            ),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.location_on_rounded,
-                            size: 11,
-                            color: VeriRentColors.secondary300,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Flexible(
-                          child: Text(
-                            'Port Harcourt, Rivers State',
-                            style: VeriRentText.labelMedium.copyWith(
-                              color: VeriRentColors.white.withOpacity(0.90),
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const SizedBox(width: 2),
-                        Icon(
-                          Icons.expand_more_rounded,
-                          size: 16,
-                          color: VeriRentColors.white.withOpacity(0.55),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              Expanded(child: LocationDropdown()),
               const SizedBox(width: VeriRentSpacing.sm),
               _AppBarIconButton(
                 icon: Icons.notifications_none_rounded,
@@ -173,7 +124,7 @@ class HomeAppBar extends SliverPersistentHeaderDelegate {
                       ),
                       child: Center(
                         child: Text(
-                          'CP',
+                          'CP', // TODO: take first letter from user first_name and last_name
                           style: VeriRentText.labelSmall.copyWith(
                             color: VeriRentColors.white,
                             fontSize: 11,
@@ -206,40 +157,6 @@ class HomeAppBar extends SliverPersistentHeaderDelegate {
           const SizedBox(height: VeriRentSpacing.xs),
           // ── Search App Bar  ─────────────────
           HomeSearchBar(controller: controller, focusNode: focusNode),
-          // const SizedBox(height: 3),
-          // Text(
-          //   'Find Your Perfect\nVerified Home',
-          //   style: VeriRentText.headlineMedium.copyWith(
-          //     color: VeriRentColors.white,
-          //     fontWeight: FontWeight.w800,
-          //     height: 1.25,
-          //   ),
-          // ),
-          //
-          // const SizedBox(height: VeriRentSpacing.md),
-          //
-          // // ── Trust Stats ────────────────────────────────────────────────
-          // Row(
-          //   children: [
-          //     _StatPill(
-          //       icon: Icons.verified_rounded,
-          //       label: '127 Verified',
-          //       iconColor: VeriRentColors.secondary300,
-          //     ),
-          //     const SizedBox(width: 8),
-          //     _StatPill(
-          //       icon: Icons.fiber_new_rounded,
-          //       label: '3 New Today',
-          //       iconColor: VeriRentColors.green,
-          //     ),
-          //     const SizedBox(width: 8),
-          //     _StatPill(
-          //       icon: Icons.business_rounded,
-          //       label: '18 Agencies',
-          //       iconColor: VeriRentColors.primary200,
-          //     ),
-          //   ],
-          // ),
         ],
       ),
     );

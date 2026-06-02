@@ -7,8 +7,11 @@ import 'package:flutter/services.dart';
 
 import '../../../../core/theme/agents_theme.dart';
 
+bool filtersExpanded = false;
+
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key});
+  final VoidCallback? showSearchFilter;
+  const SearchPage({super.key, this.showSearchFilter});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -24,7 +27,6 @@ class _SearchPageState extends State<SearchPage> {
   int _minBaths = 0;
   String _selectedType = 'Any';
   bool _verifiedOnly = false;
-  bool _filtersExpanded = false;
 
   final _propertyTypes = [
     'Any',
@@ -64,6 +66,8 @@ class _SearchPageState extends State<SearchPage> {
     }
     return '₦${(value / 1000).toStringAsFixed(0)}K';
   }
+
+  void showSearchFilter() => setState(() => filtersExpanded = !filtersExpanded);
 
   @override
   Widget build(BuildContext context) {
@@ -165,20 +169,20 @@ class _SearchPageState extends State<SearchPage> {
                     const SizedBox(width: 10),
                     GestureDetector(
                       onTap: () =>
-                          setState(() => _filtersExpanded = !_filtersExpanded),
+                          setState(() => filtersExpanded = !filtersExpanded),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 180),
                         width: 38,
                         height: 38,
                         decoration: BoxDecoration(
-                          color: _filtersExpanded
+                          color: filtersExpanded
                               ? VeriRentColors.primaryDim
                               : cs.surfaceVariant,
                           borderRadius: BorderRadius.circular(
                             VeriRentRadius.sm,
                           ),
                           border: Border.all(
-                            color: _filtersExpanded
+                            color: filtersExpanded
                                 ? VeriRentColors.primary
                                 : cs.outlineVariant,
                           ),
@@ -186,7 +190,7 @@ class _SearchPageState extends State<SearchPage> {
                         child: Icon(
                           Icons.tune_rounded,
                           size: 18,
-                          color: _filtersExpanded
+                          color: filtersExpanded
                               ? VeriRentColors.primary
                               : cs.onSurfaceVariant,
                         ),
@@ -198,7 +202,7 @@ class _SearchPageState extends State<SearchPage> {
             ),
 
             // ── Filters Panel ──────────────────────────────────────
-            if (_filtersExpanded)
+            if (filtersExpanded)
               SliverToBoxAdapter(
                 child: _FiltersPanel(
                   priceRange: _priceRange,

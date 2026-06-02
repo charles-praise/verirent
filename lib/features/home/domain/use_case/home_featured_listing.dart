@@ -17,20 +17,20 @@ class FeaturedListingsHorizontalUseCase extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: VeriRentSpacing.base),
-        itemCount: kFeatured.length,
+        itemCount: featuredProperties.length,
         separatorBuilder: (_, _) => const SizedBox(width: VeriRentSpacing.sm),
         itemBuilder: (context, index) {
-          return FeaturedCard(card: kFeatured[index]);
+          return FeaturedCardFactory.build(context, featuredProperties[index]);
         },
       ),
     );
   }
 }
 
-// ── Available Listing UseCase ─────────────────────────────────────────────────────────────────
+// ── Available/Recent Listing UseCase ─────────────────────────────────────────────────────────────────
 
-class FeaturedListingsVerticalUseCase extends StatelessWidget {
-  const FeaturedListingsVerticalUseCase({super.key});
+class AvailableListingsVerticalUseCase extends StatelessWidget {
+  const AvailableListingsVerticalUseCase({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -40,28 +40,58 @@ class FeaturedListingsVerticalUseCase extends StatelessWidget {
         crossAxisCount: 2,
         mainAxisSpacing: VeriRentSpacing.sm,
         crossAxisSpacing: VeriRentSpacing.sm,
-        childCount: kFeatured.length,
+        childCount: recentProperties.length,
         itemBuilder: (context, index) {
-          return MonsoryFeaturedCard(card: kFeatured[index]);
+          return FeaturedCardFactory.build(context, recentProperties[index]);
         },
       ),
     );
   }
 }
 
-/*
-## If you want mixed sizes
+// ── Landed Listing UseCase ─────────────────────────────────────────────────────────────────
 
-You can vary height by using different image/body lengths, or by adding an explicit height factor per card. Masonry layouts naturally place taller cards without forcing every tile to match the same size [3][1].
+class LandedPropertiesUseCase extends StatelessWidget {
+  const LandedPropertiesUseCase({super.key});
 
-Example idea:
-- short card: 220 px tall.
-- medium card: 260 px tall.
-- tall card: 320 px tall.
+  @override
+  Widget build(BuildContext context) {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: VeriRentSpacing.base),
+      sliver: SliverMasonryGrid.count(
+        crossAxisCount: 2,
+        mainAxisSpacing: VeriRentSpacing.sm,
+        crossAxisSpacing: VeriRentSpacing.sm,
+        childCount: landedProperties.length,
+        itemBuilder: (context, index) {
+          return FeaturedCardFactory.build(context, landedProperties[index]);
+        },
+      ),
+    );
+  }
+}
 
-## One important fix
+// ── commercial Listing UseCase ─────────────────────────────────────────────────────────────────
 
-Do not wrap the masonry grid in `SliverToBoxAdapter`. Put the `SliverMasonryGrid` directly inside `CustomScrollView`, otherwise you can run into the same layout issues you saw before [4][5].
+class CommercialPropertiesListingUseCase extends StatelessWidget {
+  const CommercialPropertiesListingUseCase({super.key});
 
-Would you like me to rewrite your `Home` page using a masonry grid for the featured listings?
- */
+  @override
+  Widget build(BuildContext context) {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: VeriRentSpacing.base),
+      sliver: SliverMasonryGrid.count(
+        crossAxisCount: 2,
+        mainAxisSpacing: VeriRentSpacing.sm,
+        crossAxisSpacing: VeriRentSpacing.sm,
+        childCount: commercialProperties.length,
+        itemBuilder: (context, index) {
+          return FeaturedCardFactory.build(
+            context,
+            commercialProperties[index],
+          );
+        },
+      ),
+    );
+  }
+}

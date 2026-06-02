@@ -17,7 +17,7 @@ class SavedCubit extends Cubit<SavedState> {
     try {
       // TODO: replace with real repository call
       await Future.delayed(const Duration(milliseconds: 600));
-      final items = mockSavedListings();
+      final items = savedProperties;
       emit(
         state.copyWith(
           status: items.isEmpty ? SavedStatus.empty : SavedStatus.loaded,

@@ -122,7 +122,7 @@ class _SavedView extends StatelessWidget {
                                 onRemove: () {
                                   HapticFeedback.mediumImpact();
                                   context.read<SavedCubit>().removeSaved(
-                                    item.id,
+                                    item.id!,
                                   );
                                 },
                                 onTap: () => context.push(
