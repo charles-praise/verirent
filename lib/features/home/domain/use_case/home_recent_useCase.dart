@@ -21,7 +21,7 @@ class RecentListingUseCase extends StatelessWidget {
           ),
           child: RecentCardFactory.build(context, recentProperties[index]),
         );
-      }, childCount: 2),
+      }, childCount: 4),
     );
   }
 }
