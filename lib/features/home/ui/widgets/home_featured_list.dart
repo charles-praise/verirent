@@ -234,13 +234,17 @@ class _PriceRow extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '₦ ${card.price}',
-              style: VeriRentText.titleSmall.copyWith(
-                color: priceColor,
-                fontWeight: FontWeight.w700,
+            SizedBox(
+              width: 90,
+              child: Text(
+                '₦ ${card.price}',
+                style: VeriRentText.titleSmall.copyWith(
+                  color: priceColor,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
+
             Text(
               unit,
               style: VeriRentText.bodySmall.copyWith(
@@ -313,44 +317,54 @@ class ResidentialFeaturedCard extends StatelessWidget {
                       borderRadius: _topRadius(),
                     ),
                   ),
+
                   // Category pill — bottom left
-                  Positioned(
-                    bottom: 8,
-                    left: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.55),
-                        borderRadius: BorderRadius.circular(
-                          VeriRentRadius.full,
-                        ),
-                        border: Border.all(color: Colors.white24),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.home_rounded,
-                            size: 9,
-                            color: Colors.white70,
-                          ),
-                          const SizedBox(width: 3),
-                          Text(
-                            card.propertyType!,
-                            style: VeriRentText.labelSmall.copyWith(
-                              color: Colors.white,
-                              fontSize: 9,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  // Positioned(
+                  //   bottom: 8,
+                  //   left: 8,
+                  //   child: Container(
+                  //     padding: const EdgeInsets.symmetric(
+                  //       horizontal: 8,
+                  //       vertical: 3,
+                  //     ),
+                  //     margin: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  //     decoration: BoxDecoration(
+                  //       color: Colors.black.withOpacity(0.55),
+                  //       borderRadius: BorderRadius.circular(
+                  //         VeriRentRadius.full,
+                  //       ),
+                  //       border: Border.all(
+                  //         color: Colors.white24.withOpacity(0.1),
+                  //       ),
+                  //     ),
+                  //     child: Row(
+                  //       mainAxisSize: MainAxisSize.min,
+                  //       children: [
+                  //         const Icon(
+                  //           Icons.home_rounded,
+                  //           size: 9,
+                  //           color: Colors.white70,
+                  //         ),
+                  //         const SizedBox(width: 3),
+                  //         Flexible(
+                  //           child: SizedBox(
+                  //             width: 40,
+                  //             child: Text(
+                  //               card.propertyType!,
+                  //               style: VeriRentText.labelSmall.copyWith(
+                  //                 color: Colors.white,
+                  //                 fontSize: 9,
+                  //               ),
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
                   if (card.isVerified!)
                     Positioned(top: 8, left: 8, child: _verifiedBadge()),
+
                   Positioned(bottom: 6, right: 6, child: const _SaveButton()),
                 ],
               ),
@@ -390,23 +404,27 @@ class ResidentialFeaturedCard extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          _Chip(
-                            icon: Icons.bed_rounded,
-                            label: '${card.bedrooms}bd',
-                          ),
-                          const SizedBox(width: 4),
-                          _Chip(
-                            icon: Icons.bathtub_outlined,
-                            label: '${card.bathrooms}bth',
-                          ),
-                          const SizedBox(width: 4),
-                          _Chip(
-                            icon: Icons.square_foot_rounded,
-                            label: '${card.areaSqm}m²',
-                          ),
-                        ],
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _Chip(
+                              icon: Icons.bed_rounded,
+                              label: '${card.bedrooms}bd',
+                            ),
+                            const SizedBox(width: 4),
+                            _Chip(
+                              icon: Icons.bathtub_outlined,
+                              label: '${card.bathrooms}bth',
+                            ),
+                            const SizedBox(width: 4),
+                            _Chip(
+                              icon: Icons.square_foot_rounded,
+                              label: '${card.areaSqm}m²',
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 6),
                       _AgencyRow(card: card),
@@ -594,20 +612,24 @@ class LandFeaturedCard extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          _Chip(
-                            icon: Icons.description_rounded,
-                            label: card.documentType ?? 'C of O',
-                            accent: _green,
-                          ),
-                          const SizedBox(width: 4),
-                          _Chip(
-                            icon: Icons.straighten_rounded,
-                            label: card.dimensions ?? '—',
-                            accent: _green,
-                          ),
-                        ],
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _Chip(
+                              icon: Icons.description_rounded,
+                              label: card.documentType ?? 'C of O',
+                              accent: _green,
+                            ),
+                            const SizedBox(width: 4),
+                            _Chip(
+                              icon: Icons.straighten_rounded,
+                              label: card.dimensions ?? '—',
+                              accent: _green,
+                            ),
+                            const SizedBox(width: 4),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 6),
                       _AgencyRow(card: card, accent: _green),
@@ -695,40 +717,40 @@ class CommercialFeaturedCard extends StatelessWidget {
                     ),
                   ),
                   // Commercial pill — top left
-                  Positioned(
-                    top: 8,
-                    left: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _blue,
-                        borderRadius: BorderRadius.circular(
-                          VeriRentRadius.full,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.business_center_rounded,
-                            size: 9,
-                            color: Colors.white,
-                          ),
-                          const SizedBox(width: 3),
-                          Text(
-                            card.propertyType!,
-                            style: VeriRentText.labelSmall.copyWith(
-                              color: Colors.white,
-                              fontSize: 9,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  // Positioned(
+                  //   top: 8,
+                  //   left: 8,
+                  //   child: Container(
+                  //     padding: const EdgeInsets.symmetric(
+                  //       horizontal: 8,
+                  //       vertical: 3,
+                  //     ),
+                  //     decoration: BoxDecoration(
+                  //       color: _blue,
+                  //       borderRadius: BorderRadius.circular(
+                  //         VeriRentRadius.full,
+                  //       ),
+                  //     ),
+                  //     child: Row(
+                  //       mainAxisSize: MainAxisSize.min,
+                  //       children: [
+                  //         const Icon(
+                  //           Icons.business_center_rounded,
+                  //           size: 9,
+                  //           color: Colors.white,
+                  //         ),
+                  //         const SizedBox(width: 3),
+                  //         Text(
+                  //           card.propertyType!,
+                  //           style: VeriRentText.labelSmall.copyWith(
+                  //             color: Colors.white,
+                  //             fontSize: 9,
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
                   if (card.isVerified!)
                     Positioned(top: 8, right: 8, child: _verifiedBadge()),
                   // Floor + area overlay

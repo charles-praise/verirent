@@ -5,6 +5,27 @@ import '../../../../core/theme/agents_theme.dart';
 import '../../data/local_repo.dart';
 import '../../ui/widgets/home_featured_list.dart';
 
+// ── All Listing  UseCase ─────────────────────────────────────────────────────────────────
+class AllListingUseCase extends StatelessWidget {
+  const AllListingUseCase({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: VeriRentSpacing.base),
+      sliver: SliverMasonryGrid.count(
+        crossAxisCount: 2,
+        mainAxisSpacing: VeriRentSpacing.sm,
+        crossAxisSpacing: VeriRentSpacing.sm,
+        childCount: allListedProperties.length,
+        itemBuilder: (context, index) {
+          return FeaturedCardFactory.build(context, allListedProperties[index]);
+        },
+      ),
+    );
+  }
+}
+
 // ── Featured Listing  UseCase ─────────────────────────────────────────────────────────────────
 
 class FeaturedListingsHorizontalUseCase extends StatelessWidget {
@@ -27,10 +48,10 @@ class FeaturedListingsHorizontalUseCase extends StatelessWidget {
   }
 }
 
-// ── Available/Recent Listing UseCase ─────────────────────────────────────────────────────────────────
+// ── Residential Listing UseCase ─────────────────────────────────────────────────────────────────
 
-class AvailableListingsVerticalUseCase extends StatelessWidget {
-  const AvailableListingsVerticalUseCase({super.key});
+class ResidentialPropertiesListingUseCase extends StatelessWidget {
+  const ResidentialPropertiesListingUseCase({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +61,34 @@ class AvailableListingsVerticalUseCase extends StatelessWidget {
         crossAxisCount: 2,
         mainAxisSpacing: VeriRentSpacing.sm,
         crossAxisSpacing: VeriRentSpacing.sm,
-        childCount: recentProperties.length,
+        childCount: residentialProperties.length,
         itemBuilder: (context, index) {
-          return FeaturedCardFactory.build(context, recentProperties[index]);
+          return FeaturedCardFactory.build(
+            context,
+            residentialProperties[index],
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ── Estate Listing UseCase ─────────────────────────────────────────────────────────────────
+
+class EstatePropertiesUseCase extends StatelessWidget {
+  const EstatePropertiesUseCase({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: VeriRentSpacing.base),
+      sliver: SliverMasonryGrid.count(
+        crossAxisCount: 2,
+        mainAxisSpacing: VeriRentSpacing.sm,
+        crossAxisSpacing: VeriRentSpacing.sm,
+        childCount: estateProperties.length,
+        itemBuilder: (context, index) {
+          return FeaturedCardFactory.build(context, estateProperties[index]);
         },
       ),
     );
@@ -73,8 +119,8 @@ class LandedPropertiesUseCase extends StatelessWidget {
 
 // ── commercial Listing UseCase ─────────────────────────────────────────────────────────────────
 
-class CommercialPropertiesListingUseCase extends StatelessWidget {
-  const CommercialPropertiesListingUseCase({super.key});
+class CommercialPropertiesUseCase extends StatelessWidget {
+  const CommercialPropertiesUseCase({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -90,6 +136,28 @@ class CommercialPropertiesListingUseCase extends StatelessWidget {
             context,
             commercialProperties[index],
           );
+        },
+      ),
+    );
+  }
+}
+
+// ── shortlet Listing UseCase ─────────────────────────────────────────────────────────────────
+
+class ShortLetPropertiesUseCase extends StatelessWidget {
+  const ShortLetPropertiesUseCase({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: VeriRentSpacing.base),
+      sliver: SliverMasonryGrid.count(
+        crossAxisCount: 2,
+        mainAxisSpacing: VeriRentSpacing.sm,
+        crossAxisSpacing: VeriRentSpacing.sm,
+        childCount: shortletProperties.length,
+        itemBuilder: (context, index) {
+          return FeaturedCardFactory.build(context, shortletProperties[index]);
         },
       ),
     );

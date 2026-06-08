@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:verirent/core/theme/agents_theme.dart';
 
-import '../../../../core/theme/agents_theme.dart';
 import '../../domain/entities/nav_item.dart';
 import '../cubit/main_cubit.dart';
+import '../cubit/main_state.dart';
 
 class ShellCustomBottomNavbar extends StatelessWidget {
   const ShellCustomBottomNavbar({super.key});
@@ -47,7 +48,9 @@ class ShellCustomBottomNavbar extends StatelessWidget {
 
     return BlocBuilder<MainCubit, MainState>(
       builder: (context, state) {
-        final activeColor = VeriRentColors.primary;
+        final activeColor = Theme.of(context).brightness == Brightness.light
+            ? VeriRentColors.primary
+            : VeriRentColors.accent400;
         final inactiveColor = isLight
             ? const Color(0xFF8E8E93)
             : const Color(0xFF8E8E93);

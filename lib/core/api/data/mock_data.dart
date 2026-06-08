@@ -427,8 +427,8 @@ final PropertyModel kResidential4 = PropertyModel(
   rating: 4.7,
   reviewCount: 19,
   agentInitials: 'EP',
-  location: 'Old GRA, Port Harcourt',
-  propertyType: 'Detached House',
+  location: 'Old GRA, Port Harcourt, Tombia Street',
+  propertyType: 'Detached House Quite Environment',
   imageUrls: [
     'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600',
     'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
@@ -492,40 +492,40 @@ final PropertyModel kLand1 = PropertyModel(
   category: PropertyCategory.land,
   type: PropertyType.land,
   listingType: ListingType.sale,
-  title: 'Dry Land, 648 sqm — Rumuigbo',
+  title: 'Dry Land, 648 sqm — Rumuigbo,nnnn',
   description:
       'A 648 sqm dry land in a fast-developing area of Rumuigbo, Obio-Akpor LGA. '
       'The land is fenced, has boundary demarcation, and road frontage. '
       'Registered survey plan available. Suitable for residential or commercial development.',
-  price: '18,500,000',
-  priceUnit: 'asking price',
-  paymentTerms: 'Outright purchase',
-  address: 'Rumuigbo Layout',
-  area: 'Rumuigbo',
-  lga: 'Obio-Akpor',
-  state: 'Rivers',
+  price: '18,500,000,000',
+  priceUnit: 'asking price vvvv',
+  paymentTerms: 'Outright purchase vvvvv',
+  address: 'Rumuigbo Layout, nnnnn',
+  area: 'Rumuigbo ll',
+  lga: 'Obio-Akpor llll',
+  state: 'Rivers lllll',
   areaSqm: 648.0,
-  bedrooms: 0,
-  bathrooms: 0,
+  bedrooms: 11111,
+  bathrooms: 11111,
   isVerified: true,
   isFeatured: true,
-  agencyName: 'Greenfield Estates Ltd',
+  agencyName: 'Greenfield Estates Ltd vvvvv',
   tierLabel: 'Professional Agency',
   tierColor: VeriRentColors.tierProfessional,
   emoji: '🌿',
   rating: 4.6,
   reviewCount: 12,
   agentInitials: 'GE',
-  location: 'Rumuigbo, Obio-Akpor',
+  location: 'Rumuigbo, Obio-Akpor bbbbb',
   propertyType: 'Residential Land',
   imageUrls: [
     'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600',
     'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600',
   ],
   amenities: [
-    'Fenced Perimeter',
-    'Tarred Road Access',
-    'Electricity Poles Nearby',
+    'Fenced Perimeter kkkkkkkkk',
+    'Tarred Road Access kkkkkkkkkkkkk',
+    'Electricity Poles Nearby kkkkkkkkkkkkkkk',
     'Drainage',
   ],
   features: ['Survey plan available', 'Boundary clearly demarcated'],
@@ -549,7 +549,7 @@ final PropertyModel kLand1 = PropertyModel(
     isAccessibleByRoad: true,
     surveyPlanNumber: 'SPH/OA/2023/04412',
     landRegistryReference: 'LR/PH/2023/0881',
-    documentType: 'C of O',
+    documentType: 'C of Ommmmmmmmmmmmmmmmmmm',
     hasBoundaryDemarcation: true,
     hasElectricityPoles: true,
     hasWaterLine: false,
@@ -1304,6 +1304,14 @@ final List<PropertyModel> kEstateListings = [kEstate1, kEstate2];
 
 /// Shortlets only.
 final List<PropertyModel> kShortletListings = [kShortlet1, kShortlet2];
+
+/// Residential only
+final List<PropertyModel> kResidentialListings = [
+  kResidential1,
+  kResidential2,
+  kResidential3,
+  kResidential4,
+];
 
 /// Saved listings (mirrors what SavedCubit mock returns).
 final List<PropertyModel> kSaved = [

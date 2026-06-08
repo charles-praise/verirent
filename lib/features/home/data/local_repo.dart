@@ -4,7 +4,10 @@ import 'package:verirent/features/home/domain/entities/property_model.dart';
 /// Featured horizontal scroll — mixed categories, all verified.
 List<PropertyModel> get featuredProperties => kFeatured;
 
-/// Available listings — vertical / masonry grid.
+/// Residential listing only
+List<PropertyModel> get residentialProperties => kResidentialListings;
+
+/// recent listings — vertical / masonry grid.
 List<PropertyModel> get recentProperties => kRecent;
 
 /// Land only.

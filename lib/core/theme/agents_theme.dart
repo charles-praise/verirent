@@ -1,13 +1,17 @@
 // =============================================================================
-//  VeriRent NG — Design System & Theme
-//  Nixel Technology Global
-//  Version: 1.0.0 | May 2026
+//  VeriRent NG — Design System v2.0  "Slate Ink"
+//  Nixel Technology Global  |  June 2026
+//
+//  Aesthetic: Premium PropTech — estate-agency authority meets fintech clarity.
+//  Primary: Deep Slate (#1A2332) — conviction, trust, formality.
+//  Accent:  Warm Amber (#E8A020) — energy, premium signal, call-to-action only.
+//  Surface: Warm Fog (#F7F6F3 light / #131B27 dark) — not cold white/black.
 //
 //  Usage:
 //    MaterialApp(
-//      theme:      VeriRentTheme.light,
-//      darkTheme:  VeriRentTheme.dark,
-//      themeMode:  ThemeMode.system,
+//      theme:     VeriRentTheme.light,
+//      darkTheme: VeriRentTheme.dark,
+//      themeMode: ThemeMode.system,
 //    )
 // =============================================================================
 
@@ -16,235 +20,230 @@ import 'package:flutter/services.dart';
 
 // =============================================================================
 //  SECTION 1 — BRAND PALETTE
-//  All raw hex values live here. Nothing else should hard-code a color.
 // =============================================================================
 
 abstract final class VeriRentColors {
-  // ── Primary — Deep Teal ──────────────────────────────────────────────────
-  // The authority color. Used for primary actions, headers, key UI chrome.
-  static const Color primary50 = Color(0xFFE6F4F6);
-  static const Color primary100 = Color(0xFFBFE3E8);
-  static const Color primary200 = Color(0xFF93D0D8);
-  static const Color primary300 = Color(0xFF62BCC8);
-  static const Color primary400 = Color(0xFF3AADBB);
-  static const Color primary500 = Color(0xFF007B8A); // ← brand primary
-  static const Color primary600 = Color(0xFF006E7C);
-  static const Color primary700 = Color(0xFF005D69);
-  static const Color primary800 = Color(0xFF004D57);
-  static const Color primary900 = Color(0xFF003640);
-  static const bg = Color(0xFF0B1120);
-  static const surface = Color(0xFF111827);
-  static const surface2 = Color(0xFF1F2937);
-  static const surface3 = Color(0xFF374151);
-  static const border = Color(0x12FFFFFF); // --border
-  static const Color primary = Color(0xFF0F766E);
-  static const primaryDim = Color(0x1F00C9A7); // --primary-dim
-  static const primaryGlow = Color(0x5900C9A7); // --primary-glow
-  static const gold = Color(0xFFF0C060); // --gold
-  static const goldDim = Color(0x1FF0C060); // --gold-dim
-  static const text = Color(0xFFF0F4FF); // --text
-  static const textMuted = Color(0xFF8892A4); // --text-muted
-  static const textDim = Color(0xFF4A5568); // --text-dim
-  static const red = Color(0xFFFF5A5F); // --red
-  static const green = Color(0xFF4ADE80);
+  // ── Primary — Deep Slate ─────────────────────────────────────────────────
+  // Conveys legal authority, estate surveying gravitas, institutional trust.
+  static const Color primary50 = Color(0xFFECEFF4);
+  static const Color primary100 = Color(0xFFCDD3DF);
+  static const Color primary200 = Color(0xFFABB5C8);
+  static const Color primary300 = Color(0xFF7E91AD);
+  static const Color primary400 = Color(0xFF526F90);
+  static const Color primary500 = Color(0xFF1A2332); // ← brand primary
+  static const Color primary600 = Color(0xFF16202E);
+  static const Color primary700 = Color(0xFF111B27);
+  static const Color primary800 = Color(0xFF0C141E);
+  static const Color primary900 = Color(0xFF060C14);
 
-  // ── Secondary — Warm Gold ────────────────────────────────────────────────
-  // The trust signal. Certification badges, highlights, premium indicators.
-  static const Color secondary50 = Color(0xFFFDF6E3);
-  static const Color secondary100 = Color(0xFFF9E8B8);
-  static const Color secondary200 = Color(0xFFF4D889);
-  static const Color secondary300 = Color(0xFFEFC85A);
-  static const Color secondary400 = Color(0xFFDDB235);
-  static const Color secondary500 = Color(0xFFC9A84C); // ← brand gold
-  static const Color secondary600 = Color(0xFFB89040);
-  static const Color secondary700 = Color(0xFF9E7A33);
-  static const Color secondary800 = Color(0xFF826328);
-  static const Color secondary900 = Color(0xFF5E4719);
+  // ── Accent — Warm Amber ──────────────────────────────────────────────────
+  // Used exclusively for: CTAs, tier badges, active states, price highlights.
+  // Amber reads as premium in Nigerian PropTech context without the Jiji teal.
+  static const Color accent50 = Color(0xFFFDF4E3);
+  static const Color accent100 = Color(0xFFFAE0AA);
+  static const Color accent200 = Color(0xFFF5C970);
+  static const Color accent300 = Color(0xFFEFAF38);
+  static const Color accent400 = Color(0xFFE8A020); // ← brand accent
+  static const Color accent500 = Color(0xFFCC8C18);
+  static const Color accent600 = Color(0xFFAD7512);
+  static const Color accent700 = Color(0xFF8C5E0C);
+  static const Color accent800 = Color(0xFF6A4608);
+  static const Color accent900 = Color(0xFF482F04);
 
-  // ── Neutral — Slate Navy ─────────────────────────────────────────────────
-  // Document text, surfaces, subtle backgrounds.
-  static const Color neutral50 = Color(0xFFF2F4F6);
-  static const Color neutral100 = Color(0xFFE2E6EB);
-  static const Color neutral200 = Color(0xFFC8CDD5);
-  static const Color neutral300 = Color(0xFFACB3BE);
-  static const Color neutral400 = Color(0xFF8E97A4);
-  static const Color neutral500 = Color(0xFF707A88);
-  static const Color neutral600 = Color(0xFF545E6C);
-  static const Color neutral700 = Color(0xFF3A4350);
-  static const Color neutral800 = Color(0xFF242D38); // dark surface base
-  static const Color neutral900 = Color(0xFF131920); // darkest
+  // ── Neutral — Warm Fog ───────────────────────────────────────────────────
+  // Slightly warm to avoid the clinical coldness of pure gray.
+  static const Color neutral50 = Color(0xFFF7F6F3); // warm page bg
+  static const Color neutral100 = Color(0xFFEEEDE9);
+  static const Color neutral200 = Color(0xFFDDDBD5);
+  static const Color neutral300 = Color(0xFFC4C1B8);
+  static const Color neutral400 = Color(0xFFA09D94);
+  static const Color neutral500 = Color(0xFF7C796F);
+  static const Color neutral600 = Color(0xFF5A5750);
+  static const Color neutral700 = Color(0xFF3E3C37);
+  static const Color neutral800 = Color(0xFF252320);
+  static const Color neutral900 = Color(0xFF131B27); // dark page bg
 
-  // ── Semantic — Success ───────────────────────────────────────────────────
-  // Verified badges, KYC passed, active listing status.
-  static const Color success50 = Color(0xFFE8F5E9);
-  static const Color success200 = Color(0xFFA5D6A7);
-  static const Color success500 = Color(0xFF2E7D32);
-  static const Color success700 = Color(0xFF1B5E20);
+  // ── Semantic ─────────────────────────────────────────────────────────────
+  static const Color success50 = Color(0xFFEBF7ED);
+  static const Color success200 = Color(0xFFA8DCAF);
+  static const Color success500 = Color(0xFF2D7A35);
+  static const Color success700 = Color(0xFF1B4E21);
 
-  // ── Semantic — Warning ───────────────────────────────────────────────────
-  // Pending review, incomplete KYC, expiring subscriptions.
-  static const Color warning50 = Color(0xFFFFF8E1);
-  static const Color warning200 = Color(0xFFFFE082);
-  static const Color warning500 = Color(0xFFF9A825);
-  static const Color warning700 = Color(0xFFE65100);
+  static const Color warning50 = Color(0xFFFFF8E6);
+  static const Color warning200 = Color(0xFFFFDE85);
+  static const Color warning500 = Color(0xFFF59D0E);
+  static const Color warning700 = Color(0xFFD17D00);
 
-  // ── Semantic — Error ─────────────────────────────────────────────────────
-  // Disputes, fraud flags, failed verification.
-  static const Color error50 = Color(0xFFFFEBEE);
-  static const Color error200 = Color(0xFFEF9A9A);
-  static const Color error500 = Color(0xFFC62828);
-  static const Color error700 = Color(0xFFB71C1C);
+  static const Color error50 = Color(0xFFFEEBEB);
+  static const Color error200 = Color(0xFFF0A0A0);
+  static const Color error500 = Color(0xFFBF2626);
+  static const Color error700 = Color(0xFF8C1B1B);
 
-  // ── Semantic — Info ──────────────────────────────────────────────────────
-  // Informational banners, help tooltips.
-  static const Color info50 = Color(0xFFE3F2FD);
-  static const Color info200 = Color(0xFF90CAF9);
-  static const Color info500 = Color(0xFF1565C0);
-  static const Color info700 = Color(0xFF0D47A1);
+  static const Color info50 = Color(0xFFE5EEF8);
+  static const Color info200 = Color(0xFF91B8E8);
+  static const Color info500 = Color(0xFF1B5BAD);
+  static const Color info700 = Color(0xFF0E3D78);
 
-  // ── Trust Tier Badge Colors ──────────────────────────────────────────────
-  // Visual identity for each verification tier.
-  static const Color tierBasic = Color(0xFFB0BEC5); // Silver
-  static const Color tierVerified = Color(0xFF4DD0E1); // Aqua
-  static const Color tierPro = Color(0xFFFFCA28); // Rich Gold
+  // ── Tier Badge Colors ────────────────────────────────────────────────────
+  static const Color tierBasic = Color(0xFF9AA4B2); // Cool slate
+  static const Color tierVerified = Color(0xFF3B82F6); // Vivid blue
+  static const Color tierPro = Color(0xFFE8A020); // Brand amber
+  static const Color tierStarterAgency = Color(0xFF22C55E); // Emerald
+  static const Color tierProfessional = Color(0xFF6366F1); // Indigo
+  static const Color tierEnterprise = Color(0xFFEC4899); // Rose
 
-  static const Color tierStarterAgency = Color(0xFF81C784); // Emerald
-  static const Color tierProfessional = Color(0xFF64B5F6); // Sapphire
-  static const Color tierEnterprise = Color(0xFFE1BEE7); // Lavender Platinum
-
-  // ── Absolute ─────────────────────────────────────────────────────────────
+  // ── Utility ──────────────────────────────────────────────────────────────
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF000000);
   static const Color transparent = Colors.transparent;
+
+  // ── Legacy aliases (kept for widget compatibility) ───────────────────────
+  // secondary* → accent* so existing widgets need zero changes.
+  static const Color secondary50 = accent50;
+  static const Color secondary100 = accent100;
+  static const Color secondary200 = accent200;
+  static const Color secondary300 = accent300;
+  static const Color secondary400 = accent400;
+  static const Color secondary500 =
+      accent400; // was brand gold; amber is the closest equivalent
+  static const Color secondary600 = accent500;
+  static const Color secondary700 = accent600;
+  static const Color secondary800 = accent700;
+  static const Color secondary900 = accent900;
+
+  static const Color primary = primary500;
+  static const Color gold = accent400;
+  static const Color goldDim = Color(0x1FE8A020);
+  static const Color red = error500;
+  static const Color green = success500;
+  static const Color text = Color(0xFF1A1A1A);
+  static const Color textMuted = Color(0xFF7C796F);
+  static const Color textDim = Color(0xFFC4C1B8);
+  static const Color bg = neutral900;
+  static const Color surface = neutral800;
+  static const Color surface2 = Color(0xFF1E2A3B);
+  static const Color surface3 = Color(0xFF2A3A50);
+  static const Color border = Color(0x14000000);
+  static const Color primaryDim = Color(0x1F1A2332);
+  static const Color primaryGlow = Color(0x591A2332);
 }
 
 // =============================================================================
-//  SECTION 2 — TYPOGRAPHY SCALE
-//  Uses system fonts for reliability, with refined weight/tracking control.
+//  SECTION 2 — TYPOGRAPHY SCALE  (compact — everything ~1pt tighter)
 // =============================================================================
 
 abstract final class VeriRentText {
-  // Display — hero section headings, splash screen
+  // Display
   static const TextStyle displayLarge = TextStyle(
-    fontFamily: 'Inter', // serif for trust/authority feel
-    fontSize: 40,
+    fontFamily: 'Inter',
+    fontSize: 36,
     fontWeight: FontWeight.w700,
     letterSpacing: -0.5,
     height: 1.15,
     overflow: TextOverflow.ellipsis,
   );
-
   static const TextStyle displayMedium = TextStyle(
     fontFamily: 'Inter',
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: FontWeight.w700,
     letterSpacing: -0.3,
     height: 1.2,
     overflow: TextOverflow.ellipsis,
   );
-
   static const TextStyle displaySmall = TextStyle(
     fontFamily: 'Inter',
-    fontSize: 26,
+    fontSize: 22,
     fontWeight: FontWeight.w600,
     letterSpacing: -0.2,
     height: 1.25,
     overflow: TextOverflow.ellipsis,
   );
 
-  // Headline — section titles, card headers
+  // Headline
   static const TextStyle headlineLarge = TextStyle(
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: FontWeight.w700,
     letterSpacing: -0.1,
     height: 1.3,
     overflow: TextOverflow.ellipsis,
   );
-
   static const TextStyle headlineMedium = TextStyle(
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: FontWeight.w600,
     letterSpacing: 0,
     height: 1.35,
     overflow: TextOverflow.ellipsis,
   );
-
   static const TextStyle headlineSmall = TextStyle(
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: FontWeight.w600,
     letterSpacing: 0,
     height: 1.4,
     overflow: TextOverflow.ellipsis,
   );
 
-  // Title — list items, app bars, dialog titles
+  // Title
   static const TextStyle titleLarge = TextStyle(
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: FontWeight.w600,
     letterSpacing: 0.1,
     height: 1.4,
     overflow: TextOverflow.ellipsis,
   );
-
   static const TextStyle titleMedium = TextStyle(
-    fontSize: 14,
-    fontWeight: FontWeight.w600,
-    letterSpacing: 0.1,
-    height: 1.45,
-    overflow: TextOverflow.ellipsis,
-  );
-
-  static const TextStyle titleSmall = TextStyle(
     fontSize: 13,
     fontWeight: FontWeight.w600,
     letterSpacing: 0.1,
     height: 1.45,
     overflow: TextOverflow.ellipsis,
   );
+  static const TextStyle titleSmall = TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w600,
+    letterSpacing: 0.1,
+    height: 1.45,
+    overflow: TextOverflow.ellipsis,
+  );
 
-  // Body — paragraph text, descriptions
+  // Body
   static const TextStyle bodyLarge = TextStyle(
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: FontWeight.w400,
     letterSpacing: 0.1,
     height: 1.6,
   );
-
   static const TextStyle bodyMedium = TextStyle(
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: FontWeight.w400,
     letterSpacing: 0.1,
     height: 1.55,
     overflow: TextOverflow.ellipsis,
   );
-
   static const TextStyle bodySmall = TextStyle(
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: FontWeight.w400,
     letterSpacing: 0.15,
     height: 1.5,
     overflow: TextOverflow.ellipsis,
   );
 
-  // Label — buttons, tags, caps text, chips
+  // Label
   static const TextStyle labelLarge = TextStyle(
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: FontWeight.w600,
     letterSpacing: 0.4,
     height: 1.4,
     overflow: TextOverflow.ellipsis,
   );
-
   static const TextStyle labelMedium = TextStyle(
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: FontWeight.w600,
     letterSpacing: 0.4,
     height: 1.4,
     overflow: TextOverflow.ellipsis,
   );
-
   static const TextStyle labelSmall = TextStyle(
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: FontWeight.w700,
     letterSpacing: 0.8,
     height: 1.3,
@@ -253,81 +252,67 @@ abstract final class VeriRentText {
 }
 
 // =============================================================================
-//  SECTION 3 — SPACING, RADIUS & ELEVATION
+//  SECTION 3 — SPACING, RADIUS & ELEVATION (tighter)
 // =============================================================================
 
 abstract final class VeriRentSpacing {
-  static const double xs = 4.0;
-  static const double sm = 8.0;
-  static const double md = 12.0;
-  static const double base = 16.0;
-  static const double lg = 24.0;
-  static const double xl = 32.0;
-  static const double xxl = 48.0;
-  static const double xxxl = 64.0;
+  static const double xs = 3.0;
+  static const double sm = 6.0;
+  static const double md = 10.0;
+  static const double base = 14.0;
+  static const double lg = 20.0;
+  static const double xl = 28.0;
+  static const double xxl = 40.0;
+  static const double xxxl = 56.0;
 }
 
 abstract final class VeriRentRadius {
-  static const double xs = 4.0;
-  static const double sm = 8.0;
-  static const double md = 12.0;
-  static const double lg = 16.0;
-  static const double xl = 24.0;
-  static const double full = 100.0; // pill-shaped chips, badges
+  static const double xs = 3.0;
+  static const double sm = 6.0;
+  static const double md = 10.0;
+  static const double lg = 14.0;
+  static const double xl = 20.0;
+  static const double full = 100.0;
 }
 
 abstract final class VeriRentElevation {
   static const double none = 0;
   static const double low = 1;
-  static const double medium = 4;
-  static const double high = 8;
-  static const double modal = 16;
+  static const double medium = 3;
+  static const double high = 6;
+  static const double modal = 12;
 }
 
 // =============================================================================
-//  SECTION 4 — LIGHT THEME COLOR SCHEME
+//  SECTION 4 — LIGHT COLOR SCHEME
 // =============================================================================
 
 const ColorScheme _lightColorScheme = ColorScheme(
   brightness: Brightness.light,
-
-  // Primary — teal hierarchy
   primary: VeriRentColors.primary500,
   onPrimary: VeriRentColors.white,
   primaryContainer: VeriRentColors.primary100,
   onPrimaryContainer: VeriRentColors.primary800,
-
-  // Secondary — gold hierarchy
-  secondary: VeriRentColors.secondary500,
+  secondary: VeriRentColors.accent400,
   onSecondary: VeriRentColors.white,
-  secondaryContainer: VeriRentColors.secondary100,
-  onSecondaryContainer: VeriRentColors.secondary800,
-
-  // Tertiary — used for success states & verified badges
+  secondaryContainer: VeriRentColors.accent100,
+  onSecondaryContainer: VeriRentColors.accent800,
   tertiary: VeriRentColors.success500,
   onTertiary: VeriRentColors.white,
   tertiaryContainer: VeriRentColors.success50,
   onTertiaryContainer: VeriRentColors.success700,
-
-  // Error
   error: VeriRentColors.error500,
   onError: VeriRentColors.white,
   errorContainer: VeriRentColors.error50,
   onErrorContainer: VeriRentColors.error700,
-
-  // Surfaces
   surface: VeriRentColors.white,
-  onSurface: VeriRentColors.neutral900,
+  onSurface: VeriRentColors.neutral800,
   surfaceVariant: VeriRentColors.neutral50,
-  onSurfaceVariant: VeriRentColors.neutral600,
-
-  // Outline
+  onSurfaceVariant: VeriRentColors.neutral500,
   outline: VeriRentColors.neutral300,
   outlineVariant: VeriRentColors.neutral200,
-
-  // Background / inverse
   shadow: VeriRentColors.neutral900,
-  scrim: Color(0x99131920),
+  scrim: Color(0x99131B27),
   inverseSurface: VeriRentColors.neutral800,
   onInverseSurface: VeriRentColors.neutral50,
   inversePrimary: VeriRentColors.primary200,
@@ -335,47 +320,33 @@ const ColorScheme _lightColorScheme = ColorScheme(
 );
 
 // =============================================================================
-//  SECTION 5 — DARK THEME COLOR SCHEME
+//  SECTION 5 — DARK COLOR SCHEME
 // =============================================================================
 
 const ColorScheme _darkColorScheme = ColorScheme(
   brightness: Brightness.dark,
-
-  // Primary — lighter teal for dark backgrounds
   primary: VeriRentColors.primary300,
   onPrimary: VeriRentColors.primary900,
-  primaryContainer: VeriRentColors.primary800,
+  primaryContainer: VeriRentColors.primary700,
   onPrimaryContainer: VeriRentColors.primary100,
-
-  // Secondary — warm gold, slightly toned for dark backgrounds
-  secondary: VeriRentColors.secondary300,
-  onSecondary: VeriRentColors.secondary900,
-  secondaryContainer: VeriRentColors.secondary800,
-  onSecondaryContainer: VeriRentColors.secondary100,
-
-  // Tertiary
+  secondary: VeriRentColors.accent300,
+  onSecondary: VeriRentColors.accent900,
+  secondaryContainer: VeriRentColors.accent700,
+  onSecondaryContainer: VeriRentColors.accent100,
   tertiary: VeriRentColors.success200,
   onTertiary: VeriRentColors.success700,
   tertiaryContainer: VeriRentColors.success700,
   onTertiaryContainer: VeriRentColors.success50,
-
-  // Error
   error: VeriRentColors.error200,
   onError: VeriRentColors.error700,
   errorContainer: VeriRentColors.error700,
   onErrorContainer: VeriRentColors.error50,
-
-  // Surfaces — layered dark
-  surface: VeriRentColors.neutral800, // main card / dialog bg
-  onSurface: VeriRentColors.neutral50,
-  surfaceVariant: VeriRentColors.neutral900, // scaffold bg
+  surface: VeriRentColors.neutral800,
+  onSurface: VeriRentColors.neutral100,
+  surfaceVariant: VeriRentColors.neutral900,
   onSurfaceVariant: VeriRentColors.neutral300,
-
-  // Outline
   outline: VeriRentColors.neutral600,
   outlineVariant: VeriRentColors.neutral700,
-
-  // Background / inverse
   shadow: VeriRentColors.black,
   scrim: Color(0xCC000000),
   inverseSurface: VeriRentColors.neutral100,
@@ -385,14 +356,14 @@ const ColorScheme _darkColorScheme = ColorScheme(
 );
 
 // =============================================================================
-//  SECTION 6 — COMPONENT THEMES (shared builder utilities)
+//  SECTION 6 — COMPONENT THEMES
 // =============================================================================
 
 AppBarTheme _appBarTheme(ColorScheme cs) => AppBarTheme(
   backgroundColor: cs.surface,
   foregroundColor: cs.onSurface,
   elevation: 0,
-  scrolledUnderElevation: 1,
+  scrolledUnderElevation: 0.5,
   centerTitle: false,
   titleTextStyle: VeriRentText.titleLarge.copyWith(color: cs.onSurface),
   iconTheme: IconThemeData(color: cs.onSurface),
@@ -404,12 +375,12 @@ AppBarTheme _appBarTheme(ColorScheme cs) => AppBarTheme(
 
 CardThemeData _cardTheme(ColorScheme cs) => CardThemeData(
   color: cs.surface,
-  shadowColor: cs.shadow.withOpacity(0.08),
+  shadowColor: cs.shadow.withOpacity(0.06),
   elevation: VeriRentElevation.low,
-  margin: const EdgeInsets.all(0),
+  margin: EdgeInsets.zero,
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(VeriRentRadius.lg),
-    side: BorderSide(color: cs.outlineVariant, width: 1),
+    side: BorderSide(color: cs.outlineVariant, width: 0.75),
   ),
 );
 
@@ -418,10 +389,8 @@ FilledButtonThemeData _filledButtonTheme(ColorScheme cs) =>
       style: FilledButton.styleFrom(
         backgroundColor: cs.primary,
         foregroundColor: cs.onPrimary,
-        disabledBackgroundColor: cs.onSurface.withOpacity(0.12),
-        disabledForegroundColor: cs.onSurface.withOpacity(0.38),
-        minimumSize: const Size(64, 48),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        minimumSize: const Size(56, 44),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         textStyle: VeriRentText.labelLarge,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(VeriRentRadius.md),
@@ -434,11 +403,10 @@ OutlinedButtonThemeData _outlinedButtonTheme(ColorScheme cs) =>
     OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: cs.primary,
-        disabledForegroundColor: cs.onSurface.withOpacity(0.38),
-        minimumSize: const Size(64, 48),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        minimumSize: const Size(56, 44),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         textStyle: VeriRentText.labelLarge,
-        side: BorderSide(color: cs.primary, width: 1.5),
+        side: BorderSide(color: cs.primary, width: 1.25),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(VeriRentRadius.md),
         ),
@@ -448,8 +416,8 @@ OutlinedButtonThemeData _outlinedButtonTheme(ColorScheme cs) =>
 TextButtonThemeData _textButtonTheme(ColorScheme cs) => TextButtonThemeData(
   style: TextButton.styleFrom(
     foregroundColor: cs.primary,
-    minimumSize: const Size(48, 40),
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    minimumSize: const Size(40, 36),
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
     textStyle: VeriRentText.labelLarge,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(VeriRentRadius.sm),
@@ -457,21 +425,20 @@ TextButtonThemeData _textButtonTheme(ColorScheme cs) => TextButtonThemeData(
   ),
 );
 
+// Gold CTA (premium / upgrade actions)
 ElevatedButtonThemeData _elevatedButtonTheme(ColorScheme cs) =>
     ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        // Gold accent for premium / CTA actions
-        backgroundColor: VeriRentColors.secondary500,
+        backgroundColor: VeriRentColors.accent400,
         foregroundColor: VeriRentColors.white,
-        disabledBackgroundColor: cs.onSurface.withOpacity(0.12),
-        minimumSize: const Size(64, 48),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        minimumSize: const Size(56, 44),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         textStyle: VeriRentText.labelLarge,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(VeriRentRadius.md),
         ),
-        elevation: 2,
-        shadowColor: VeriRentColors.secondary500.withOpacity(0.3),
+        elevation: 1,
+        shadowColor: VeriRentColors.accent400.withOpacity(0.25),
       ),
     );
 
@@ -483,26 +450,26 @@ InputDecorationTheme _inputTheme(ColorScheme cs) => InputDecorationTheme(
   floatingLabelStyle: VeriRentText.labelMedium.copyWith(color: cs.primary),
   prefixIconColor: cs.onSurfaceVariant,
   suffixIconColor: cs.onSurfaceVariant,
-  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
   border: OutlineInputBorder(
     borderRadius: BorderRadius.circular(VeriRentRadius.md),
-    borderSide: BorderSide(color: cs.outline, width: 1),
+    borderSide: BorderSide(color: cs.outline, width: 0.75),
   ),
   enabledBorder: OutlineInputBorder(
     borderRadius: BorderRadius.circular(VeriRentRadius.md),
-    borderSide: BorderSide(color: cs.outline, width: 1),
+    borderSide: BorderSide(color: cs.outline, width: 0.75),
   ),
   focusedBorder: OutlineInputBorder(
     borderRadius: BorderRadius.circular(VeriRentRadius.md),
-    borderSide: BorderSide(color: cs.primary, width: 2),
+    borderSide: BorderSide(color: cs.primary, width: 1.5),
   ),
   errorBorder: OutlineInputBorder(
     borderRadius: BorderRadius.circular(VeriRentRadius.md),
-    borderSide: BorderSide(color: cs.error, width: 1.5),
+    borderSide: BorderSide(color: cs.error, width: 1),
   ),
   focusedErrorBorder: OutlineInputBorder(
     borderRadius: BorderRadius.circular(VeriRentRadius.md),
-    borderSide: BorderSide(color: cs.error, width: 2),
+    borderSide: BorderSide(color: cs.error, width: 1.5),
   ),
   errorStyle: VeriRentText.bodySmall.copyWith(color: cs.error),
 );
@@ -510,18 +477,16 @@ InputDecorationTheme _inputTheme(ColorScheme cs) => InputDecorationTheme(
 ChipThemeData _chipTheme(ColorScheme cs) => ChipThemeData(
   backgroundColor: cs.surfaceVariant,
   selectedColor: cs.primaryContainer,
-  disabledColor: cs.onSurface.withOpacity(0.12),
   labelStyle: VeriRentText.labelMedium.copyWith(color: cs.onSurface),
   secondaryLabelStyle: VeriRentText.labelMedium.copyWith(
     color: cs.onPrimaryContainer,
   ),
-  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(VeriRentRadius.full),
     side: BorderSide(color: cs.outlineVariant),
   ),
   elevation: 0,
-  pressElevation: 1,
 );
 
 BottomNavigationBarThemeData _bottomNavTheme(ColorScheme cs) =>
@@ -535,7 +500,7 @@ BottomNavigationBarThemeData _bottomNavTheme(ColorScheme cs) =>
       unselectedLabelStyle: VeriRentText.labelSmall,
       showUnselectedLabels: true,
       type: BottomNavigationBarType.fixed,
-      elevation: 8,
+      elevation: 6,
     );
 
 NavigationBarThemeData _navigationBarTheme(ColorScheme cs) =>
@@ -544,9 +509,9 @@ NavigationBarThemeData _navigationBarTheme(ColorScheme cs) =>
       indicatorColor: cs.primaryContainer,
       iconTheme: MaterialStateProperty.resolveWith((states) {
         if (states.contains(MaterialState.selected)) {
-          return IconThemeData(color: cs.onPrimaryContainer, size: 24);
+          return IconThemeData(color: cs.onPrimaryContainer, size: 22);
         }
-        return IconThemeData(color: cs.onSurfaceVariant, size: 24);
+        return IconThemeData(color: cs.onSurfaceVariant, size: 22);
       }),
       labelTextStyle: MaterialStateProperty.resolveWith((states) {
         if (states.contains(MaterialState.selected)) {
@@ -558,7 +523,7 @@ NavigationBarThemeData _navigationBarTheme(ColorScheme cs) =>
         return VeriRentText.labelSmall.copyWith(color: cs.onSurfaceVariant);
       }),
       elevation: 0,
-      height: 72,
+      height: 66,
       labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
     );
 
@@ -570,8 +535,8 @@ TabBarThemeData _tabBarTheme(ColorScheme cs) => TabBarThemeData(
     fontWeight: FontWeight.w400,
   ),
   indicator: UnderlineTabIndicator(
-    borderSide: BorderSide(color: cs.primary, width: 3),
-    borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),
+    borderSide: BorderSide(color: cs.primary, width: 2.5),
+    borderRadius: const BorderRadius.vertical(top: Radius.circular(2.5)),
   ),
   indicatorSize: TabBarIndicatorSize.label,
   dividerColor: cs.outlineVariant,
@@ -579,9 +544,7 @@ TabBarThemeData _tabBarTheme(ColorScheme cs) => TabBarThemeData(
 
 DialogThemeData _dialogTheme(ColorScheme cs) => DialogThemeData(
   backgroundColor: cs.surface,
-  surfaceTintColor: cs.surfaceTint,
   elevation: VeriRentElevation.modal,
-  shadowColor: cs.shadow.withOpacity(0.2),
   titleTextStyle: VeriRentText.headlineMedium.copyWith(color: cs.onSurface),
   contentTextStyle: VeriRentText.bodyMedium.copyWith(
     color: cs.onSurfaceVariant,
@@ -596,7 +559,7 @@ SnackBarThemeData _snackBarTheme(ColorScheme cs) => SnackBarThemeData(
   contentTextStyle: VeriRentText.bodyMedium.copyWith(
     color: cs.onInverseSurface,
   ),
-  actionTextColor: cs.inversePrimary,
+  actionTextColor: cs.secondary,
   behavior: SnackBarBehavior.floating,
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(VeriRentRadius.md),
@@ -605,24 +568,22 @@ SnackBarThemeData _snackBarTheme(ColorScheme cs) => SnackBarThemeData(
 );
 
 ListTileThemeData _listTileTheme(ColorScheme cs) => ListTileThemeData(
-  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
   titleTextStyle: VeriRentText.bodyLarge.copyWith(color: cs.onSurface),
   subtitleTextStyle: VeriRentText.bodySmall.copyWith(
     color: cs.onSurfaceVariant,
   ),
-  leadingAndTrailingTextStyle: VeriRentText.bodySmall.copyWith(
-    color: cs.onSurfaceVariant,
-  ),
   iconColor: cs.onSurfaceVariant,
   selectedColor: cs.primary,
-  selectedTileColor: cs.primaryContainer.withOpacity(0.5),
+  selectedTileColor: cs.primaryContainer.withOpacity(0.4),
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(VeriRentRadius.md),
   ),
+  minVerticalPadding: 8,
 );
 
 DividerThemeData _dividerTheme(ColorScheme cs) =>
-    DividerThemeData(color: cs.outlineVariant, thickness: 1, space: 1);
+    DividerThemeData(color: cs.outlineVariant, thickness: 0.75, space: 0.75);
 
 FloatingActionButtonThemeData _fabTheme(ColorScheme cs) =>
     FloatingActionButtonThemeData(
@@ -633,9 +594,6 @@ FloatingActionButtonThemeData _fabTheme(ColorScheme cs) =>
         borderRadius: BorderRadius.circular(VeriRentRadius.lg),
       ),
       elevation: VeriRentElevation.medium,
-      focusElevation: VeriRentElevation.medium,
-      hoverElevation: VeriRentElevation.high,
-      highlightElevation: VeriRentElevation.high,
     );
 
 SwitchThemeData _switchTheme(ColorScheme cs) => SwitchThemeData(
@@ -659,7 +617,7 @@ CheckboxThemeData _checkboxTheme(ColorScheme cs) => CheckboxThemeData(
     return Colors.transparent;
   }),
   checkColor: MaterialStateProperty.all(cs.onPrimary),
-  side: BorderSide(color: cs.outline, width: 2),
+  side: BorderSide(color: cs.outline, width: 1.5),
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(VeriRentRadius.xs),
   ),
@@ -677,31 +635,8 @@ ProgressIndicatorThemeData _progressTheme(ColorScheme cs) =>
       color: cs.primary,
       circularTrackColor: cs.surfaceVariant,
       linearTrackColor: cs.surfaceVariant,
-      linearMinHeight: 4,
-      refreshBackgroundColor: cs.surface,
+      linearMinHeight: 3,
     );
-
-TooltipThemeData _tooltipTheme(ColorScheme cs) => TooltipThemeData(
-  decoration: BoxDecoration(
-    color: cs.inverseSurface,
-    borderRadius: BorderRadius.circular(VeriRentRadius.sm),
-  ),
-  textStyle: VeriRentText.bodySmall.copyWith(color: cs.onInverseSurface),
-  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-);
-
-PopupMenuThemeData _popupMenuTheme(ColorScheme cs) => PopupMenuThemeData(
-  color: cs.surface,
-  elevation: VeriRentElevation.high,
-  shadowColor: cs.shadow.withOpacity(0.15),
-  textStyle: VeriRentText.bodyMedium.copyWith(color: cs.onSurface),
-  labelTextStyle: MaterialStateProperty.all(
-    VeriRentText.bodyMedium.copyWith(color: cs.onSurface),
-  ),
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(VeriRentRadius.md),
-  ),
-);
 
 SearchBarThemeData _searchBarTheme(ColorScheme cs) => SearchBarThemeData(
   backgroundColor: MaterialStateProperty.all(cs.surfaceVariant),
@@ -713,7 +648,7 @@ SearchBarThemeData _searchBarTheme(ColorScheme cs) => SearchBarThemeData(
     VeriRentText.bodyMedium.copyWith(color: cs.onSurface),
   ),
   padding: MaterialStateProperty.all(
-    const EdgeInsets.symmetric(horizontal: 16),
+    const EdgeInsets.symmetric(horizontal: 14),
   ),
   shape: MaterialStateProperty.all(
     RoundedRectangleBorder(
@@ -746,43 +681,29 @@ TextTheme _buildTextTheme(ColorScheme cs) {
 }
 
 // =============================================================================
-//  SECTION 7 — THEME DATA ASSEMBLY
+//  SECTION 7 — THEME ASSEMBLY
 // =============================================================================
 
 abstract final class AgentsTheme {
-  // ── Light Theme ────────────────────────────────────────────────────────────
   static final ThemeData light = _build(_lightColorScheme);
-
-  // ── Dark Theme ─────────────────────────────────────────────────────────────
   static final ThemeData dark = _build(_darkColorScheme);
 
-  // ── Builder ────────────────────────────────────────────────────────────────
   static ThemeData _build(ColorScheme cs) => ThemeData(
     useMaterial3: true,
     colorScheme: cs,
     brightness: cs.brightness,
-
-    // Scaffold
     scaffoldBackgroundColor: cs.brightness == Brightness.light
         ? VeriRentColors.neutral50
         : VeriRentColors.neutral900,
-
-    // Canvas / dialog background
     canvasColor: cs.surface,
     cardColor: cs.surface,
     dialogBackgroundColor: cs.surface,
-
-    // Focus / highlight
-    focusColor: cs.primary.withOpacity(0.12),
-    highlightColor: cs.primary.withOpacity(0.08),
-    splashColor: cs.primary.withOpacity(0.10),
-    hoverColor: cs.primary.withOpacity(0.06),
-
-    // Typography
+    focusColor: cs.primary.withOpacity(0.10),
+    highlightColor: cs.primary.withOpacity(0.06),
+    splashColor: cs.primary.withOpacity(0.08),
+    hoverColor: cs.primary.withOpacity(0.04),
     textTheme: _buildTextTheme(cs),
     primaryTextTheme: _buildTextTheme(cs),
-
-    // Components
     appBarTheme: _appBarTheme(cs),
     cardTheme: _cardTheme(cs),
     filledButtonTheme: _filledButtonTheme(cs),
@@ -803,20 +724,14 @@ abstract final class AgentsTheme {
     checkboxTheme: _checkboxTheme(cs),
     radioTheme: _radioTheme(cs),
     progressIndicatorTheme: _progressTheme(cs),
-    tooltipTheme: _tooltipTheme(cs),
-    popupMenuTheme: _popupMenuTheme(cs),
     searchBarTheme: _searchBarTheme(cs),
-
-    // Icon
-    iconTheme: IconThemeData(color: cs.onSurfaceVariant, size: 24),
-    primaryIconTheme: IconThemeData(color: cs.primary, size: 24),
+    iconTheme: IconThemeData(color: cs.onSurfaceVariant, size: 22),
+    primaryIconTheme: IconThemeData(color: cs.primary, size: 22),
   );
 }
 
 // =============================================================================
 //  SECTION 8 — SEMANTIC EXTENSION
-//  Extra colors that don't map to Material ColorScheme slots.
-//  Access via: Theme.of(context).extension<VeriRentExtension>()
 // =============================================================================
 
 @immutable
@@ -842,28 +757,12 @@ class VeriRentExtension extends ThemeExtension<VeriRentExtension> {
     required this.divider,
   });
 
-  final Color success;
-  final Color onSuccess;
-  final Color successContainer;
-  final Color warning;
-  final Color onWarning;
-  final Color warningContainer;
-  final Color info;
-  final Color onInfo;
-  final Color infoContainer;
-
-  // Verification tier badge colors
-  final Color tierBasic;
-  final Color tierVerified;
-  final Color tierPro;
-  final Color tierStarterAgency;
-  final Color tierProfessional;
-  final Color tierEnterprise;
-
-  // Listing card specifics
-  final Color cardSurface;
-  final Color listingCardBorder;
-  final Color divider;
+  final Color success, onSuccess, successContainer;
+  final Color warning, onWarning, warningContainer;
+  final Color info, onInfo, infoContainer;
+  final Color tierBasic, tierVerified, tierPro;
+  final Color tierStarterAgency, tierProfessional, tierEnterprise;
+  final Color cardSurface, listingCardBorder, divider;
 
   @override
   VeriRentExtension copyWith({
@@ -951,8 +850,6 @@ class VeriRentExtension extends ThemeExtension<VeriRentExtension> {
     );
   }
 
-  // ── Presets ───────────────────────────────────────────────────────────────
-
   static const VeriRentExtension light = VeriRentExtension(
     success: VeriRentColors.success500,
     onSuccess: VeriRentColors.white,
@@ -984,85 +881,14 @@ class VeriRentExtension extends ThemeExtension<VeriRentExtension> {
     info: VeriRentColors.info200,
     onInfo: VeriRentColors.info700,
     infoContainer: VeriRentColors.info700,
-    tierBasic: Color(0xFFB0BEC5),
-    tierVerified: VeriRentColors.primary300,
-    tierPro: VeriRentColors.secondary300,
+    tierBasic: Color(0xFF9AA4B2),
+    tierVerified: VeriRentColors.primary200,
+    tierPro: VeriRentColors.accent300,
     tierStarterAgency: VeriRentColors.success200,
     tierProfessional: VeriRentColors.info200,
-    tierEnterprise: Color(0xFFCE93D8),
+    tierEnterprise: Color(0xFFF0ABCB),
     cardSurface: VeriRentColors.neutral800,
     listingCardBorder: VeriRentColors.neutral700,
     divider: VeriRentColors.neutral700,
   );
 }
-
-// =============================================================================
-//  SECTION 9 — MATERIAL APP WIRING (complete drop-in example)
-// =============================================================================
-//
-//  class MyApp extends StatelessWidget {
-//    const MyApp({super.key});
-//
-//    @override
-//    Widget build(BuildContext context) {
-//      return MaterialApp(
-//        title: 'VeriRent NG',
-//        debugShowCheckedModeBanner: false,
-//        theme: VeriRentTheme.light.copyWith(
-//          extensions: [VeriRentExtension.light],
-//        ),
-//        darkTheme: VeriRentTheme.dark.copyWith(
-//          extensions: [VeriRentExtension.dark],
-//        ),
-//        themeMode: ThemeMode.system,   // or .light / .dark
-//        home: const HomeScreen(),
-//      );
-//    }
-//  }
-//
-// =============================================================================
-//  SECTION 10 — USAGE PATTERNS
-// =============================================================================
-//
-//  // --- Reading theme colors ---
-//  final cs   = Theme.of(context).colorScheme;
-//  final ext  = Theme.of(context).extension<VeriRentExtension>()!;
-//  final text = Theme.of(context).textTheme;
-//
-//  // --- Primary action button ---
-//  FilledButton(onPressed: () {}, child: Text('Verify Agency'))
-//
-//  // --- Gold CTA button (upgrade / premium) ---
-//  ElevatedButton(onPressed: () {}, child: Text('Upgrade to Pro'))
-//
-//  // --- Outlined secondary action ---
-//  OutlinedButton(onPressed: () {}, child: Text('View Profile'))
-//
-//  // --- Trust tier badge ---
-//  Container(
-//    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-//    decoration: BoxDecoration(
-//      color: ext.tierProfessional.withOpacity(0.12),
-//      border: Border.all(color: ext.tierProfessional),
-//      borderRadius: BorderRadius.circular(VeriRentRadius.full),
-//    ),
-//    child: Text('Professional Agency',
-//      style: VeriRentText.labelSmall.copyWith(color: ext.tierProfessional),
-//    ),
-//  )
-//
-//  // --- Success/warning/error banners ---
-//  Container(
-//    color: ext.successContainer,
-//    child: Text('KYC Verified', style: TextStyle(color: ext.success)),
-//  )
-//
-//  // --- Verified listing card border ---
-//  Card(
-//    shape: RoundedRectangleBorder(
-//      borderRadius: BorderRadius.circular(VeriRentRadius.lg),
-//      side: BorderSide(color: cs.primary, width: 2),   // verified listings get primary border
-//    ),
-//  )
-//
-// =============================================================================

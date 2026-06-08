@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/agents_theme.dart';
 
-// =============================================================================
-//  Sticky Search + Filter Delegate
-// =============================================================================
 class SearchFilter extends StatelessWidget {
   const SearchFilter({
     super.key,
@@ -61,15 +58,11 @@ class SearchFilter extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: active
-                          ? VeriRentColors.primaryDim
+                          ? VeriRentColors.accent400
                           : cs.brightness == Brightness.light
                           ? VeriRentColors.white
                           : VeriRentColors.surface2,
-                      border: Border.all(
-                        color: active
-                            ? VeriRentColors.primary
-                            : VeriRentColors.border,
-                      ),
+                      border: Border.all(color: VeriRentColors.transparent),
                       borderRadius: BorderRadius.circular(VeriRentRadius.full),
                     ),
                     child: Row(

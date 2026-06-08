@@ -40,8 +40,8 @@ class SavedListItem extends StatelessWidget {
                 child: RecentCardFactory.build(context, item[index]),
               ),
               Positioned(
-                bottom: 6,
-                left: 6,
+                bottom: 5,
+                left: 60,
                 child: GestureDetector(
                   onTap: onRemove,
                   child: Container(

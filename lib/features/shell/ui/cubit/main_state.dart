@@ -1,56 +1,20 @@
-part of 'main_cubit.dart';
+import 'package:equatable/equatable.dart';
 
-enum Status {
-  initial,
-  loading,
-  serviceDisabled,
-  rationaleRequired,
-  requesting,
-  granted,
-  denied,
-  permanentlyDenied,
-  restricted,
-  limited,
-  error,
-}
+enum Status { initial }
 
 final class MainState extends Equatable {
   final Status status;
-  final bool isBackground;
-  final Position? position;
-  final String? message;
-  final int? navigationIndex;
+  final int navigationIndex;
 
-  const MainState({
-    this.status = Status.initial,
-    this.isBackground = false,
-    this.navigationIndex = 0,
-    this.position,
-    this.message,
-  });
+  const MainState({this.status = Status.initial, this.navigationIndex = 0});
 
-  MainState copyWith({
-    Status? status,
-    bool? isBackground,
-    Position? position,
-    String? message,
-    int? navigationIndex,
-  }) {
+  MainState copyWith({Status? status, int? navigationIndex}) {
     return MainState(
       status: status ?? this.status,
-      isBackground: isBackground ?? this.isBackground,
-      position: position ?? this.position,
       navigationIndex: navigationIndex ?? this.navigationIndex,
-      message: message,
     );
   }
 
   @override
-  List<Object> get props => [
-    status,
-    isBackground,
-    ?position,
-    ?message,
-    ?navigationIndex,
-  ];
+  List<Object> get props => [status, navigationIndex];
 }

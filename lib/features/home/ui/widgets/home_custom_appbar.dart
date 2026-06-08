@@ -1,40 +1,76 @@
-// =============================================================================
-//  VeriRent NG — HomeAppBar (Professional Upgrade)
-// =============================================================================
+// home_custom_appbar.dart
+//
+// Fix: SliverGeometry assertion "layoutExtent exceeds paintExtent".
+//
+// The previous code used a static CONTENT_HEIGHT = 130.0 constant but the
+// Column with mainAxisSize: min rendered at ~103px, so:
+//   maxExtent = topPadding(23.5) + 130 = 153.5  ← claimed
+//   child size                          = 146.5  ← actual paint
+//   → assertion fires because layoutExtent > paintExtent.
+//
+// Fix strategy: compute extent from the sum of known, fixed pixel values
+// rather than a single magic constant. Every item in the Column has a
+// deterministic height; we add them up explicitly.
+//
+// Content breakdown (all in logical pixels, independent of text scaling):
+//   greeting text (bodySmall, lineHeight 1.5 × fontSize 11)  ≈ 17px
+//   top-row (icons/avatar, height 38px)                      = 38px
+//   SizedBox gap                                             =  6px  (VeriRentSpacing.sm)
+//   HomeSearchBar (fixed height 42px)                        = 42px
+//   ─────────────────────────────────────────────────────────────────
+//   content subtotal                                         = 103px
+//   padding top extra: topPadding + md(10)                   = varies
+//   padding bottom: sm(6)                                    =  6px
+//   ─────────────────────────────────────────────────────────────────
+//   total = topPadding + 10 + 103 + 6 = topPadding + 119
+//
+// We expose _contentH = 119.0 so maxExtent = topPadding + _contentH.
+// If your search bar height or greeting text changes, update _contentH.
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:verirent/core/shared/location/ui/page/location_dropdown.dart';
-import 'package:verirent/features/home/ui/widgets/home_search_bar.dart';
 
+import '../../../../core/shared/location/ui/page/location_dropdown.dart';
 import '../../../../core/theme/agents_theme.dart';
+import 'home_search_bar.dart';
 
 class HomeAppBar extends SliverPersistentHeaderDelegate {
   HomeAppBar({
-    required this.context,
     required this.scaffoldKey,
     required this.focusNode,
     required this.topPadding,
     required this.controller,
   });
-  final BuildContext context;
+
   final GlobalKey<ScaffoldState> scaffoldKey;
   final double topPadding;
   final FocusNode focusNode;
   final TextEditingController controller;
 
-  // Content height calculation:
-  // topPadding: 44px (approx, varies by device)
-  // VeriRentSpacing.md: 12px (top padding)
-  // Greeting text: 20px
-  // Spacing: 8px
-  // Row (location/notification/avatar): 38px
-  // Spacing: 8px
-  // HomeSearchBar: 50px (typical)
-  // Bottom padding: 8px
-  // Total: ~154px (plus topPadding)
+  // ── Extent arithmetic ──────────────────────────────────────────────────
+  // Sum of every fixed-height item inside the Column + vertical padding.
+  // Keep this in sync if you add/remove children.
+  //
+  //  greeting line  : 17
+  //  location row   : 38
+  //  gap (sm = 6)   :  6
+  //  search bar     : 42
+  //  padding top-extra (md = 10) + padding bottom (sm = 6) : 16
+  //  ─────────────────
+  //  total content  : 119
+  static const double _contentH = 119.0;
 
-  static const double CONTENT_HEIGHT = 130.0;
+  // The key rule for a non-collapsing pinned header:
+  //   maxExtent == minExtent  AND  child must render at exactly that height.
+  // We achieve the latter by giving the Container a fixed height equal to
+  // our computed extent.
+  double _extent(double topPad) => topPad + _contentH;
+
+  @override
+  double get maxExtent => _extent(topPadding);
+
+  @override
+  double get minExtent => _extent(topPadding);
 
   String _greeting() {
     final hour = DateTime.now().hour;
@@ -49,135 +85,131 @@ class HomeAppBar extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        VeriRentSpacing.base,
-        topPadding + VeriRentSpacing.md,
-        VeriRentSpacing.base,
-        VeriRentSpacing.sm,
-      ),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [VeriRentColors.primary600, VeriRentColors.primary500],
+    final extent = _extent(topPadding);
+
+    return SizedBox(
+      height: extent, // ← forces child to exactly fill the declared extent
+      child: Container(
+        padding: EdgeInsets.fromLTRB(
+          VeriRentSpacing.base,
+          topPadding + VeriRentSpacing.md, // md = 10
+          VeriRentSpacing.base,
+          VeriRentSpacing.sm, // sm = 6
         ),
-        boxShadow: [
-          BoxShadow(
-            color: VeriRentColors.primary600.withOpacity(0.35),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [VeriRentColors.primary600, VeriRentColors.primary500],
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // ── Greeting + Headline ────────────────────────────────────────
-          Flexible(
-            child: Text(
+          boxShadow: [
+            BoxShadow(
+              color: VeriRentColors.primary600.withOpacity(0.30),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max, // fills the SizedBox exactly
+          children: [
+            // ── Greeting ────────────────────────────────────────────────
+            Text(
               '${_greeting()}, Charles 👋',
               style: VeriRentText.bodySmall.copyWith(
                 color: VeriRentColors.white.withOpacity(0.70),
               ),
             ),
-          ),
-          // ── Top Row: Location · Notification · Avatar ─────────────────
-          Row(
-            children: [
-              Expanded(child: LocationDropdown()),
-              const SizedBox(width: VeriRentSpacing.sm),
-              _AppBarIconButton(
-                icon: Icons.notifications_none_rounded,
-                badgeCount: 3,
-                onTap: () {
-                  scaffoldKey.currentState!.isEndDrawerOpen
-                      ? scaffoldKey.currentState!.closeDrawer()
-                      : scaffoldKey.currentState!.openDrawer();
-                },
-              ),
-              const SizedBox(width: VeriRentSpacing.sm),
-              // Avatar with online dot
-              GestureDetector(
-                onTap: () {
-                  context.push("/profile");
-                },
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Container(
-                      width: 38,
-                      height: 38,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: VeriRentColors.secondary400,
-                          width: 2,
-                        ),
-                        gradient: const LinearGradient(
-                          colors: [
-                            VeriRentColors.secondary400,
-                            VeriRentColors.secondary600,
-                          ],
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'CP', // TODO: take first letter from user first_name and last_name
-                          style: VeriRentText.labelSmall.copyWith(
-                            color: VeriRentColors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        width: 10,
-                        height: 10,
+            // ── Top Row: Location · Notification · Avatar ───────────────
+            Row(
+              children: [
+                Expanded(child: LocationDropdown()),
+                const SizedBox(width: VeriRentSpacing.sm),
+                _AppBarIconButton(
+                  icon: Icons.notifications_none_rounded,
+                  badgeCount: 3,
+                  onTap: () {
+                    final scaffold = scaffoldKey.currentState;
+                    if (scaffold == null) return;
+                    if (scaffold.isDrawerOpen) {
+                      scaffold.closeDrawer();
+                    } else {
+                      scaffold.openDrawer();
+                    }
+                  },
+                ),
+                const SizedBox(width: VeriRentSpacing.sm),
+                GestureDetector(
+                  onTap: () => context.push('/profile'),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        width: 38,
+                        height: 38,
                         decoration: BoxDecoration(
-                          color: VeriRentColors.green,
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: VeriRentColors.primary600,
-                            width: 1.5,
+                            color: VeriRentColors.secondary400,
+                            width: 2,
+                          ),
+                          gradient: LinearGradient(
+                            colors: [
+                              VeriRentColors.secondary400,
+                              VeriRentColors.secondary600,
+                            ],
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'CP',
+                            style: VeriRentText.labelSmall.copyWith(
+                              color: VeriRentColors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: VeriRentColors.green,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: VeriRentColors.primary600,
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: VeriRentSpacing.xs),
-          // ── Search App Bar  ─────────────────
-          HomeSearchBar(controller: controller, focusNode: focusNode),
-        ],
+              ],
+            ),
+            const SizedBox(height: VeriRentSpacing.sm),
+            // ── Search Bar ───────────────────────────────────────────────
+            HomeSearchBar(controller: controller, focusNode: focusNode),
+          ],
+        ),
       ),
     );
   }
 
   @override
-  double get maxExtent {
-    final height = topPadding + CONTENT_HEIGHT;
-    return height.clamp(140.0, 250.0);
-  }
-
-  @override
-  double get minExtent {
-    final height = topPadding + CONTENT_HEIGHT;
-    return height.clamp(140.0, 250.0);
-  }
-
-  bool shouldRebuild(HomeAppBar oldDelegate) {
-    return false;
-  }
+  bool shouldRebuild(covariant HomeAppBar oldDelegate) =>
+      topPadding != oldDelegate.topPadding;
 }
+
+// =============================================================================
+//  Icon button with optional badge
+// =============================================================================
 
 class _AppBarIconButton extends StatelessWidget {
   const _AppBarIconButton({
@@ -212,7 +244,7 @@ class _AppBarIconButton extends StatelessWidget {
             child: Container(
               width: 17,
               height: 17,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: VeriRentColors.secondary500,
                 shape: BoxShape.circle,
               ),

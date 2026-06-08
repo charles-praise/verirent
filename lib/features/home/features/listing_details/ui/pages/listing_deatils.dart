@@ -62,15 +62,14 @@ class _SectionTitle extends StatelessWidget {
 }
 
 class _InfoCard extends StatelessWidget {
-  const _InfoCard({required this.children, this.margin});
+  const _InfoCard({required this.children});
   final List<Widget> children;
-  final EdgeInsets? margin;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      margin: margin ?? const EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(VeriRentRadius.lg),
@@ -116,16 +115,20 @@ class _InfoRow extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Expanded(
+                flex: 3,
                 child: Text(
                   label,
                   style: VeriRentText.bodyMedium.copyWith(color: cs.onSurface),
                 ),
               ),
-              Text(
-                value,
-                style: VeriRentText.labelMedium.copyWith(
-                  color: cs.onSurface,
-                  fontWeight: FontWeight.w600,
+              Flexible(
+                flex: 2,
+                child: Text(
+                  value,
+                  style: VeriRentText.labelMedium.copyWith(
+                    color: cs.onSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
@@ -252,16 +255,22 @@ class _HeroStatsBar extends StatelessWidget {
                       children: [
                         Icon(stats[i].icon, size: 20, color: color),
                         const SizedBox(height: 4),
-                        Text(
-                          stats[i].value,
-                          style: VeriRentText.titleSmall.copyWith(
-                            color: cs.onSurface,
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            stats[i].value,
+                            style: VeriRentText.titleSmall.copyWith(
+                              color: cs.onSurface,
+                            ),
                           ),
                         ),
-                        Text(
-                          stats[i].label,
-                          style: VeriRentText.bodySmall.copyWith(
-                            color: cs.onSurfaceVariant,
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            stats[i].label,
+                            style: VeriRentText.bodySmall.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
                           ),
                         ),
                       ],
@@ -363,32 +372,39 @@ class _DetailScaffoldState extends State<_DetailScaffold> {
               ),
               title: Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: widget.accentColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(VeriRentRadius.full),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          widget.categoryIcon,
-                          size: 12,
-                          color: widget.accentColor,
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: widget.accentColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(
+                          VeriRentRadius.full,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          widget.categoryLabel,
-                          style: VeriRentText.labelSmall.copyWith(
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            widget.categoryIcon,
+                            size: 12,
                             color: widget.accentColor,
-                            fontSize: 10,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              widget.categoryLabel,
+                              maxLines: 1,
+                              style: VeriRentText.labelSmall.copyWith(
+                                color: widget.accentColor,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -491,23 +507,26 @@ class _DetailScaffoldState extends State<_DetailScaffold> {
                                   VeriRentRadius.full,
                                 ),
                               ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.workspace_premium_rounded,
-                                    size: 13,
-                                    color: Colors.white,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Featured',
-                                    style: VeriRentText.labelSmall.copyWith(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.workspace_premium_rounded,
+                                      size: 13,
                                       color: Colors.white,
-                                      fontSize: 10,
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Featured',
+                                      style: VeriRentText.labelSmall.copyWith(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           const Spacer(),
@@ -612,13 +631,7 @@ class _DetailScaffoldState extends State<_DetailScaffold> {
             SliverToBoxAdapter(child: _TitleBlock(listing: listing)),
 
             // ── CTA ──────────────────────────────────────────────
-            SliverToBoxAdapter(child: _CTARow(accentColor: widget.accentColor)),
-
-            // ── Category-specific body ────────────────────────────
-            ...widget.body,
-
-            // ── Shared: Description ──────────────────────────────
-            SliverToBoxAdapter(child: _DescriptionBlock(listing: listing)),
+            // SliverToBoxAdapter(child: _CTARow(accentColor: widget.accentColor)),
 
             // ── Shared: Agency ───────────────────────────────────
             if (listing.agency != null)
@@ -628,6 +641,19 @@ class _DetailScaffoldState extends State<_DetailScaffold> {
                   accent: widget.accentColor,
                 ),
               ),
+            // ── Pricing ─────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: _PricingBlock(
+                listing: listing,
+                accent: VeriRentColors.primary,
+              ),
+            ),
+
+            // ── Category-specific body ────────────────────────────
+            ...widget.body,
+
+            // ── Shared: Description ──────────────────────────────
+            SliverToBoxAdapter(child: _DescriptionBlock(listing: listing)),
 
             const SliverToBoxAdapter(child: SizedBox(height: 40)),
           ],
@@ -653,23 +679,25 @@ class _QuickInfoBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '₦ ${listing.price}',
-                style: VeriRentText.headlineMedium.copyWith(
-                  color: accentColor,
-                  fontWeight: FontWeight.w800,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '₦ ${listing.price}',
+                  style: VeriRentText.headlineMedium.copyWith(
+                    color: accentColor,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
-              ),
-              Text(
-                listing.priceUnit!,
-                style: VeriRentText.bodySmall.copyWith(
-                  color: cs.onSurfaceVariant,
+                Text(
+                  listing.priceUnit!,
+                  style: VeriRentText.bodySmall.copyWith(
+                    color: cs.onSurfaceVariant,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -733,7 +761,8 @@ class _TitleBlock extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            listing.title!,
+            listing.title ?? "",
+            overflow: TextOverflow.ellipsis,
             style: VeriRentText.headlineSmall.copyWith(color: cs.onSurface),
           ),
           const SizedBox(height: 4),
@@ -871,7 +900,8 @@ class _AgencyBlock extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      agency.name!,
+                      agency.name ?? "",
+                      maxLines: 2,
                       style: VeriRentText.titleSmall.copyWith(
                         color: cs.onSurface,
                       ),
@@ -885,11 +915,13 @@ class _AgencyBlock extends StatelessWidget {
                           color: VeriRentColors.gold,
                         ),
                         const SizedBox(width: 3),
-                        Text(
-                          '${agency.rating}',
-                          style: VeriRentText.labelSmall.copyWith(
-                            color: cs.onSurface,
-                            fontSize: 10,
+                        Expanded(
+                          child: Text(
+                            '${agency.rating}',
+                            style: VeriRentText.labelSmall.copyWith(
+                              color: cs.onSurface,
+                              fontSize: 10,
+                            ),
                           ),
                         ),
                         Text(
@@ -1689,9 +1721,13 @@ class _AmenityPill extends StatelessWidget {
             color: accentColor ?? VeriRentColors.success500,
           ),
           const SizedBox(width: 4),
-          Text(
-            label,
-            style: VeriRentText.bodySmall.copyWith(color: cs.onSurface),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 100),
+            child: Text(
+              label,
+              maxLines: 2,
+              style: VeriRentText.bodySmall.copyWith(color: cs.onSurface),
+            ),
           ),
         ],
       ),
@@ -1726,13 +1762,17 @@ class _PricingBlock extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '₦${listing.price}',
-                style: VeriRentText.headlineMedium.copyWith(color: accent),
+              Expanded(
+                child: Text(
+                  '₦${listing.price}',
+                  style: VeriRentText.headlineMedium.copyWith(color: accent),
+                ),
               ),
-              Text(
-                listing.priceUnit!,
-                style: VeriRentText.labelMedium.copyWith(color: accent),
+              Flexible(
+                child: Text(
+                  listing.priceUnit!,
+                  style: VeriRentText.labelMedium.copyWith(color: accent),
+                ),
               ),
             ],
           ),

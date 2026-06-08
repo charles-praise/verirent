@@ -72,7 +72,7 @@ abstract final class _VeriRentRoute {
         pageBuilder: (context, state) => CustomTransitionPage(
           child: BlocProvider(
             create: (context) => GetIt.instance<HomeCubit>(),
-            child: Home(scaffoldKey: scaffoldKey),
+            child: Home(scaffoldKey: null),
           ),
           transitionsBuilder:
               (

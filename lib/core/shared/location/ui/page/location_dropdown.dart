@@ -1,33 +1,35 @@
 // =============================================================================
 //  VeriRent NG — Location Dropdown Widget
-//  A premium two-level (State → LGA) animated dropdown with overlay panel.
-//
-//  Usage:
-//    BlocProvider(
-//      create: (_) => LocationDropdownCubit(),
-//      child: const LocationDropdown(),
-//    )
+//  Reads from the GetIt-singleton LocationCubit — no private instance.
+//  Reacts to GPS auto-detection and supports manual State → LGA selection.
 // =============================================================================
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../../theme/agents_theme.dart';
 import '../../data/mock.dart';
-import '../cubit/location_dropdown_cubit.dart';
-import '../cubit/location_dropdown_state.dart';
+import '../cubit/location_cubit.dart';
+import '../cubit/location_state.dart';
 
 class LocationDropdown extends StatefulWidget {
   const LocationDropdown({
     super.key,
-    this.onLocationSelected,
     this.hint = 'Select Location',
+    this.onStateSelected,
+    this.onLgaSelected,
   });
 
-  /// Callback fires with (state, lga) once the user picks an LGA.
-  final void Function(String state, String lga)? onLocationSelected;
   final String hint;
+
+  /// Fires when a state is selected — either auto-detected from GPS
+  /// or manually picked by the user.
+  final void Function(String state)? onStateSelected;
+
+  /// Fires when an LGA is manually selected after a state is chosen.
+  final void Function(String state, String lga)? onLgaSelected;
 
   @override
   State<LocationDropdown> createState() => _LocationDropdownState();
@@ -35,15 +37,29 @@ class LocationDropdown extends StatefulWidget {
 
 class _LocationDropdownState extends State<LocationDropdown>
     with SingleTickerProviderStateMixin {
+  // ── Overlay ──────────────────────────────────────────────────────────────
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
+
+  // ── Animation ────────────────────────────────────────────────────────────
   late final AnimationController _animController;
   late final Animation<double> _fadeAnim;
   late final Animation<Offset> _slideAnim;
 
+  // ── Cubit: the singleton, not a new instance ──────────────────────────────
+  late final LocationCubit _cubit;
+
+  // Tracks the last state we fired onStateSelected for — avoids duplicate
+  // callbacks when unrelated state fields (e.g. isOpen) change.
+  String? _lastNotifiedState;
+
   @override
   void initState() {
     super.initState();
+
+    // Grab the singleton registered in GetIt.
+    _cubit = GetIt.I<LocationCubit>();
+
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 220),
@@ -53,6 +69,9 @@ class _LocationDropdownState extends State<LocationDropdown>
       begin: const Offset(0, -0.04),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
+
+    // Fire callback if GPS already resolved a state before widget mounted.
+    _maybeNotifyState(_cubit.state.selectedState);
   }
 
   @override
@@ -62,29 +81,47 @@ class _LocationDropdownState extends State<LocationDropdown>
     super.dispose();
   }
 
+  // ── Callback helpers ──────────────────────────────────────────────────────
+
+  /// Notifies [onStateSelected] only when the state value actually changes.
+  void _maybeNotifyState(String? selectedState) {
+    if (selectedState != null && selectedState != _lastNotifiedState) {
+      _lastNotifiedState = selectedState;
+      widget.onStateSelected?.call(selectedState);
+    }
+  }
+
+  /// Notifies [onLgaSelected] and closes the panel.
+  void _onLgaChosen(String state, String lga) {
+    widget.onLgaSelected?.call(state, lga);
+    _closePanel();
+  }
+
+  // ── Overlay lifecycle ─────────────────────────────────────────────────────
+
   void _removeOverlay() {
     _overlayEntry?.remove();
     _overlayEntry = null;
   }
 
-  void _showOverlay(BuildContext blocContext) {
+  void _showOverlay() {
     _removeOverlay();
     final renderBox = context.findRenderObject() as RenderBox;
     final size = renderBox.size;
 
     _overlayEntry = OverlayEntry(
       builder: (_) => BlocProvider.value(
-        value: blocContext.read<LocationDropdownCubit>(),
+        // Share the singleton into the overlay's isolated widget tree.
+        value: _cubit,
         child: _DropdownOverlay(
           layerLink: _layerLink,
           triggerSize: size,
           fadeAnim: _fadeAnim,
           slideAnim: _slideAnim,
-          onLocationSelected: (s, l) {
-            widget.onLocationSelected?.call(s, l);
-            _closePanel(blocContext);
-          },
-          onDismiss: () => _closePanel(blocContext),
+          onLgaSelected: _onLgaChosen,
+          onDismiss: _closePanel,
+          // Notify parent whenever a state is picked inside the panel.
+          onStateSelected: _maybeNotifyState,
         ),
       ),
     );
@@ -93,47 +130,61 @@ class _LocationDropdownState extends State<LocationDropdown>
     _animController.forward(from: 0);
   }
 
-  void _closePanel(BuildContext blocContext) async {
+  Future<void> _closePanel() async {
     await _animController.reverse();
     _removeOverlay();
-    if (blocContext.mounted) {
-      blocContext.read<LocationDropdownCubit>().closeDropdown();
+    _cubit.closeDropdown();
+  }
+
+  void _toggle() {
+    HapticFeedback.selectionClick();
+    if (_cubit.state.isOpen) {
+      _closePanel();
+    } else {
+      _cubit.toggleDropdown();
+      _showOverlay();
     }
   }
 
-  void _toggle(BuildContext blocContext) {
-    HapticFeedback.selectionClick();
-    final cubit = blocContext.read<LocationDropdownCubit>();
-    if (cubit.state.isOpen) {
-      _closePanel(blocContext);
-    } else {
-      cubit.toggleDropdown();
-      _showOverlay(blocContext);
-    }
-  }
+  // ── Build ─────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => LocationDropdownCubit(),
-      child: BlocBuilder<LocationDropdownCubit, LocationDropdownState>(
-        builder: (blocContext, state) {
-          return CompositedTransformTarget(
-            link: _layerLink,
-            child: _TriggerButton(
-              label: state.hasSelection ? state.displayLabel : widget.hint,
-              isOpen: state.isOpen,
-              hasSelection: state.hasSelection,
-              onTap: () => _toggle(blocContext),
-              onClear: state.hasSelection
-                  ? () {
-                      blocContext
-                          .read<LocationDropdownCubit>()
-                          .clearSelection();
-                      if (state.isOpen) _closePanel(blocContext);
-                    }
-                  : null,
-            ),
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: BlocConsumer<LocationCubit, LocationState>(
+        // Use the singleton — not a new BlocProvider.
+        bloc: _cubit,
+
+        // Only rebuild the trigger button when visible fields change.
+        buildWhen: (prev, curr) =>
+            prev.selectedState != curr.selectedState ||
+            prev.selectedLga != curr.selectedLga ||
+            prev.isOpen != curr.isOpen ||
+            prev.phase != curr.phase,
+
+        // React to GPS auto-detection setting a state.
+        listenWhen: (prev, curr) => prev.selectedState != curr.selectedState,
+        listener: (_, state) => _maybeNotifyState(state.selectedState),
+
+        builder: (_, state) {
+          // Show a loading indicator while GPS is resolving.
+          if (state.phase == LocationPhase.loading) {
+            return const _LoadingTrigger();
+          }
+
+          return _TriggerButton(
+            label: state.hasSelection ? state.displayLabel : widget.hint,
+            isOpen: state.isOpen,
+            hasSelection: state.hasSelection,
+            onTap: _toggle,
+            onClear: state.hasSelection
+                ? () {
+                    _cubit.clearSelection();
+                    _lastNotifiedState = null; // reset dedup tracker
+                    if (state.isOpen) _closePanel();
+                  }
+                : null,
           );
         },
       ),
@@ -141,7 +192,37 @@ class _LocationDropdownState extends State<LocationDropdown>
   }
 }
 
-// ── Trigger Button ─────────────────────────────────────────────────────────────
+// ── Loading Trigger ───────────────────────────────────────────────────────────
+
+/// Shown while GPS auto-detection is in progress.
+class _LoadingTrigger extends StatelessWidget {
+  const _LoadingTrigger();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 25,
+      child: Row(
+        children: [
+          const SizedBox(
+            width: 14,
+            height: 14,
+            child: CircularProgressIndicator(strokeWidth: 1.5),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'Detecting location…',
+            style: VeriRentText.bodyMedium.copyWith(
+              color: VeriRentColors.white.withOpacity(0.6),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Trigger Button ────────────────────────────────────────────────────────────
 
 class _TriggerButton extends StatelessWidget {
   const _TriggerButton({
@@ -168,7 +249,6 @@ class _TriggerButton extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         height: 25,
         padding: const EdgeInsets.symmetric(horizontal: 14),
-
         child: Row(
           children: [
             Icon(
@@ -222,7 +302,7 @@ class _TriggerButton extends StatelessWidget {
   }
 }
 
-// ── Dropdown Overlay Panel ────────────────────────────────────────────────────
+// ── Dropdown Overlay ──────────────────────────────────────────────────────────
 
 class _DropdownOverlay extends StatelessWidget {
   const _DropdownOverlay({
@@ -230,22 +310,24 @@ class _DropdownOverlay extends StatelessWidget {
     required this.triggerSize,
     required this.fadeAnim,
     required this.slideAnim,
-    required this.onLocationSelected,
+    required this.onLgaSelected,
     required this.onDismiss,
+    required this.onStateSelected,
   });
 
   final LayerLink layerLink;
   final Size triggerSize;
   final Animation<double> fadeAnim;
   final Animation<Offset> slideAnim;
-  final void Function(String state, String lga) onLocationSelected;
+  final void Function(String state, String lga) onLgaSelected;
+  final void Function(String state) onStateSelected;
   final VoidCallback onDismiss;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Transparent scrim — tap to dismiss
+        // Scrim — tap outside to dismiss.
         Positioned.fill(
           child: GestureDetector(
             onTap: onDismiss,
@@ -254,7 +336,7 @@ class _DropdownOverlay extends StatelessWidget {
           ),
         ),
 
-        // Panel positioned below trigger
+        // Panel anchored below the trigger button.
         CompositedTransformFollower(
           link: layerLink,
           showWhenUnlinked: false,
@@ -263,7 +345,10 @@ class _DropdownOverlay extends StatelessWidget {
             opacity: fadeAnim,
             child: SlideTransition(
               position: slideAnim,
-              child: _DropdownPanel(onLocationSelected: onLocationSelected),
+              child: _DropdownPanel(
+                onLgaSelected: onLgaSelected,
+                onStateSelected: onStateSelected,
+              ),
             ),
           ),
         ),
@@ -275,16 +360,26 @@ class _DropdownOverlay extends StatelessWidget {
 // ── Dropdown Panel ────────────────────────────────────────────────────────────
 
 class _DropdownPanel extends StatelessWidget {
-  const _DropdownPanel({required this.onLocationSelected});
+  const _DropdownPanel({
+    required this.onLgaSelected,
+    required this.onStateSelected,
+  });
 
-  final void Function(String state, String lga) onLocationSelected;
+  final void Function(String state, String lga) onLgaSelected;
+  final void Function(String state) onStateSelected;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return BlocBuilder<LocationDropdownCubit, LocationDropdownState>(
-      builder: (context, state) {
+    return BlocBuilder<LocationCubit, LocationState>(
+      // Only rebuild when selection or open state changes — not on GPS updates.
+      buildWhen: (prev, curr) =>
+          prev.selectedState != curr.selectedState ||
+          prev.selectedLga != curr.selectedLga ||
+          prev.isOpen != curr.isOpen,
+
+      builder: (ctx, state) {
         final states = NigeriaLocations.states;
         final lgas = state.selectedState != null
             ? NigeriaLocations.lgasFor(state.selectedState!)
@@ -312,14 +407,14 @@ class _DropdownPanel extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── States column ─────────────────────────────────
+                  // ── States column ───────────────────────────────────────
                   Expanded(
                     flex: 5,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _PanelHeader(label: 'State'),
+                        const _PanelHeader(label: 'State'),
                         Flexible(
                           child: ListView.builder(
                             padding: const EdgeInsets.only(bottom: 8),
@@ -327,15 +422,14 @@ class _DropdownPanel extends StatelessWidget {
                             itemCount: states.length,
                             itemBuilder: (_, i) {
                               final s = states[i];
-                              final selected = state.selectedState == s;
                               return _StateItem(
                                 label: s,
-                                isSelected: selected,
+                                isSelected: state.selectedState == s,
                                 onTap: () {
                                   HapticFeedback.selectionClick();
-                                  context
-                                      .read<LocationDropdownCubit>()
-                                      .selectState(s);
+                                  ctx.read<LocationCubit>().selectState(s);
+                                  // Notify parent of manual state selection.
+                                  onStateSelected(s);
                                 },
                               );
                             },
@@ -345,14 +439,13 @@ class _DropdownPanel extends StatelessWidget {
                     ),
                   ),
 
-                  // Divider
                   VerticalDivider(
                     width: 1,
                     thickness: 1,
                     color: cs.outlineVariant,
                   ),
 
-                  // ── LGA column ────────────────────────────────────
+                  // ── LGA column ──────────────────────────────────────────
                   Expanded(
                     flex: 6,
                     child: Column(
@@ -360,9 +453,7 @@ class _DropdownPanel extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _PanelHeader(
-                          label: state.selectedState != null
-                              ? state.selectedState!
-                              : 'Area / LGA',
+                          label: state.selectedState ?? 'Area / LGA',
                         ),
                         if (lgas.isEmpty)
                           Padding(
@@ -382,19 +473,14 @@ class _DropdownPanel extends StatelessWidget {
                               itemCount: lgas.length,
                               itemBuilder: (_, i) {
                                 final lga = lgas[i];
-                                final selected = state.selectedLga == lga;
                                 return _LgaItem(
                                   label: lga,
-                                  isSelected: selected,
+                                  isSelected: state.selectedLga == lga,
                                   onTap: () {
                                     HapticFeedback.lightImpact();
-                                    context
-                                        .read<LocationDropdownCubit>()
-                                        .selectLga(lga);
-                                    onLocationSelected(
-                                      state.selectedState!,
-                                      lga,
-                                    );
+                                    ctx.read<LocationCubit>().selectLga(lga);
+                                    // Notify parent — triggers close via parent.
+                                    onLgaSelected(state.selectedState!, lga);
                                   },
                                 );
                               },
@@ -412,6 +498,8 @@ class _DropdownPanel extends StatelessWidget {
     );
   }
 }
+
+// ── Panel Header ──────────────────────────────────────────────────────────────
 
 class _PanelHeader extends StatelessWidget {
   const _PanelHeader({required this.label});
@@ -439,12 +527,15 @@ class _PanelHeader extends StatelessWidget {
   }
 }
 
+// ── State Item ────────────────────────────────────────────────────────────────
+
 class _StateItem extends StatelessWidget {
   const _StateItem({
     required this.label,
     required this.isSelected,
     required this.onTap,
   });
+
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
@@ -480,12 +571,15 @@ class _StateItem extends StatelessWidget {
   }
 }
 
+// ── LGA Item ──────────────────────────────────────────────────────────────────
+
 class _LgaItem extends StatelessWidget {
   const _LgaItem({
     required this.label,
     required this.isSelected,
     required this.onTap,
   });
+
   final String label;
   final bool isSelected;
   final VoidCallback onTap;

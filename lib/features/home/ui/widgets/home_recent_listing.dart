@@ -52,10 +52,16 @@ abstract final class RecentCardFactory {
 
 /// Left-side thumbnail with optional category indicator strip.
 class _Thumbnail extends StatelessWidget {
-  const _Thumbnail({required this.imgUrl, this.stripColor, this.stripIcon});
+  const _Thumbnail({
+    required this.imgUrl,
+    this.stripColor,
+    this.stripIcon,
+    required this.item,
+  });
   final String imgUrl;
   final Color? stripColor;
   final IconData? stripIcon;
+  final PropertyModel item;
 
   @override
   Widget build(BuildContext context) {
@@ -72,23 +78,10 @@ class _Thumbnail extends StatelessWidget {
               ),
             ),
           ),
-          // Coloured left-edge category strip
-          if (stripColor != null)
-            Positioned(
-              top: 0,
-              bottom: 0,
-              left: 0,
-              child: Container(
-                width: 4,
-                decoration: BoxDecoration(
-                  color: stripColor,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(VeriRentRadius.lg),
-                    bottomLeft: Radius.circular(VeriRentRadius.lg),
-                  ),
-                ),
-              ),
-            ),
+          // Verified badge  top left-edge category
+          if (item.verificationStatus == VerificationStatus.verified &&
+              item.isVerified == true)
+            Positioned(top: 6, left: 6, child: _verifiedPill(context)),
         ],
       ),
     );
@@ -98,12 +91,23 @@ class _Thumbnail extends StatelessWidget {
 /// Small verified badge overlay (used top-right of thumbnail).
 Widget _verifiedPill(BuildContext context) {
   return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
     decoration: BoxDecoration(
       color: VeriRentColors.success500,
       borderRadius: BorderRadius.circular(VeriRentRadius.full),
     ),
-    child: const Icon(Icons.verified_rounded, size: 10, color: Colors.white),
+    child: Row(
+      children: [
+        const Icon(Icons.verified_rounded, size: 10, color: Colors.white),
+        const SizedBox(width: 2),
+        Text(
+          "Verified",
+          style: Theme.of(
+            context,
+          ).textTheme.labelSmall?.copyWith(color: VeriRentColors.white),
+        ),
+      ],
+    ),
   );
 }
 
@@ -145,6 +149,7 @@ class ResidentialCard extends StatelessWidget {
             _Thumbnail(
               imgUrl: card.imageUrls!.first,
               stripColor: VeriRentColors.primary,
+              item: card,
             ),
             Expanded(
               child: Padding(
@@ -267,7 +272,11 @@ class LandCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            _Thumbnail(imgUrl: card.imageUrls!.first, stripColor: _green),
+            _Thumbnail(
+              imgUrl: card.imageUrls!.first,
+              stripColor: _green,
+              item: card,
+            ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -290,6 +299,7 @@ class LandCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        const SizedBox(width: 10),
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 6,
@@ -417,7 +427,11 @@ class CommercialCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            _Thumbnail(imgUrl: card.imageUrls!.first, stripColor: _blue),
+            _Thumbnail(
+              imgUrl: card.imageUrls!.first,
+              stripColor: _blue,
+              item: card,
+            ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -440,6 +454,7 @@ class CommercialCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        const SizedBox(width: 10),
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 6,
@@ -567,6 +582,7 @@ class EstateCard extends StatelessWidget {
             _Thumbnail(
               imgUrl: card.imageUrls!.first,
               stripColor: VeriRentColors.gold,
+              item: card,
             ),
             Expanded(
               child: Padding(
@@ -590,6 +606,7 @@ class EstateCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        const SizedBox(width: 10),
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 6,
@@ -720,7 +737,11 @@ class ShortletCard extends StatelessWidget {
           children: [
             Stack(
               children: [
-                _Thumbnail(imgUrl: card.imageUrls!.first, stripColor: _purple),
+                _Thumbnail(
+                  imgUrl: card.imageUrls!.first,
+                  stripColor: _purple,
+                  item: card,
+                ),
                 // "Per night" overlay badge
                 Positioned(
                   bottom: 6,
@@ -767,6 +788,7 @@ class ShortletCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        const SizedBox(width: 10),
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 6,
