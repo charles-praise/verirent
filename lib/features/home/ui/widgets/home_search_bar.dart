@@ -1,10 +1,20 @@
+// home_search_bar.dart
+//
+// Fix summary:
+//   • Sheet open/close is owned by local _sheetOpen bool — never by cubit.
+//   • onApply calls searchCubit.applyFilters(kAllListings) — the new clean
+//     method that re-runs the pipeline without touching query or resetting
+//     anything.
+//   • Removed the old filterResult() + resetFilters() calls from onApply
+//     which were wiping the filter values immediately after applying them.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:verirent/core/api/data/mock_data.dart';
-import 'package:verirent/features/search/ui/cubit/search_cubit.dart';
-import 'package:verirent/features/search/ui/cubit/search_state.dart';
 
+import '../../../../core/api/data/mock_data.dart';
 import '../../../../core/theme/agents_theme.dart';
+import '../../../search/ui/cubit/search_cubit.dart';
+import '../../../search/ui/cubit/search_state.dart';
 import '../../../search/ui/widget/filter_panel.dart';
 import '../../../search/utils/formatPrice.dart';
 import '../cubit/home_cubit.dart';
@@ -18,48 +28,34 @@ class HomeSearchBar extends StatefulWidget {
   });
 
   final TextEditingController controller;
-  final String hintText;
   final FocusNode focusNode;
+  final String hintText;
 
   @override
   State<HomeSearchBar> createState() => _HomeSearchBarState();
 }
 
-class _HomeSearchBarState extends State<HomeSearchBar>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _animController;
+class _HomeSearchBarState extends State<HomeSearchBar> {
+  bool _sheetOpen = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animController.dispose();
-    super.dispose();
-  }
-
-  void _showSearchFilter() {
+  void _openSheet() {
+    if (_sheetOpen) return;
+    setState(() => _sheetOpen = true);
     FocusScope.of(context).unfocus();
-    final SearchCubit searchCubit = context.read<SearchCubit>();
+
+    final searchCubit = context.read<SearchCubit>();
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       showDragHandle: false,
-      builder: (sheetContext) {
-        // The bottom-sheet has its own context that does not inherit the
-        // SearchCubit from HomeSearchBar, so we provide it explicitly.
+      builder: (sheetCtx) {
         return FractionallySizedBox(
-          heightFactor: 0.50,
+          heightFactor: 0.52,
           child: Container(
             decoration: BoxDecoration(
-              color: Theme.of(sheetContext).colorScheme.surface,
+              color: Theme.of(sheetCtx).colorScheme.surface,
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(20),
               ),
@@ -67,7 +63,7 @@ class _HomeSearchBarState extends State<HomeSearchBar>
             child: SingleChildScrollView(
               child: BlocBuilder<SearchCubit, SearchState>(
                 bloc: searchCubit,
-                builder: (ctx, state) => FiltersPanel(
+                builder: (_, state) => FiltersPanel(
                   priceRange: state.priceRange,
                   selectedType: state.selectedType,
                   minBeds: state.minBeds,
@@ -79,16 +75,17 @@ class _HomeSearchBarState extends State<HomeSearchBar>
                   onBedsChanged: searchCubit.updateBeds,
                   onBathsChanged: searchCubit.updateBaths,
                   onVerifiedChanged: searchCubit.updateVerified,
-                  onReset: searchCubit.resetFilters,
-                  // Dismiss the sheet and collapse the cubit flag on Apply.
-                  onApply: () {
-                    searchCubit.toggleFilters();
-                    Navigator.of(sheetContext).pop();
-
-                    searchCubit.filterResult(kAllListings);
+                  onReset: () {
                     searchCubit.resetFilters();
-                    // TODO: trigger searchCubit.runSearch() here when
-                    // real search results are wired up.
+                    // After reset, re-run against full list so Home
+                    // immediately reflects the cleared state.
+                    searchCubit.applyFilters(kAllListings);
+                  },
+                  onApply: () {
+                    // ✓ Apply current filter values against the full list.
+                    // Does NOT reset anything. Does NOT touch the query.
+                    searchCubit.applyFilters(kAllListings);
+                    Navigator.of(sheetCtx).pop();
                   },
                   formatPrice: formatPrice,
                   showFilterOnHomePage: true,
@@ -99,156 +96,113 @@ class _HomeSearchBarState extends State<HomeSearchBar>
         );
       },
     ).whenComplete(() {
-      // If the user dismisses the sheet by dragging it down (without
-      // pressing Apply), make sure the cubit flag is reset so tapping
-      // the filter button again will reopen the sheet.
-      if (searchCubit.state.filtersExpanded) {
-        searchCubit.toggleFilters();
-      }
+      if (mounted) setState(() => _sheetOpen = false);
     });
+  }
+
+  void _toggleSheet() {
+    if (_sheetOpen) {
+      Navigator.of(context).pop();
+    } else {
+      _openSheet();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return BlocConsumer<SearchCubit, SearchState>(
-      listenWhen: (previous, current) =>
-          previous.filtersExpanded != current.filtersExpanded,
-      listener: (context, state) {
-        if (state.filtersExpanded) {
-          _showSearchFilter();
-        }
-      },
+    return BlocBuilder<SearchCubit, SearchState>(
       builder: (context, state) {
         return Row(
           children: [
-            // ── Search field (read-only; navigates to SearchPage on tap) ──
+            // ── Search field ─────────────────────────────────────────────
             Expanded(
               child: SizedBox(
                 height: 42,
-                child: Container(
-                  height: 42,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(VeriRentRadius.md),
-                    border: Border.all(width: 0),
-                  ),
-                  child: TextField(
-                    controller: widget.controller,
-                    focusNode: widget.focusNode,
-                    readOnly: false,
-                    onSubmitted: (query) {
-                      if (query.trim().isNotEmpty) {
-                        context.read<SearchCubit>().saveSearch(query);
-                      }
-                    },
-                    onTapOutside: (_) {},
-                    onTap: () {},
-                    onChanged: (value) {
-                      final homeCubit = context.read<HomeCubit>();
-
-                      context.read<SearchCubit>().searchProperties(
-                        homeCubit.state.allProperties,
-                        value,
-                      );
-                    },
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: cs.surface,
-                      hintText: widget.hintText,
-                      suffixIcon: state.query.isNotEmpty
-                          ? GestureDetector(
-                              onTap: () {
-                                widget.controller.clear();
-                                context.read<SearchCubit>().clearQuery();
-                              },
-                              child: Icon(
-                                Icons.close_rounded,
-                                size: 18,
-                                color: cs.onSurfaceVariant,
-                              ),
-                            )
-                          : null,
-                      prefixIcon: Icon(
-                        Icons.search_rounded,
-                        color: cs.onSurfaceVariant,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(VeriRentRadius.md),
-                        borderSide: BorderSide(color: cs.outlineVariant),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(VeriRentRadius.md),
-                        borderSide: BorderSide(color: cs.outlineVariant),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(VeriRentRadius.md),
-                        borderSide: BorderSide(color: cs.primary, width: 1.5),
-                      ),
+                child: TextField(
+                  controller: widget.controller,
+                  focusNode: widget.focusNode,
+                  onChanged: (value) {
+                    context.read<SearchCubit>().searchProperties(
+                      context.read<HomeCubit>().state.allProperties,
+                      value,
+                    );
+                  },
+                  onSubmitted: (query) {
+                    if (query.trim().isNotEmpty) {
+                      context.read<SearchCubit>().saveSearch(query);
+                    }
+                  },
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: cs.surface,
+                    hintText: widget.hintText,
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      color: cs.onSurfaceVariant,
+                      size: 20,
                     ),
-                    style: VeriRentText.bodyMedium.copyWith(
-                      color: cs.onSurface,
+                    suffixIcon: state.query.isNotEmpty
+                        ? GestureDetector(
+                            onTap: () {
+                              widget.controller.clear();
+                              context.read<SearchCubit>().clearQuery();
+                            },
+                            child: Icon(
+                              Icons.close_rounded,
+                              size: 18,
+                              color: cs.onSurfaceVariant,
+                            ),
+                          )
+                        : null,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(VeriRentRadius.md),
+                      borderSide: BorderSide(color: cs.outlineVariant),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(VeriRentRadius.md),
+                      borderSide: BorderSide(color: cs.outlineVariant),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(VeriRentRadius.md),
+                      borderSide: BorderSide(color: cs.primary, width: 1.5),
                     ),
                   ),
+                  style: VeriRentText.bodyMedium.copyWith(color: cs.onSurface),
                 ),
               ),
             ),
 
             const SizedBox(width: VeriRentSpacing.sm),
 
-            // ── Filter toggle button with active-filter badge ────────────
+            // ── Filter button ────────────────────────────────────────────
             Stack(
               clipBehavior: Clip.none,
               children: [
-                BlocBuilder<SearchCubit, SearchState>(
-                  builder: (context, state) {
-                    return GestureDetector(
-                      onTap: context.read<SearchCubit>().toggleFilters,
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 180),
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          color: state.filtersExpanded
-                              ? cs.primaryContainer
-                              : cs.surface,
-                          borderRadius: BorderRadius.circular(
-                            VeriRentRadius.sm,
-                          ),
-                          border: Border.all(
-                            color: state.filtersExpanded
-                                ? VeriRentColors.primary
-                                : cs.outlineVariant,
-                          ),
-                        ),
-                        child: state.query.isNotEmpty
-                            ? GestureDetector(
-                                onTap: () {
-                                  widget.controller.clear();
-                                  context.read<SearchCubit>().clearQuery();
-                                },
-                                child: Icon(
-                                  Icons.close_rounded,
-                                  size: 18,
-                                  color: state.filtersExpanded
-                                      ? VeriRentColors.primary
-                                      : cs.onSurfaceVariant,
-                                ),
-                              )
-                            : Icon(
-                                Icons.tune_rounded,
-                                size: 18,
-                                color: state.filtersExpanded
-                                    ? VeriRentColors.primary
-                                    : cs.onSurfaceVariant,
-                              ),
+                GestureDetector(
+                  onTap: _toggleSheet,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: _sheetOpen ? cs.primaryContainer : cs.surface,
+                      borderRadius: BorderRadius.circular(VeriRentRadius.sm),
+                      border: Border.all(
+                        color: _sheetOpen ? cs.primary : cs.outlineVariant,
                       ),
-                    );
-                  },
+                    ),
+                    child: Icon(
+                      Icons.tune_rounded,
+                      size: 18,
+                      color: _sheetOpen ? cs.primary : cs.onSurfaceVariant,
+                    ),
+                  ),
                 ),
                 if (state.activeFilterCount > 0)
                   Positioned(
@@ -264,7 +218,7 @@ class _HomeSearchBarState extends State<HomeSearchBar>
                       child: Center(
                         child: Text(
                           '${state.activeFilterCount}',
-                          style: VeriRentText.labelMedium.copyWith(
+                          style: VeriRentText.labelSmall.copyWith(
                             color: Colors.white,
                             fontSize: 9,
                           ),

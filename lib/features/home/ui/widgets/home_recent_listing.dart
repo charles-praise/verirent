@@ -1,19 +1,20 @@
-// =============================================================================
-//  VeriRent NG — Category Recent Listing Cards
-//  Compact horizontal cards for the "Recently Added" section.
-//
-//  Factory usage:
-//    RecentCardFactory.build(context, card)
-//
-//  | Property Type          | Card Variant      | Hero metric         |
-//  | ---------------------- | ----------------- | ------------------- |
-//  | Apartment/Duplex/House | ResidentialCard   | Beds + baths        |
-//  | Penthouse              | ResidentialCard   | Gold premium accent |
-//  | Land/Farm/Plot         | LandCard          | Plot size (m²)      |
-//  | Office/Shop/Plaza/Mall | CommercialCard    | Sqm + floor         |
-//  | Estate                 | EstateCard        | Unit count          |
-//  | Shortlet               | ShortletCard      | Per night price     |
-// =============================================================================
+/// =============================================================================
+///  VeriRent NG — Category Recent Listing Cards
+///  Compact horizontal cards for the "Recently Added" section.
+///
+///  Factory usage:
+///    RecentCardFactory.build(context, card)
+///
+///  | Property Type          | Card Variant      | Hero metric         |
+///  | ---------------------- | ----------------- | ------------------- |
+///  | Apartment/Duplex/House | ResidentialCard   | Beds + baths        |
+///  | Penthouse              | ResidentialCard   | Gold premium accent |
+///  | Land/Farm/Plot         | LandCard          | Plot size (m²)      |
+///  | Office/Shop/Plaza/Mall | CommercialCard    | Sqm + floor         |
+///  | Estate                 | EstateCard        | Unit count          |
+///  | Shortlet               | ShortletCard      | Per night price     |
+/// =============================================================================
+library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -52,15 +53,9 @@ abstract final class RecentCardFactory {
 
 /// Left-side thumbnail with optional category indicator strip.
 class _Thumbnail extends StatelessWidget {
-  const _Thumbnail({
-    required this.imgUrl,
-    this.stripColor,
-    this.stripIcon,
-    required this.item,
-  });
+  const _Thumbnail({required this.imgUrl, this.stripColor, required this.item});
   final String imgUrl;
   final Color? stripColor;
-  final IconData? stripIcon;
   final PropertyModel item;
 
   @override
@@ -132,13 +127,13 @@ class ResidentialCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(VeriRentRadius.lg),
           border: Border.all(
             color: card.isVerified!
-                ? VeriRentColors.primary.withOpacity(0.3)
+                ? VeriRentColors.primary.withValues(alpha: 0.3)
                 : cs.outlineVariant,
             width: card.isVerified! ? 1.5 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: cs.shadow.withOpacity(0.04),
+              color: cs.shadow.withValues(alpha: 0.4),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -258,13 +253,13 @@ class LandCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(VeriRentRadius.lg),
           border: Border.all(
             color: card.isVerified!
-                ? _green.withOpacity(0.4)
+                ? _green.withValues(alpha: 0.4)
                 : cs.outlineVariant,
             width: card.isVerified! ? 1.5 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: cs.shadow.withOpacity(0.04),
+              color: cs.shadow.withValues(alpha: 0.4),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -306,11 +301,13 @@ class LandCard extends StatelessWidget {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: _green.withOpacity(0.1),
+                            color: _green.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(
                               VeriRentRadius.full,
                             ),
-                            border: Border.all(color: _green.withOpacity(0.3)),
+                            border: Border.all(
+                              color: _green.withValues(alpha: 0.3),
+                            ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -413,13 +410,13 @@ class CommercialCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(VeriRentRadius.lg),
           border: Border.all(
             color: card.isVerified!
-                ? _blue.withOpacity(0.35)
+                ? _blue.withValues(alpha: 0.35)
                 : cs.outlineVariant,
             width: card.isVerified! ? 1.5 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: cs.shadow.withOpacity(0.04),
+              color: cs.shadow.withValues(alpha: 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -461,11 +458,13 @@ class CommercialCard extends StatelessWidget {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: _blue.withOpacity(0.1),
+                            color: _blue.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(
                               VeriRentRadius.full,
                             ),
-                            border: Border.all(color: _blue.withOpacity(0.3)),
+                            border: Border.all(
+                              color: _blue.withValues(alpha: 0.3),
+                            ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -566,12 +565,12 @@ class EstateCard extends StatelessWidget {
           color: cs.surface,
           borderRadius: BorderRadius.circular(VeriRentRadius.lg),
           border: Border.all(
-            color: VeriRentColors.gold.withOpacity(0.5),
+            color: VeriRentColors.gold.withValues(alpha: 0.5),
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: VeriRentColors.gold.withOpacity(0.06),
+              color: VeriRentColors.gold.withValues(alpha: 0.06),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -618,7 +617,7 @@ class EstateCard extends StatelessWidget {
                               VeriRentRadius.full,
                             ),
                             border: Border.all(
-                              color: VeriRentColors.gold.withOpacity(0.4),
+                              color: VeriRentColors.gold.withValues(alpha: 0.4),
                             ),
                           ),
                           child: Row(
@@ -721,13 +720,13 @@ class ShortletCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(VeriRentRadius.lg),
           border: Border.all(
             color: card.isVerified!
-                ? _purple.withOpacity(0.35)
+                ? _purple.withValues(alpha: 0.35)
                 : cs.outlineVariant,
             width: card.isVerified! ? 1.5 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: cs.shadow.withOpacity(0.04),
+              color: cs.shadow.withValues(alpha: 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -795,11 +794,13 @@ class ShortletCard extends StatelessWidget {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: _purple.withOpacity(0.1),
+                            color: _purple.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(
                               VeriRentRadius.full,
                             ),
-                            border: Border.all(color: _purple.withOpacity(0.3)),
+                            border: Border.all(
+                              color: _purple.withValues(alpha: 0.3),
+                            ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -811,7 +812,7 @@ class ShortletCard extends StatelessWidget {
                               ),
                               const SizedBox(width: 3),
                               Text(
-                                'Shortlet',
+                                'Short-let',
                                 style: VeriRentText.labelSmall.copyWith(
                                   color: _purple,
                                   fontSize: 9,

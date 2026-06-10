@@ -7,7 +7,9 @@ import '../../../../core/theme/agents_theme.dart';
 // ---------------------------------------------------------------------------
 
 class SectionHeader extends StatelessWidget {
-  const SectionHeader({super.key, required this.title, this.onSeeAll});
+  final EdgeInsets? padding;
+  const SectionHeader(
+      {super.key, required this.title, this.onSeeAll, this.padding});
 
   final String title;
   final VoidCallback? onSeeAll;
@@ -17,12 +19,13 @@ class SectionHeader extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        VeriRentSpacing.base,
-        VeriRentSpacing.base,
-        VeriRentSpacing.sm,
-        VeriRentSpacing.sm,
-      ),
+      padding: padding ??
+          EdgeInsets.fromLTRB(
+            VeriRentSpacing.base,
+            VeriRentSpacing.base,
+            VeriRentSpacing.sm,
+            VeriRentSpacing.sm,
+          ),
       child: Row(
         children: [
           Text(
@@ -40,7 +43,7 @@ class SectionHeader extends StatelessWidget {
                 minimumSize: const Size(0, 32),
               ),
               child: Text(
-                'See all',
+                'View all',
                 style: VeriRentText.labelMedium.copyWith(color: cs.primary),
               ),
             ),

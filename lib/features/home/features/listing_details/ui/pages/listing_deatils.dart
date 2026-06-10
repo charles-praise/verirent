@@ -51,14 +51,14 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-    child: Text(
-      text,
-      style: VeriRentText.titleMedium.copyWith(
-        color: Theme.of(context).colorScheme.onSurface,
-      ),
-    ),
-  );
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
+        child: Text(
+          text,
+          style: VeriRentText.titleMedium.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+      );
 }
 
 class _InfoCard extends StatelessWidget {
@@ -111,7 +111,11 @@ class _InfoRow extends StatelessWidget {
                   color: color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(VeriRentRadius.sm),
                 ),
-                child: Icon(icon, size: 15, color: color),
+                child: Icon(icon,
+                    size: 15,
+                    color: cs.brightness == Brightness.dark
+                        ? VeriRentColors.accent400
+                        : color),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -253,15 +257,19 @@ class _HeroStatsBar extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     child: Column(
                       children: [
-                        Icon(stats[i].icon, size: 20, color: color),
+                        Icon(stats[i].icon,
+                            size: 20,
+                            color: cs.brightness == Brightness.dark
+                                ? VeriRentColors.accent400
+                                : VeriRentColors.primary),
                         const SizedBox(height: 4),
                         FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
                             stats[i].value,
                             style: VeriRentText.titleSmall.copyWith(
-                              color: cs.onSurface,
-                            ),
+                                color: cs.onSurface,
+                                overflow: TextOverflow.ellipsis),
                           ),
                         ),
                         FittedBox(
@@ -269,8 +277,8 @@ class _HeroStatsBar extends StatelessWidget {
                           child: Text(
                             stats[i].label,
                             style: VeriRentText.bodySmall.copyWith(
-                              color: cs.onSurfaceVariant,
-                            ),
+                                color: cs.onSurfaceVariant,
+                                overflow: TextOverflow.ellipsis),
                           ),
                         ),
                       ],
@@ -379,7 +387,9 @@ class _DetailScaffoldState extends State<_DetailScaffold> {
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: widget.accentColor.withOpacity(0.1),
+                        color: cs.brightness == Brightness.dark
+                            ? VeriRentColors.accent400
+                            : VeriRentColors.goldDim,
                         borderRadius: BorderRadius.circular(
                           VeriRentRadius.full,
                         ),
@@ -530,39 +540,39 @@ class _DetailScaffoldState extends State<_DetailScaffold> {
                               ),
                             ),
                           const Spacer(),
-                          if (listing.isVerified!)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: VeriRentColors.success500.withOpacity(
-                                  0.9,
-                                ),
-                                borderRadius: BorderRadius.circular(
-                                  VeriRentRadius.full,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.verified_rounded,
-                                    size: 13,
-                                    color: Colors.white,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Verified',
-                                    style: VeriRentText.labelSmall.copyWith(
-                                      color: Colors.white,
-                                      fontSize: 10,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                          // if (listing.isVerified!)
+                          //   Container(
+                          //     padding: const EdgeInsets.symmetric(
+                          //       horizontal: 10,
+                          //       vertical: 5,
+                          //     ),
+                          //     decoration: BoxDecoration(
+                          //       color: VeriRentColors.success500.withOpacity(
+                          //         0.9,
+                          //       ),
+                          //       borderRadius: BorderRadius.circular(
+                          //         VeriRentRadius.full,
+                          //       ),
+                          //     ),
+                          //     child: Row(
+                          //       mainAxisSize: MainAxisSize.min,
+                          //       children: [
+                          //         const Icon(
+                          //           Icons.verified_rounded,
+                          //           size: 13,
+                          //           color: Colors.white,
+                          //         ),
+                          //         const SizedBox(width: 4),
+                          //         Text(
+                          //           'Verified',
+                          //           style: VeriRentText.labelSmall.copyWith(
+                          //             color: Colors.white,
+                          //             fontSize: 10,
+                          //           ),
+                          //         ),
+                          //       ],
+                          //     ),
+                          //   ),
                         ],
                       ),
                     ),
@@ -686,14 +696,18 @@ class _QuickInfoBar extends StatelessWidget {
                 Text(
                   '₦ ${listing.price}',
                   style: VeriRentText.headlineMedium.copyWith(
-                    color: accentColor,
+                    color: cs.brightness == Brightness.dark
+                        ? cs.onSurfaceVariant
+                        : cs.primary,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
                 Text(
                   listing.priceUnit!,
                   style: VeriRentText.bodySmall.copyWith(
-                    color: cs.onSurfaceVariant,
+                    color: cs.brightness == Brightness.dark
+                        ? cs.onSurfaceVariant
+                        : cs.primary,
                   ),
                 ),
               ],
@@ -702,18 +716,16 @@ class _QuickInfoBar extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color:
-                  (listing.isVerified!
-                          ? VeriRentColors.success500
-                          : VeriRentColors.warning500)
-                      .withOpacity(0.12),
+              color: (listing.isVerified!
+                      ? VeriRentColors.success500
+                      : VeriRentColors.warning500)
+                  .withOpacity(0.12),
               borderRadius: BorderRadius.circular(VeriRentRadius.md),
               border: Border.all(
-                color:
-                    (listing.isVerified!
-                            ? VeriRentColors.success500
-                            : VeriRentColors.warning500)
-                        .withOpacity(0.4),
+                color: (listing.isVerified!
+                        ? VeriRentColors.success500
+                        : VeriRentColors.warning500)
+                    .withOpacity(0.4),
               ),
             ),
             child: Row(
@@ -763,7 +775,10 @@ class _TitleBlock extends StatelessWidget {
           Text(
             listing.title ?? "",
             overflow: TextOverflow.ellipsis,
-            style: VeriRentText.headlineSmall.copyWith(color: cs.onSurface),
+            style: VeriRentText.headlineSmall.copyWith(
+                color: cs.brightness == Brightness.dark
+                    ? cs.onSurfaceVariant
+                    : cs.primary),
           ),
           const SizedBox(height: 4),
           Row(
@@ -771,14 +786,18 @@ class _TitleBlock extends StatelessWidget {
               Icon(
                 Icons.location_on_rounded,
                 size: 14,
-                color: cs.onSurfaceVariant,
+                color: cs.brightness == Brightness.dark
+                    ? VeriRentColors.accent400
+                    : VeriRentColors.primary,
               ),
               const SizedBox(width: 3),
               Expanded(
                 child: Text(
                   '${listing.address}, ${listing.area}, ${listing.lga}',
                   style: VeriRentText.bodySmall.copyWith(
-                    color: cs.onSurfaceVariant,
+                    color: cs.brightness == Brightness.dark
+                        ? cs.onSurfaceVariant
+                        : cs.primary,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -892,7 +911,7 @@ class _AgencyBlock extends StatelessWidget {
                   borderRadius: BorderRadius.circular(VeriRentRadius.md),
                   border: Border.all(color: accent.withOpacity(0.3)),
                 ),
-                child: Icon(Icons.business_rounded, size: 24, color: accent),
+                child: CustomNetworkImage(imgUrl: listing.agentAvatarUrl ?? ""),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -1123,14 +1142,6 @@ class ResidentialDetailsPage extends StatelessWidget {
               ],
             ),
           ),
-
-        // ── Pricing ─────────────────────────────────────────
-        SliverToBoxAdapter(
-          child: _PricingBlock(
-            listing: listing,
-            accent: VeriRentColors.primary,
-          ),
-        ),
       ],
     );
   }
@@ -1654,7 +1665,11 @@ class _BoolRowSimple extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final okColor = trueColor ?? VeriRentColors.success500;
-    final activeColor = value ? okColor : cs.onSurfaceVariant;
+    final activeColor = value
+        ? cs.brightness == Brightness.dark
+            ? VeriRentColors.accent400
+            : okColor
+        : cs.onSurfaceVariant;
     return Column(
       children: [
         Padding(
@@ -1744,10 +1759,10 @@ class _PricingBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.fromLTRB(16, 10, 16, 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: accent.withOpacity(0.06),
+        color: cs.surface,
         borderRadius: BorderRadius.circular(VeriRentRadius.lg),
         border: Border.all(color: accent.withOpacity(0.25)),
       ),
@@ -1756,7 +1771,10 @@ class _PricingBlock extends StatelessWidget {
         children: [
           Text(
             'Pricing & Terms',
-            style: VeriRentText.titleSmall.copyWith(color: accent),
+            style: VeriRentText.titleSmall.copyWith(
+                color: cs.brightness == Brightness.dark
+                    ? cs.onSurfaceVariant
+                    : cs.primary),
           ),
           const SizedBox(height: 8),
           Row(
@@ -1765,13 +1783,19 @@ class _PricingBlock extends StatelessWidget {
               Expanded(
                 child: Text(
                   '₦${listing.price}',
-                  style: VeriRentText.headlineMedium.copyWith(color: accent),
+                  style: VeriRentText.headlineMedium.copyWith(
+                      color: cs.brightness == Brightness.dark
+                          ? cs.onSurfaceVariant
+                          : cs.primary),
                 ),
               ),
               Flexible(
                 child: Text(
                   listing.priceUnit!,
-                  style: VeriRentText.labelMedium.copyWith(color: accent),
+                  style: VeriRentText.labelMedium.copyWith(
+                      color: cs.brightness == Brightness.dark
+                          ? cs.onSurfaceVariant
+                          : cs.primary),
                 ),
               ),
             ],
@@ -1781,12 +1805,15 @@ class _PricingBlock extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: accent.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(VeriRentRadius.xs),
+                color: cs.brightness == Brightness.dark
+                    ? VeriRentColors.accent400
+                    : VeriRentColors.goldDim,
+                borderRadius: BorderRadius.circular(VeriRentRadius.sm),
               ),
               child: Text(
                 listing.paymentTerms!,
-                style: VeriRentText.bodySmall.copyWith(color: accent),
+                style: VeriRentText.bodySmall
+                    .copyWith(color: VeriRentColors.primary),
               ),
             ),
           ],

@@ -42,7 +42,7 @@ class App extends StatelessWidget {
       ),
       theme: AgentsTheme.light.copyWith(extensions: [VeriRentExtension.light]),
       themeMode: ThemeMode.system,
-      routerConfig: VeriRentRoute,
+      routerConfig: agentNgRoute,
       debugShowCheckedModeBanner: false,
     );
   }

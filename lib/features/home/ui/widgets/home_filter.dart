@@ -5,7 +5,6 @@ import '../../../../core/theme/agents_theme.dart';
 class SearchFilter extends StatelessWidget {
   const SearchFilter({
     super.key,
-
     required this.filters,
     required this.filterIcons,
     required this.activeIndex,
@@ -45,7 +44,7 @@ class SearchFilter extends StatelessWidget {
                 8,
               ),
               itemCount: filters.length,
-              separatorBuilder: (_, _) => const SizedBox(width: 8),
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (ctx, i) {
                 final active = i == activeIndex;
                 return GestureDetector(
@@ -60,8 +59,8 @@ class SearchFilter extends StatelessWidget {
                       color: active
                           ? VeriRentColors.accent400
                           : cs.brightness == Brightness.light
-                          ? VeriRentColors.white
-                          : VeriRentColors.surface2,
+                              ? VeriRentColors.white
+                              : VeriRentColors.surface2,
                       border: Border.all(color: VeriRentColors.transparent),
                       borderRadius: BorderRadius.circular(VeriRentRadius.full),
                     ),
@@ -80,9 +79,8 @@ class SearchFilter extends StatelessWidget {
                           filters[i],
                           style: TextStyle(
                             fontSize: VeriRentSpacing.md,
-                            fontWeight: active
-                                ? FontWeight.w600
-                                : FontWeight.w400,
+                            fontWeight:
+                                active ? FontWeight.w600 : FontWeight.w400,
                             color: active
                                 ? VeriRentColors.primary
                                 : VeriRentColors.textMuted,

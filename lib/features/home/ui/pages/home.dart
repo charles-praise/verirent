@@ -1,18 +1,39 @@
 // home.dart
 //
-// Changes:
-//   • Filter chips call SearchCubit.setHomeCategory(i) AND HomeCubit.activeIndex(i)
-//     so the chip highlight updates AND the data actually filters.
-//   • When searchState.selectedCategory != initial (chip active) OR
-//     searchState.query is non-empty, show the filtered grid instead of
-//     the full sectioned feed.
-//   • Refresh indicator wired correctly with NestedScrollView pattern.
+// Fixes vs home_fixed2.dart:
+//
+//   FIX 1 — Seed SearchCubit on init
+//     SearchCubit._allProperties was [] until the user typed something,
+//     so applyFilters() from the bottom sheet always got an empty source
+//     list and produced zero results.
+//     → initState now calls searchCubit.setAllProperties(kAllListings).
+//
+//   FIX 2 — isFiltering includes activeFilterCount
+//     The filtered-grid branch was only entered when query or category
+//     chip was active.  A filter-only apply (price, beds, verified) set
+//     neither, so Home stayed on the full-feed view and showed no change.
+//     → isFiltering now also checks searchState.activeFilterCount > 0.
+//
+//   FIX 3 — onSearchChanged passes kAllListings directly
+//     HomeSearchBar.onChanged was reading HomeCubit.state.allProperties
+//     which was never populated, passing [] to searchProperties every time.
+//     → _onSearchChanged passes kAllListings directly (same source of truth).
+//
+//   FIX 4 — BlocBuilder buildWhen for SearchCubit
+//     HomeCubit BlocBuilder had buildWhen that only rebuilt on activeIndex
+//     changes, but the outer SearchCubit BlocBuilder rebuilt on every
+//     SearchState change including filtersExpanded toggling, causing
+//     unnecessary full-tree rebuilds while the sheet was animating.
+//     → SearchCubit BlocBuilder now has its own targeted buildWhen.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:verirent/features/home/data/local_repo.dart';
 import 'package:verirent/features/home/domain/entities/property_model.dart';
+import 'package:verirent/features/home/ui/widgets/home_featured_list.dart';
 
 import '../../../../core/api/data/mock_data.dart';
 import '../../../../core/theme/agents_theme.dart';
@@ -45,15 +66,24 @@ class _HomeState extends State<Home> {
     super.initState();
     _scrollController.addListener(_listenToScroll);
     _searchController.addListener(_onSearchChanged);
+
+    // FIX 1: Seed SearchCubit immediately so applyFilters() from the
+    // bottom sheet has a source list before the user types anything.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<SearchCubit>().setAllProperties(kAllListings);
+    });
   }
 
+  // FIX 3: Pass kAllListings directly — never depend on HomeCubit.allProperties
+  // which is never populated and would always pass [] to the cubit.
   void _onSearchChanged() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.read<SearchCubit>().searchProperties(
-        kAllListings,
-        _searchController.text,
-      );
+            kAllListings,
+            _searchController.text,
+          );
     });
   }
 
@@ -82,6 +112,12 @@ class _HomeState extends State<Home> {
     // TODO: context.read<HomeCubit>().loadListings();
   }
 
+  void _onFilterTap(int i) {
+    HapticFeedback.lightImpact();
+    context.read<HomeCubit>().activeIndex(i);
+    context.read<SearchCubit>().setHomeCategory(i);
+  }
+
   @override
   Widget build(BuildContext context) {
     final topPad = MediaQuery.paddingOf(context).top;
@@ -90,81 +126,43 @@ class _HomeState extends State<Home> {
       buildWhen: (prev, curr) => prev.activeIndex != curr.activeIndex,
       builder: (context, homeState) {
         return BlocBuilder<SearchCubit, SearchState>(
+          // FIX 4: Only rebuild when the fields that drive layout actually change.
+          // filtersExpanded toggling (sheet open/close) should NOT trigger a
+          // full Home rebuild.
+          buildWhen: (prev, curr) =>
+              prev.searchStage != curr.searchStage ||
+              prev.filteredProperties != curr.filteredProperties ||
+              prev.query != curr.query ||
+              prev.selectedCategory != curr.selectedCategory ||
+              prev.activeFilterCount != curr.activeFilterCount,
           builder: (context, searchState) {
-            // Show filtered grid when query OR category chip is active
-            final isFiltering =
-                searchState.query.isNotEmpty ||
-                searchState.selectedCategory != PropertyCategory.initial;
+            // FIX 2: activeFilterCount > 0 is the missing condition.
+            // Without it, a filter-only apply from the sheet (no query, no
+            // category chip) never switches Home to the filtered-grid view.
+            final isFiltering = searchState.query.isNotEmpty ||
+                searchState.selectedCategory != PropertyCategory.initial ||
+                searchState.activeFilterCount > 0;
 
             if (isFiltering) {
-              return CustomScrollView(
-                slivers: [
-                  SliverPersistentHeader(
-                    pinned: true,
-                    delegate: HomeAppBar(
-                      topPadding: topPad,
-                      scaffoldKey: widget.scaffoldKey!,
-                      focusNode: _searchFocus,
-                      controller: _searchController,
-                    ),
-                  ),
-
-                  // Filter chips stay visible in filtered view
-                  SliverToBoxAdapter(
-                    child: SearchFilter(
-                      filters: homeState.filters,
-                      filterIcons: homeState.filterIcons,
-                      activeIndex: homeState.activeIndex,
-                      onFilterTap: _onFilterTap,
-                    ),
-                  ),
-
-                  // Result count header
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(14, 10, 14, 4),
-                      child: Row(
-                        children: [
-                          Text(
-                            '${searchState.filteredProperties.length} properties',
-                            style: Theme.of(context).textTheme.titleSmall
-                                ?.copyWith(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                ),
-                          ),
-                          if (searchState.activeFilterCount > 0) ...[
-                            const SizedBox(width: 6),
-                            _FilterBadge(
-                              count: searchState.activeFilterCount,
-                              onClear: () {
-                                context.read<SearchCubit>().resetFilters();
-                                context.read<HomeCubit>().activeIndex(0);
-                              },
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  if (searchState.filteredProperties.isEmpty)
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: _EmptyState(query: searchState.query),
-                    )
-                  else
-                    _CompactPropertyGrid(
-                      properties: searchState.filteredProperties,
-                    ),
-
-                  const SliverToBoxAdapter(child: SizedBox(height: 80)),
-                ],
+              return _FilteredView(
+                topPad: topPad,
+                scaffoldKey: widget.scaffoldKey!,
+                focusNode: _searchFocus,
+                controller: _searchController,
+                homeState: homeState,
+                searchState: searchState,
+                filters: homeState.filters,
+                filterIcons: homeState.filterIcons,
+                onFilterTap: _onFilterTap,
+                onClearAll: () {
+                  context.read<SearchCubit>().resetFilters();
+                  context.read<HomeCubit>().activeIndex(0);
+                  _searchController.clear();
+                },
               );
             }
 
-            // ── Normal full-feed home ──────────────────────────────────
+            // ── Normal full-feed home ────────────────────────────────────
             return RefreshIndicator(
               onRefresh: _onRefresh,
               displacement: 60,
@@ -187,9 +185,9 @@ class _HomeState extends State<Home> {
                   SliverToBoxAdapter(
                     child: ValueListenableBuilder<bool>(
                       valueListenable: _isVisible,
-                      builder: (_, visible, _) => AnimatedOpacity(
+                      builder: (_, visible, __) => AnimatedOpacity(
                         duration: const Duration(milliseconds: 220),
-                        opacity: visible ? 1 : 0,
+                        opacity: visible ? 1 : 1,
                         child: SearchFilter(
                           filters: homeState.filters,
                           filterIcons: homeState.filterIcons,
@@ -199,54 +197,70 @@ class _HomeState extends State<Home> {
                       ),
                     ),
                   ),
-
+                  // Featured
                   const SliverToBoxAdapter(
                     child: FeaturedListingsHorizontalUseCase(),
                   ),
-
+                  // Recent
                   SliverToBoxAdapter(
                     child: SectionHeader(
                       title: 'Recently Added',
-                      onSeeAll: () {},
+                      onSeeAll: () =>
+                          context.push("/see_all", extra: recentProperties),
                     ),
                   ),
                   const RecentListingUseCase(),
-
+                  // Ads (become an agent)
                   SliverToBoxAdapter(
                     child: buildAgencyBanner(context: context),
                   ),
-
+                  // Residential
                   SliverToBoxAdapter(
-                    child: SectionHeader(title: 'Residential', onSeeAll: () {}),
+                    child: SectionHeader(
+                      title: 'Residential',
+                      onSeeAll: () => context.push(
+                        "/see_all",
+                        extra: residentialProperties,
+                      ),
+                    ),
                   ),
                   const ResidentialPropertiesListingUseCase(),
-
+                  // Land
                   SliverToBoxAdapter(
                     child: SectionHeader(
                       title: 'Land & Plots',
-                      onSeeAll: () {},
+                      onSeeAll: () =>
+                          context.push("/see_all", extra: landedProperties),
                     ),
                   ),
                   const LandedPropertiesUseCase(),
-
+                  // Commercial
                   SliverToBoxAdapter(
-                    child: SectionHeader(title: 'Commercial', onSeeAll: () {}),
+                    child: SectionHeader(
+                      title: 'Commercial',
+                      onSeeAll: () =>
+                          context.push("/see_all", extra: commercialProperties),
+                    ),
                   ),
                   const CommercialPropertiesUseCase(),
-
+                  // Estate's
                   SliverToBoxAdapter(
                     child: SectionHeader(
                       title: 'Estates & Housing',
-                      onSeeAll: () {},
+                      onSeeAll: () =>
+                          context.push("/see_all", extra: estateProperties),
                     ),
                   ),
                   const EstatePropertiesUseCase(),
-
+                  //  Short Let's
                   SliverToBoxAdapter(
-                    child: SectionHeader(title: 'Short Lets', onSeeAll: () {}),
+                    child: SectionHeader(
+                      title: 'Short Lets',
+                      onSeeAll: () =>
+                          context.push("/see_all", extra: shortletProperties),
+                    ),
                   ),
                   const ShortLetPropertiesUseCase(),
-
                   const SliverToBoxAdapter(child: SizedBox(height: 80)),
                 ],
               ),
@@ -256,397 +270,212 @@ class _HomeState extends State<Home> {
       },
     );
   }
-
-  // Wire chip tap to both cubits
-  void _onFilterTap(int i) {
-    HapticFeedback.lightImpact();
-    context.read<HomeCubit>().activeIndex(i);
-    // Ensure full list is loaded before filtering
-    context.read<SearchCubit>().searchProperties(
-      kAllListings,
-      _searchController.text,
-    );
-    context.read<SearchCubit>().setHomeCategory(i);
-  }
 }
 
-// =============================================================================
-//  Compact 2-column property grid  (no fixed-size wrappers → no overflow)
-// =============================================================================
+class _FilteredView extends StatelessWidget {
+  const _FilteredView({
+    required this.topPad,
+    required this.scaffoldKey,
+    required this.focusNode,
+    required this.controller,
+    required this.homeState,
+    required this.searchState,
+    required this.filters,
+    required this.filterIcons,
+    required this.onFilterTap,
+    required this.onClearAll,
+  });
 
-class _CompactPropertyGrid extends StatelessWidget {
-  const _CompactPropertyGrid({required this.properties});
-  final List<PropertyModel> properties;
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      sliver: SliverGrid(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
-          // Aspect ratio chosen so the card content fits without overflow.
-          // The compact card has: image(110) + body(~130) = 240px total.
-          // At half-screen width ≈ 175px → ratio = 175/240 ≈ 0.73
-          childAspectRatio: 0.73,
-        ),
-        delegate: SliverChildBuilderDelegate(
-          (context, index) => _CompactCard(property: properties[index]),
-          childCount: properties.length,
-        ),
-      ),
-    );
-  }
-}
-
-// =============================================================================
-//  Compact card — no fixed SizedBox wrappers, fully intrinsic
-// =============================================================================
-
-class _CompactCard extends StatelessWidget {
-  const _CompactCard({required this.property});
-  final PropertyModel property;
+  final double topPad;
+  final GlobalKey<ScaffoldState> scaffoldKey;
+  final FocusNode focusNode;
+  final TextEditingController controller;
+  final HomeState homeState;
+  final SearchState searchState;
+  final List<String> filters;
+  final List<IconData> filterIcons;
+  final ValueChanged<int> onFilterTap;
+  final VoidCallback onClearAll;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final p = property;
+    final results = searchState.filteredProperties;
+    final isLoading = searchState.searchStage == SearchStage.loading;
 
-    return GestureDetector(
-      onTap: () {
-        // context.push('/listing_details', extra: p);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: cs.surface,
-          borderRadius: BorderRadius.circular(VeriRentRadius.lg),
-          border: Border.all(
-            color: p.isVerified == true
-                ? VeriRentColors.primary.withOpacity(0.3)
-                : cs.outlineVariant,
-            width: p.isVerified == true ? 1.25 : 0.75,
+    return CustomScrollView(
+      slivers: [
+        SliverPersistentHeader(
+          pinned: true,
+          delegate: HomeAppBar(
+            topPadding: topPad,
+            scaffoldKey: scaffoldKey,
+            focusNode: focusNode,
+            controller: controller,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: cs.shadow.withOpacity(0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Image ──────────────────────────────────────────────────
-            Expanded(
-              flex: 46, // ~46% of card height for image
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(VeriRentRadius.lg),
-                    ),
-                    child: (p.imageUrls?.isNotEmpty == true)
-                        ? Image.network(
-                            p.imageUrls!.first,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
-                                _ImagePlaceholder(category: p.category),
-                          )
-                        : _ImagePlaceholder(category: p.category),
-                  ),
-                  if (p.isVerified == true)
-                    Positioned(top: 6, left: 6, child: _MiniVerifiedBadge()),
-                  Positioned(
-                    top: 6,
-                    right: 6,
-                    child: _CategoryPill(category: p.category),
-                  ),
-                ],
-              ),
-            ),
 
-            // ── Body ───────────────────────────────────────────────────
-            Expanded(
-              flex: 54, // ~54% for text content
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 7, 8, 7),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Title
-                    Text(
-                      p.title ?? '—',
-                      style: VeriRentText.titleSmall.copyWith(
-                        color: cs.onSurface,
-                        fontSize: 11,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+        // Category chips stay visible
+        SliverToBoxAdapter(
+          child: SearchFilter(
+            filters: filters,
+            filterIcons: filterIcons,
+            activeIndex: homeState.activeIndex,
+            onFilterTap: onFilterTap,
+          ),
+        ),
 
-                    // Location
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.location_on_rounded,
-                          size: 9,
-                          color: cs.onSurfaceVariant,
+        // Status bar: count + active filter badge + clear
+        SliverToBoxAdapter(
+          child: Container(
+            color: cs.surfaceContainerHighest,
+            padding: const EdgeInsets.fromLTRB(14, 8, 14, 6),
+            child: Row(
+              children: [
+                // Result count / status label
+                if (isLoading)
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 1.5,
+                          color: cs.primary,
                         ),
-                        const SizedBox(width: 2),
-                        Expanded(
-                          child: Text(
-                            p.location ?? p.area ?? '—',
-                            style: VeriRentText.bodySmall.copyWith(
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Searching…',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: cs.onSurfaceVariant,
+                            ),
+                      ),
+                    ],
+                  )
+                else
+                  Expanded(
+                    child: Text(
+                      results.isEmpty
+                          ? 'No properties found'
+                          : '${results.length} propert${results.length == 1 ? 'y' : 'ies'} found',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: cs.onSurface,
+                            fontSize: 12,
+                          ),
+                    ),
+                  ),
+
+                // Active filter badge with one-tap clear
+                if (searchState.activeFilterCount > 0) ...[
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: onClearAll,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 9,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: cs.primaryContainer,
+                        borderRadius: BorderRadius.circular(
+                          VeriRentRadius.full,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '${searchState.activeFilterCount} filter${searchState.activeFilterCount > 1 ? 's' : ''}',
+                            style: VeriRentText.labelSmall.copyWith(
+                              color: cs.onPrimaryContainer,
                               fontSize: 9,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    // Bed / bath chips (only for residential)
-                    if ((p.bedrooms ?? 0) > 0)
-                      Row(
-                        children: [
-                          _MiniChip(
-                            icon: Icons.bed_rounded,
-                            label: '${p.bedrooms}',
                           ),
                           const SizedBox(width: 4),
-                          _MiniChip(
-                            icon: Icons.bathtub_outlined,
-                            label: '${p.bathrooms}',
+                          Icon(
+                            Icons.close_rounded,
+                            size: 9,
+                            color: cs.onPrimaryContainer,
                           ),
                         ],
                       ),
-
-                    // Price + tier
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Flexible(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '₦${p.price ?? '—'}',
-                                style: VeriRentText.titleSmall.copyWith(
-                                  color: cs.primary,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 11,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              if (p.priceUnit != null)
-                                Text(
-                                  p.priceUnit!,
-                                  style: VeriRentText.labelSmall.copyWith(
-                                    color: cs.onSurfaceVariant,
-                                    fontSize: 8,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        if (p.tierColor != null && p.tierLabel != null)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 5,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: p.tierColor!.withOpacity(0.12),
-                              borderRadius: BorderRadius.circular(
-                                VeriRentRadius.full,
-                              ),
-                              border: Border.all(
-                                color: p.tierColor!.withOpacity(0.4),
-                                width: 0.5,
-                              ),
-                            ),
-                            child: Text(
-                              p.tierLabel!
-                                  .replaceAll(' Agency', '')
-                                  .replaceAll(' Individual', ''),
-                              style: VeriRentText.labelSmall.copyWith(
-                                color: p.tierColor,
-                                fontSize: 7,
-                              ),
-                            ),
-                          ),
-                      ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
+                ],
+
+                // Clear search query button (separate from filter badge)
+                if (searchState.query.isNotEmpty) ...[
+                  const SizedBox(width: 6),
+                  GestureDetector(
+                    onTap: onClearAll,
+                    child: Icon(
+                      Icons.close_rounded,
+                      size: 16,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MiniChip extends StatelessWidget {
-  const _MiniChip({required this.icon, required this.label});
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 9, color: cs.onSurfaceVariant),
-        const SizedBox(width: 2),
-        Text(
-          label,
-          style: VeriRentText.labelSmall.copyWith(
-            color: cs.onSurfaceVariant,
-            fontSize: 9,
           ),
         ),
+
+        // Results or empty state
+        if (results.isEmpty && !isLoading)
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: _EmptyState(
+              query: searchState.query,
+              hasFilters: searchState.activeFilterCount > 0,
+            ),
+          )
+        else
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+                childAspectRatio: 0.73,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) =>
+                    FeaturedCardFactory.build(context, results[index]),
+                childCount: results.length,
+              ),
+            ),
+          ),
+
+        const SliverToBoxAdapter(child: SizedBox(height: 80)),
       ],
     );
   }
 }
-
-class _MiniVerifiedBadge extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-    decoration: BoxDecoration(
-      color: VeriRentColors.success500,
-      borderRadius: BorderRadius.circular(VeriRentRadius.full),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Icon(Icons.verified_rounded, size: 7, color: Colors.white),
-        const SizedBox(width: 2),
-        Text(
-          'Verified',
-          style: VeriRentText.labelSmall.copyWith(
-            color: Colors.white,
-            fontSize: 7,
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-class _CategoryPill extends StatelessWidget {
-  const _CategoryPill({required this.category});
-  final PropertyCategory? category;
-
-  @override
-  Widget build(BuildContext context) {
-    final (label, color) = switch (category) {
-      PropertyCategory.land => ('Land', const Color(0xFF4CAF50)),
-      PropertyCategory.commercial => ('Comm.', VeriRentColors.info500),
-      PropertyCategory.estate => ('Estate', VeriRentColors.gold),
-      PropertyCategory.shortlet => ('Shortlet', VeriRentColors.accent400),
-      _ => ('Residential', VeriRentColors.primary),
-    };
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.45),
-        borderRadius: BorderRadius.circular(VeriRentRadius.full),
-      ),
-      child: Text(
-        label,
-        style: VeriRentText.labelSmall.copyWith(
-          color: Colors.white,
-          fontSize: 7,
-        ),
-      ),
-    );
-  }
-}
-
-class _ImagePlaceholder extends StatelessWidget {
-  const _ImagePlaceholder({this.category});
-  final PropertyCategory? category;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      color: cs.surfaceVariant,
-      child: Center(
-        child: Icon(
-          Icons.home_work_rounded,
-          size: 28,
-          color: cs.onSurfaceVariant.withOpacity(0.3),
-        ),
-      ),
-    );
-  }
-}
-
-// =============================================================================
-//  Filter badge (shows active count + clear button)
-// =============================================================================
-
-class _FilterBadge extends StatelessWidget {
-  const _FilterBadge({required this.count, required this.onClear});
-  final int count;
-  final VoidCallback onClear;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: onClear,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-        decoration: BoxDecoration(
-          color: cs.primaryContainer,
-          borderRadius: BorderRadius.circular(VeriRentRadius.full),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              '$count active',
-              style: VeriRentText.labelSmall.copyWith(
-                color: cs.onPrimaryContainer,
-                fontSize: 9,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Icon(Icons.close_rounded, size: 9, color: cs.onPrimaryContainer),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// =============================================================================
-//  Empty state
-// =============================================================================
 
 class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.query});
+  const _EmptyState({required this.query, required this.hasFilters});
   final String query;
+  final bool hasFilters;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final String title;
+    final String subtitle;
+
+    if (query.isNotEmpty && hasFilters) {
+      title = 'No results for "$query"';
+      subtitle = 'Try clearing some filters or using different keywords.';
+    } else if (query.isNotEmpty) {
+      title = 'No results for "$query"';
+      subtitle = 'Try a different location, property type, or area.';
+    } else {
+      title = 'No properties match your filters';
+      subtitle = 'Try adjusting price range, bedrooms, or other criteria.';
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
       child: Column(
@@ -654,22 +483,20 @@ class _EmptyState extends StatelessWidget {
         children: [
           Icon(
             Icons.search_off_rounded,
-            size: 44,
-            color: cs.onSurfaceVariant.withOpacity(0.35),
+            size: 48,
+            color: cs.onSurfaceVariant.withValues(alpha: 0.35),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Text(
-            query.isNotEmpty
-                ? 'No results for "$query"'
-                : 'No properties found',
+            title,
             style: Theme.of(
               context,
             ).textTheme.titleSmall?.copyWith(color: cs.onSurface),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 5),
+          const SizedBox(height: 6),
           Text(
-            'Try adjusting your filters or search terms.',
+            subtitle,
             style: Theme.of(
               context,
             ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
