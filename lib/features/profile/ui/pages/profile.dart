@@ -27,7 +27,7 @@ class ProfilePage extends StatelessWidget {
             // ── Stats Row ──────────────────────────────────────────────
             const SliverToBoxAdapter(child: _StatsRow()),
             // ── Verification Banner ────────────────────────────────────
-            const SliverToBoxAdapter(child: _VerificationBanner()),
+            // const SliverToBoxAdapter(child: _VerificationBanner()),
             // ── Account Section ────────────────────────────────────────
             SliverToBoxAdapter(
               child: _MenuSection(
@@ -52,6 +52,12 @@ class ProfilePage extends StatelessWidget {
                   _MenuItem(
                     icon: Icons.lock_outlined,
                     label: 'Change Password',
+                    onTap: () {},
+                  ),
+                  _MenuItem(
+                    icon: Icons.workspace_premium_outlined,
+                    iconColor: VeriRentColors.gold,
+                    label: 'Subscription PLan',
                     onTap: () {},
                   ),
                 ],
@@ -412,6 +418,7 @@ class _VerificationBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
       padding: const EdgeInsets.all(14),
@@ -529,12 +536,14 @@ class _MenuItem extends StatelessWidget {
     this.subtitle,
     this.trailing,
     required this.onTap,
+    this.iconColor,
   });
   final IconData icon;
   final String label;
   final String? subtitle;
   final Widget? trailing;
   final VoidCallback onTap;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -549,7 +558,7 @@ class _MenuItem extends StatelessWidget {
           color: cs.surfaceVariant,
           borderRadius: BorderRadius.circular(VeriRentRadius.sm),
         ),
-        child: Icon(icon, size: 18, color: cs.onSurfaceVariant),
+        child: Icon(icon, size: 18, color: iconColor ?? cs.onSurfaceVariant),
       ),
       title: Text(
         label,
@@ -563,8 +572,7 @@ class _MenuItem extends StatelessWidget {
               ),
             )
           : null,
-      trailing:
-          trailing ??
+      trailing: trailing ??
           Icon(
             Icons.chevron_right_rounded,
             size: 18,
@@ -582,15 +590,15 @@ class _StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-    decoration: BoxDecoration(
-      color: color.withOpacity(0.12),
-      borderRadius: BorderRadius.circular(VeriRentRadius.full),
-      border: Border.all(color: color.withOpacity(0.4)),
-    ),
-    child: Text(
-      label,
-      style: VeriRentText.labelSmall.copyWith(color: color, fontSize: 10),
-    ),
-  );
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.12),
+          borderRadius: BorderRadius.circular(VeriRentRadius.full),
+          border: Border.all(color: color.withOpacity(0.4)),
+        ),
+        child: Text(
+          label,
+          style: VeriRentText.labelSmall.copyWith(color: color, fontSize: 10),
+        ),
+      );
 }

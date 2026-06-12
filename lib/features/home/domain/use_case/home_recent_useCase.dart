@@ -19,7 +19,8 @@ class RecentListingUseCase extends StatelessWidget {
             VeriRentSpacing.base,
             VeriRentSpacing.sm,
           ),
-          child: RecentCardFactory.build(context, recentProperties[index]),
+          child: RecentCardFactory.build(
+              context, HomeLocalRepo().recentProperties[index]),
         );
       }, childCount: 4),
     );

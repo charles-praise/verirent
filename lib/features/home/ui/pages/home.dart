@@ -205,8 +205,8 @@ class _HomeState extends State<Home> {
                   SliverToBoxAdapter(
                     child: SectionHeader(
                       title: 'Recently Added',
-                      onSeeAll: () =>
-                          context.push("/see_all", extra: recentProperties),
+                      onSeeAll: () => context.push("/see_all",
+                          extra: HomeLocalRepo().recentProperties),
                     ),
                   ),
                   const RecentListingUseCase(),
@@ -220,7 +220,7 @@ class _HomeState extends State<Home> {
                       title: 'Residential',
                       onSeeAll: () => context.push(
                         "/see_all",
-                        extra: residentialProperties,
+                        extra: HomeLocalRepo().residentialProperties,
                       ),
                     ),
                   ),
@@ -229,8 +229,8 @@ class _HomeState extends State<Home> {
                   SliverToBoxAdapter(
                     child: SectionHeader(
                       title: 'Land & Plots',
-                      onSeeAll: () =>
-                          context.push("/see_all", extra: landedProperties),
+                      onSeeAll: () => context.push("/see_all",
+                          extra: HomeLocalRepo().landedProperties),
                     ),
                   ),
                   const LandedPropertiesUseCase(),
@@ -238,8 +238,8 @@ class _HomeState extends State<Home> {
                   SliverToBoxAdapter(
                     child: SectionHeader(
                       title: 'Commercial',
-                      onSeeAll: () =>
-                          context.push("/see_all", extra: commercialProperties),
+                      onSeeAll: () => context.push("/see_all",
+                          extra: HomeLocalRepo().commercialProperties),
                     ),
                   ),
                   const CommercialPropertiesUseCase(),
@@ -247,8 +247,8 @@ class _HomeState extends State<Home> {
                   SliverToBoxAdapter(
                     child: SectionHeader(
                       title: 'Estates & Housing',
-                      onSeeAll: () =>
-                          context.push("/see_all", extra: estateProperties),
+                      onSeeAll: () => context.push("/see_all",
+                          extra: HomeLocalRepo().estateProperties),
                     ),
                   ),
                   const EstatePropertiesUseCase(),
@@ -256,8 +256,8 @@ class _HomeState extends State<Home> {
                   SliverToBoxAdapter(
                     child: SectionHeader(
                       title: 'Short Lets',
-                      onSeeAll: () =>
-                          context.push("/see_all", extra: shortletProperties),
+                      onSeeAll: () => context.push("/see_all",
+                          extra: HomeLocalRepo().shortletProperties),
                     ),
                   ),
                   const ShortLetPropertiesUseCase(),
@@ -438,7 +438,7 @@ class _FilteredView extends StatelessWidget {
                 crossAxisCount: 2,
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
-                childAspectRatio: 0.73,
+                childAspectRatio: 0.64,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) =>

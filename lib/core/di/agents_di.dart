@@ -33,9 +33,9 @@ Future<void> registerServices() async {
   //Details Cubit
   _getIt.registerSingleton<ListingDetailsCubit>(ListingDetailsCubit());
   // Messages Cubit
-  _getIt.registerSingleton<MessagesCubit>(MessagesCubit());
+  _getIt.registerSingleton<MessagesCubit>(MessagesCubit()).loadThreads();
   // Saved Cubit
-  _getIt.registerSingleton<SavedCubit>(SavedCubit());
+  _getIt.registerSingleton<SavedCubit>(SavedCubit()).loadSaved();
   // Sell All
   _getIt.registerSingleton<SeeAllCubit>(SeeAllCubit());
 }

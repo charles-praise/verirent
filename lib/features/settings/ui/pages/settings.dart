@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/agents_theme.dart';
 
@@ -89,7 +90,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   iconColor: cs.primary,
                   title: 'Edit Profile',
                   subtitle: 'Name · Photo · Bio',
-                  onTap: () {},
+                  onTap: () {
+                    context.push('/profile');
+                  },
                 ),
                 _SettingsTile(
                   icon: Icons.verified_user_outlined,
@@ -311,18 +314,18 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SliverToBoxAdapter(
-    child: Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 16, 6),
-      child: Text(
-        label.toUpperCase(),
-        style: VeriRentText.labelSmall.copyWith(
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-          letterSpacing: 1.0,
-          fontSize: 11,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 16, 6),
+          child: Text(
+            label.toUpperCase(),
+            style: VeriRentText.labelSmall.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              letterSpacing: 1.0,
+              fontSize: 11,
+            ),
+          ),
         ),
-      ),
-    ),
-  );
+      );
 }
 
 class _SettingsGroup extends StatelessWidget {
@@ -400,8 +403,7 @@ class _SettingsTile extends StatelessWidget {
               ),
             )
           : null,
-      trailing:
-          trailing ??
+      trailing: trailing ??
           (onTap != null
               ? Icon(
                   Icons.chevron_right_rounded,
@@ -458,7 +460,6 @@ class _ToggleTile extends StatelessWidget {
           : null,
       trailing: Switch(
         value: value,
-        activeColor: VeriRentColors.primary,
         onChanged: onChanged,
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -486,7 +487,7 @@ class _ThemeSelectorTile extends StatelessWidget {
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: cs.primary.withOpacity(0.10),
+                  color: cs.onPrimary.withOpacity(0.10),
                   borderRadius: BorderRadius.circular(VeriRentRadius.sm),
                 ),
                 child: Icon(
@@ -555,7 +556,11 @@ class _ThemeOption extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: selected ? VeriRentColors.primaryDim : cs.surfaceVariant,
+            color: selected
+                ? cs.brightness == Brightness.dark
+                    ? cs.primary
+                    : cs.surface
+                : cs.surfaceVariant,
             borderRadius: BorderRadius.circular(VeriRentRadius.md),
             border: Border.all(
               color: selected ? VeriRentColors.primary : cs.outlineVariant,
@@ -572,9 +577,8 @@ class _ThemeOption extends StatelessWidget {
               Text(
                 label,
                 style: VeriRentText.labelSmall.copyWith(
-                  color: selected
-                      ? VeriRentColors.primary
-                      : cs.onSurfaceVariant,
+                  color:
+                      selected ? VeriRentColors.primary : cs.onSurfaceVariant,
                   fontSize: 10,
                 ),
               ),
@@ -593,15 +597,15 @@ class _Badge extends StatelessWidget {
   final Color color;
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-    decoration: BoxDecoration(
-      color: color.withOpacity(0.12),
-      borderRadius: BorderRadius.circular(VeriRentRadius.full),
-      border: Border.all(color: color.withOpacity(0.4)),
-    ),
-    child: Text(
-      label,
-      style: VeriRentText.labelSmall.copyWith(color: color, fontSize: 10),
-    ),
-  );
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.12),
+          borderRadius: BorderRadius.circular(VeriRentRadius.full),
+          border: Border.all(color: color.withOpacity(0.4)),
+        ),
+        child: Text(
+          label,
+          style: VeriRentText.labelSmall.copyWith(color: color, fontSize: 10),
+        ),
+      );
 }

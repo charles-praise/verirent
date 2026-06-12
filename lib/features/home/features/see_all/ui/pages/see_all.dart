@@ -303,6 +303,7 @@ class _SearchHeader extends SliverPersistentHeaderDelegate {
               child: SizedBox(
                 height: 38,
                 child: TextField(
+                  key: ValueKey("see all searchbar"),
                   controller: searchCtrl,
                   focusNode: focusNode,
                   onChanged: onChanged,
@@ -379,7 +380,7 @@ class _PropertyGrid extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 8,
           mainAxisSpacing: 8,
-          childAspectRatio: 0.73,
+          childAspectRatio: 0.64,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) =>

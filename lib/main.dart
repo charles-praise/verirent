@@ -7,7 +7,6 @@ import 'package:verirent/core/theme/agents_theme.dart';
 
 import 'core/shared/location/ui/cubit/location_cubit.dart';
 import 'features/home/ui/cubit/home_cubit.dart';
-import 'features/saved/ui/cubit/saved_cubit.dart';
 import 'features/search/ui/cubit/search_cubit.dart';
 import 'features/shell/ui/cubit/main_cubit.dart';
 
@@ -21,7 +20,6 @@ void main() async {
         BlocProvider(create: (_) => SearchCubit()),
         BlocProvider.value(value: GetIt.I<LocationCubit>()),
         BlocProvider(create: (_) => GetIt.I<MainCubit>()),
-        BlocProvider(create: (_) => GetIt.I<SavedCubit>()..loadSaved()),
       ],
       child: const App(),
     ),

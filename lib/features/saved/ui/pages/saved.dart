@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/agents_theme.dart';
@@ -30,78 +31,79 @@ class _SavedView extends StatelessWidget {
       backgroundColor: cs.brightness == Brightness.light
           ? VeriRentColors.neutral50
           : VeriRentColors.neutral900,
-      body: BlocBuilder<SavedCubit, SavedState>(
-        builder: (context, state) {
-          return CustomScrollView(
-            slivers: [
-              // ── App Bar ────────────────────────────────────────────────
-              SliverAppBar(
-                pinned: true,
-                backgroundColor: cs.surface,
-                elevation: 0,
-                scrolledUnderElevation: 1,
-                title: Text(
-                  'Saved',
-                  style: VeriRentText.headlineMedium.copyWith(
-                    color: cs.onSurface,
+      body: BlocProvider(
+        create: (context) => GetIt.I<SavedCubit>(),
+        child: BlocBuilder<SavedCubit, SavedState>(
+          builder: (context, state) {
+            return CustomScrollView(
+              slivers: [
+                // ── App Bar ────────────────────────────────────────────────
+                SliverAppBar(
+                  pinned: true,
+                  backgroundColor: cs.surface,
+                  elevation: 0,
+                  scrolledUnderElevation: 1,
+                  title: Text(
+                    'Saved',
+                    style: VeriRentText.headlineMedium.copyWith(
+                      color: cs.onSurface,
+                    ),
                   ),
-                ),
-                actions: [
-                  if (state.status == SavedStatus.loaded &&
-                      state.items.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 16),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: cs.primaryContainer.withValues(alpha: 0.5),
-                          borderRadius: BorderRadius.circular(
-                            VeriRentRadius.full,
+                  actions: [
+                    if (state.status == SavedStatus.loaded &&
+                        state.items.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 16),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
                           ),
-                        ),
-                        child: Text(
-                          '${state.items.length} saved',
-                          style: VeriRentText.labelSmall.copyWith(
-                            color: cs.brightness == Brightness.light
-                                ? cs.primary
-                                : cs.secondary,
+                          decoration: BoxDecoration(
+                            color: cs.primaryContainer.withValues(alpha: 0.5),
+                            borderRadius: BorderRadius.circular(
+                              VeriRentRadius.full,
+                            ),
+                          ),
+                          child: Text(
+                            '${state.items.length} saved',
+                            style: VeriRentText.labelSmall.copyWith(
+                              color: cs.brightness == Brightness.light
+                                  ? cs.primary
+                                  : cs.secondary,
+                            ),
                           ),
                         ),
                       ),
+                  ],
+                ),
+
+                // ── Filter chips ──────────────────────────────────────────
+                if (state.status == SavedStatus.loaded ||
+                    state.status == SavedStatus.loading)
+                  SliverToBoxAdapter(
+                    child: _FilterRow(
+                      filters: state.filters,
+                      activeIndex: state.activeFilterIndex,
+                      onTap: (i) {
+                        HapticFeedback.selectionClick();
+                        context.read<SavedCubit>().setFilter(i);
+                      },
                     ),
-                ],
-              ),
-
-              // ── Filter chips ──────────────────────────────────────────
-              if (state.status == SavedStatus.loaded ||
-                  state.status == SavedStatus.loading)
-                SliverToBoxAdapter(
-                  child: _FilterRow(
-                    filters: state.filters,
-                    activeIndex: state.activeFilterIndex,
-                    onTap: (i) {
-                      HapticFeedback.selectionClick();
-                      context.read<SavedCubit>().setFilter(i);
-                    },
                   ),
-                ),
 
-              // ── Body content ───────────────────────────────────────────
-              switch (state.status) {
-                SavedStatus.loading => const SliverFillRemaining(
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-                SavedStatus.error => SliverFillRemaining(
-                  child: _ErrorView(message: state.errorMessage),
-                ),
-                SavedStatus.empty => const SliverFillRemaining(
-                  child: _EmptyView(),
-                ),
-                _ =>
-                  state.filteredItems.isEmpty
+                // ── Body content ───────────────────────────────────────────
+                switch (state.status) {
+                  SavedStatus.loading => const SliverFillRemaining(
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  SavedStatus.error => SliverFillRemaining(
+                      child: _ErrorView(message: state.errorMessage),
+                    ),
+                  SavedStatus.empty => const SliverFillRemaining(
+                      child: _EmptyView(),
+                    ),
+                  _ => state.filteredItems.isEmpty
                       ? const SliverFillRemaining(child: _EmptyFilterView())
                       : SliverPadding(
                           padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
@@ -117,8 +119,8 @@ class _SavedView extends StatelessWidget {
                                 onRemove: () {
                                   HapticFeedback.mediumImpact();
                                   context.read<SavedCubit>().removeSaved(
-                                    state.filteredItems[i].id!,
-                                  );
+                                        state.filteredItems[i].id!,
+                                      );
                                 },
                                 onTap: () => context.push(
                                   '/listing_details',
@@ -128,10 +130,11 @@ class _SavedView extends StatelessWidget {
                             }, childCount: state.filteredItems.length),
                           ),
                         ),
-              },
-            ],
-          );
-        },
+                },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -174,15 +177,15 @@ class _FilterRow extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: active
                         ? cs.brightness == Brightness.light
-                              ? cs.primary
-                              : cs.secondary
+                            ? cs.primary
+                            : cs.secondary
                         : cs.surfaceVariant,
                     borderRadius: BorderRadius.circular(VeriRentRadius.full),
                     border: Border.all(
                       color: active
                           ? cs.brightness == Brightness.light
-                                ? cs.primary
-                                : cs.secondary
+                              ? cs.primary
+                              : cs.secondary
                           : cs.outlineVariant,
                     ),
                   ),

@@ -9,6 +9,7 @@ import 'package:verirent/features/home/features/listing_details/ui/cubit/listing
 import 'package:verirent/features/home/features/listing_details/ui/pages/listing_deatils.dart';
 import 'package:verirent/features/home/features/see_all/ui/cubit/see_all_cubit.dart';
 import 'package:verirent/features/home/features/see_all/ui/pages/see_all.dart';
+import 'package:verirent/features/message/features/chat/ui/pages/chat.dart';
 import 'package:verirent/features/message/ui/cubit/message_cubit.dart';
 import 'package:verirent/features/message/ui/pages/messages.dart';
 import 'package:verirent/features/profile/ui/cubit/profile_cubit.dart';
@@ -39,6 +40,7 @@ class _Route {
   static final String message = "/message";
   static final String saved = "/saved";
   static final String seeAll = "/see_all";
+  static final String chatView = "/chat";
 }
 
 abstract final class _VeriRentRoute {
@@ -267,25 +269,48 @@ abstract final class _VeriRentRoute {
 
       // Message Route
       GoRoute(
-        name: "Message Page",
-        path: _Route.message,
-        pageBuilder: (context, state) {
-          return CustomTransitionPage(
-            child: BlocProvider(
-              create: (context) => GetIt.instance<MessagesCubit>(),
-              child: MessagesPage(),
+          name: "Message Page",
+          path: _Route.message,
+          pageBuilder: (context, state) {
+            return CustomTransitionPage(
+              child: BlocProvider(
+                create: (context) => GetIt.instance<MessagesCubit>(),
+                child: MessagesPage(),
+              ),
+              transitionsBuilder: (
+                BuildContext context,
+                Animation<double> animation,
+                Animation<double> secondaryAnimation,
+                Widget child,
+              ) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+            );
+          },
+          routes: [
+            // chat route
+            GoRoute(
+              name: "Chat Page",
+              path: _Route.chatView,
+              pageBuilder: (context, state) {
+                final sameContext = state.extra as MessagesCubit;
+                return CustomTransitionPage(
+                  child: ChatView(
+                    key: const ValueKey('chat'),
+                    messagesCubit: sameContext,
+                  ),
+                  transitionsBuilder: (
+                    BuildContext context,
+                    Animation<double> animation,
+                    Animation<double> secondaryAnimation,
+                    Widget child,
+                  ) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
+                );
+              },
             ),
-            transitionsBuilder: (
-              BuildContext context,
-              Animation<double> animation,
-              Animation<double> secondaryAnimation,
-              Widget child,
-            ) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-          );
-        },
-      ),
+          ]),
     ],
   );
 }

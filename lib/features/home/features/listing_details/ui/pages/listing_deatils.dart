@@ -387,9 +387,7 @@ class _DetailScaffoldState extends State<_DetailScaffold> {
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: cs.brightness == Brightness.dark
-                            ? VeriRentColors.accent400
-                            : VeriRentColors.goldDim,
+                        color: widget.accentColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(
                           VeriRentRadius.full,
                         ),
@@ -1318,11 +1316,6 @@ class LandDetailsPage extends StatelessWidget {
               ],
             ),
           ),
-
-        // ── Pricing ─────────────────────────────────────────
-        SliverToBoxAdapter(
-          child: _PricingBlock(listing: listing, accent: _green),
-        ),
       ],
     );
   }

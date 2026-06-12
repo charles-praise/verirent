@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import '../../../../core/theme/agents_theme.dart';
 import '../../data/local_repo.dart';
@@ -12,15 +11,19 @@ class AllListingUseCase extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: VeriRentSpacing.base),
-      sliver: SliverMasonryGrid.count(
-        crossAxisCount: 2,
-        mainAxisSpacing: VeriRentSpacing.sm,
-        crossAxisSpacing: VeriRentSpacing.sm,
-        childCount: allListedProperties.length,
-        itemBuilder: (context, index) {
-          return FeaturedCardFactory.build(context, allListedProperties[index]);
-        },
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
+      sliver: SliverGrid(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 0.64,
+        ),
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => FeaturedCardFactory.build(
+              context, HomeLocalRepo().allListedProperties[index]),
+          childCount: HomeLocalRepo().allListedProperties.length,
+        ),
       ),
     );
   }
@@ -34,14 +37,15 @@ class FeaturedListingsHorizontalUseCase extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 270,
+      height: 260,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: VeriRentSpacing.base),
-        itemCount: featuredProperties.length,
+        itemCount: HomeLocalRepo().featuredProperties.length,
         separatorBuilder: (_, __) => const SizedBox(width: VeriRentSpacing.sm),
         itemBuilder: (context, index) {
-          return FeaturedCardFactory.build(context, featuredProperties[index]);
+          return FeaturedCardFactory.build(
+              context, HomeLocalRepo().featuredProperties[index]);
         },
       ),
     );
@@ -56,18 +60,19 @@ class ResidentialPropertiesListingUseCase extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: VeriRentSpacing.base),
-      sliver: SliverMasonryGrid.count(
-        crossAxisCount: 2,
-        mainAxisSpacing: VeriRentSpacing.sm,
-        crossAxisSpacing: VeriRentSpacing.sm,
-        childCount: residentialProperties.length,
-        itemBuilder: (context, index) {
-          return FeaturedCardFactory.build(
-            context,
-            residentialProperties[index],
-          );
-        },
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
+      sliver: SliverGrid(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 0.64,
+        ),
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => FeaturedCardFactory.build(
+              context, HomeLocalRepo().residentialProperties[index]),
+          childCount: HomeLocalRepo().residentialProperties.length,
+        ),
       ),
     );
   }
@@ -81,15 +86,19 @@ class EstatePropertiesUseCase extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: VeriRentSpacing.base),
-      sliver: SliverMasonryGrid.count(
-        crossAxisCount: 2,
-        mainAxisSpacing: VeriRentSpacing.sm,
-        crossAxisSpacing: VeriRentSpacing.sm,
-        childCount: estateProperties.length,
-        itemBuilder: (context, index) {
-          return FeaturedCardFactory.build(context, estateProperties[index]);
-        },
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
+      sliver: SliverGrid(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 0.64,
+        ),
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => FeaturedCardFactory.build(
+              context, HomeLocalRepo().estateProperties[index]),
+          childCount: HomeLocalRepo().estateProperties.length,
+        ),
       ),
     );
   }
@@ -103,15 +112,19 @@ class LandedPropertiesUseCase extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: VeriRentSpacing.base),
-      sliver: SliverMasonryGrid.count(
-        crossAxisCount: 2,
-        mainAxisSpacing: VeriRentSpacing.sm,
-        crossAxisSpacing: VeriRentSpacing.sm,
-        childCount: landedProperties.length,
-        itemBuilder: (context, index) {
-          return FeaturedCardFactory.build(context, landedProperties[index]);
-        },
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
+      sliver: SliverGrid(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 0.64,
+        ),
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => FeaturedCardFactory.build(
+              context, HomeLocalRepo().landedProperties[index]),
+          childCount: HomeLocalRepo().landedProperties.length,
+        ),
       ),
     );
   }
@@ -125,18 +138,19 @@ class CommercialPropertiesUseCase extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: VeriRentSpacing.base),
-      sliver: SliverMasonryGrid.count(
-        crossAxisCount: 2,
-        mainAxisSpacing: VeriRentSpacing.sm,
-        crossAxisSpacing: VeriRentSpacing.sm,
-        childCount: commercialProperties.length,
-        itemBuilder: (context, index) {
-          return FeaturedCardFactory.build(
-            context,
-            commercialProperties[index],
-          );
-        },
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
+      sliver: SliverGrid(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 0.64,
+        ),
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => FeaturedCardFactory.build(
+              context, HomeLocalRepo().commercialProperties[index]),
+          childCount: HomeLocalRepo().commercialProperties.length,
+        ),
       ),
     );
   }
@@ -150,15 +164,19 @@ class ShortLetPropertiesUseCase extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: VeriRentSpacing.base),
-      sliver: SliverMasonryGrid.count(
-        crossAxisCount: 2,
-        mainAxisSpacing: VeriRentSpacing.sm,
-        crossAxisSpacing: VeriRentSpacing.sm,
-        childCount: shortletProperties.length,
-        itemBuilder: (context, index) {
-          return FeaturedCardFactory.build(context, shortletProperties[index]);
-        },
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
+      sliver: SliverGrid(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 0.64,
+        ),
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => FeaturedCardFactory.build(
+              context, HomeLocalRepo().shortletProperties[index]),
+          childCount: HomeLocalRepo().shortletProperties.length,
+        ),
       ),
     );
   }

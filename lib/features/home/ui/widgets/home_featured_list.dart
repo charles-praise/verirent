@@ -86,54 +86,54 @@ class _SaveButtonState extends State<_SaveButton>
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-    onTap: _toggle,
-    child: ScaleTransition(
-      scale: _scale,
-      child: Container(
-        width: widget.size,
-        height: widget.size,
-        decoration: BoxDecoration(
-          color: _isSaved
-              ? VeriRentColors.red.withOpacity(0.65)
-              : Colors.black.withOpacity(0.28),
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: _isSaved
-                ? VeriRentColors.red.withOpacity(0.4)
-                : Colors.white24,
+        onTap: _toggle,
+        child: ScaleTransition(
+          scale: _scale,
+          child: Container(
+            width: widget.size,
+            height: widget.size,
+            decoration: BoxDecoration(
+              color: _isSaved
+                  ? VeriRentColors.red.withOpacity(0.65)
+                  : Colors.black.withOpacity(0.28),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: _isSaved
+                    ? VeriRentColors.red.withOpacity(0.4)
+                    : Colors.white24,
+              ),
+            ),
+            child: Icon(
+              _isSaved ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+              size: widget.size * 0.5,
+              color: _isSaved ? VeriRentColors.red : VeriRentColors.textMuted,
+            ),
           ),
         ),
-        child: Icon(
-          _isSaved ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-          size: widget.size * 0.5,
-          color: _isSaved ? VeriRentColors.red : VeriRentColors.textMuted,
-        ),
-      ),
-    ),
-  );
+      );
 }
 
 Widget _verifiedBadge() => Container(
-  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-  decoration: BoxDecoration(
-    color: VeriRentColors.success500,
-    borderRadius: BorderRadius.circular(VeriRentRadius.full),
-  ),
-  child: Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      const Icon(Icons.verified_rounded, size: 9, color: Colors.white),
-      const SizedBox(width: 3),
-      Text(
-        'Verified',
-        style: VeriRentText.labelSmall.copyWith(
-          color: Colors.white,
-          fontSize: 9,
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: VeriRentColors.success500,
+        borderRadius: BorderRadius.circular(VeriRentRadius.full),
       ),
-    ],
-  ),
-);
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.verified_rounded, size: 9, color: Colors.white),
+          const SizedBox(width: 3),
+          Text(
+            'Verified',
+            style: VeriRentText.labelSmall.copyWith(
+              color: Colors.white,
+              fontSize: 9,
+            ),
+          ),
+        ],
+      ),
+    );
 
 class _Chip extends StatelessWidget {
   const _Chip({required this.icon, required this.label, this.accent});
@@ -244,7 +244,6 @@ class _PriceRow extends StatelessWidget {
                 ),
               ),
             ),
-
             Text(
               unit,
               style: VeriRentText.bodySmall.copyWith(
@@ -266,9 +265,9 @@ class _PriceRow extends StatelessWidget {
 }
 
 BorderRadius _topRadius() => BorderRadius.only(
-  topLeft: Radius.circular(VeriRentRadius.lg),
-  topRight: Radius.circular(VeriRentRadius.lg),
-);
+      topLeft: Radius.circular(VeriRentRadius.lg),
+      topRight: Radius.circular(VeriRentRadius.lg),
+    );
 
 // =============================================================================
 //  1. RESIDENTIAL FEATURED CARD  (warm teal, home icon, bed/bath/area)
@@ -285,7 +284,7 @@ class ResidentialFeaturedCard extends StatelessWidget {
       onTap: () => context.push('/listing_details', extra: card),
       child: SizedBox(
         height: 280,
-        width: 200,
+        width: 180,
         child: Container(
           decoration: BoxDecoration(
             color: cs.surface,
@@ -459,7 +458,7 @@ class LandFeaturedCard extends StatelessWidget {
       onTap: () => context.push('/listing_details', extra: card),
       child: SizedBox(
         height: 280,
-        width: 200,
+        width: 180,
         child: Container(
           decoration: BoxDecoration(
             color: cs.surface,
@@ -668,15 +667,14 @@ class CommercialFeaturedCard extends StatelessWidget {
       onTap: () => context.push('/listing_details', extra: card),
       child: SizedBox(
         height: 280,
-        width: 200,
+        width: 180,
         child: Container(
           decoration: BoxDecoration(
             color: cs.surface,
             borderRadius: BorderRadius.circular(VeriRentRadius.lg),
             border: Border.all(
-              color: card.isVerified!
-                  ? _blue.withOpacity(0.4)
-                  : cs.outlineVariant,
+              color:
+                  card.isVerified! ? _blue.withOpacity(0.4) : cs.outlineVariant,
               width: card.isVerified! ? 1.5 : 1,
             ),
             boxShadow: [
@@ -855,7 +853,7 @@ class EstateFeaturedCard extends StatelessWidget {
       onTap: () => context.push('/listing_details', extra: card),
       child: SizedBox(
         height: 280,
-        width: 200,
+        width: 180,
         child: Container(
           decoration: BoxDecoration(
             color: cs.surface,
