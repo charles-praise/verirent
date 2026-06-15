@@ -1,10 +1,13 @@
 // =============================================================================
-//  VeriRent NG — Settings Page
+//  VeriRent NG — SetPage
 // =============================================================================
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:verirent/features/settings/ui/cubit/settings_cubit.dart';
+import 'package:verirent/features/settings/ui/pages/sub_settings.dart';
 
 import '../../../../core/theme/agents_theme.dart';
 
@@ -16,291 +19,236 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  // Notification toggles
-  bool _pushNotifs = true;
-  bool _emailNotifs = true;
-  bool _smsNotifs = false;
-  bool _newListingAlerts = true;
-  bool _priceDropAlerts = true;
-
-  // Appearance
-  ThemeMode _themeMode = ThemeMode.system;
-
-  // Privacy
-  bool _shareSearchData = false;
-  bool _locationEnabled = true;
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final topPad = MediaQuery.of(context).padding.top;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: cs.brightness == Brightness.light
-          ? SystemUiOverlayStyle.dark
-          : SystemUiOverlayStyle.light,
-      child: Scaffold(
-        backgroundColor: cs.surfaceVariant,
-        body: CustomScrollView(
-          slivers: [
-            // ── App Bar ────────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: Container(
-                color: cs.surface,
-                padding: EdgeInsets.fromLTRB(16, topPad + 12, 16, 12),
-                child: Row(
-                  children: [
-                    // GestureDetector(
-                    //   onTap: () => Navigator.maybePop(context),
-                    //   child: Container(
-                    //     width: 38,
-                    //     height: 38,
-                    //     decoration: BoxDecoration(
-                    //       color: cs.surfaceVariant,
-                    //       borderRadius: BorderRadius.circular(
-                    //         VeriRentRadius.sm,
-                    //       ),
-                    //       border: Border.all(color: cs.outlineVariant),
-                    //     ),
-                    //     child: Icon(
-                    //       Icons.arrow_back_rounded,
-                    //       size: 18,
-                    //       color: cs.onSurface,
-                    //     ),
-                    //   ),
-                    // ),
-                    const SizedBox(width: 12),
-                    Text(
+    return BlocProvider(
+      create: (context) => GetIt.I<SettingsCubit>(),
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: cs.brightness == Brightness.light
+            ? SystemUiOverlayStyle.dark
+            : SystemUiOverlayStyle.light,
+        child: Scaffold(
+          backgroundColor: cs.surfaceVariant,
+          body: BlocBuilder<SettingsCubit, SettingsState>(
+            builder: (context, settingsState) {
+              final cubit = context.read<SettingsCubit>();
+              return CustomScrollView(
+                slivers: [
+                  // ── App Bar ────────────────────────────────────────────
+                  SliverAppBar(
+                    pinned: true,
+                    title: Text(
                       'Settings',
                       style: VeriRentText.titleLarge.copyWith(
                         color: cs.onSurface,
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-
-            // ── Account ────────────────────────────────────────────
-            _SectionHeader(label: 'Account'),
-            _SettingsGroup(
-              items: [
-                _SettingsTile(
-                  icon: Icons.person_outlined,
-                  iconColor: cs.primary,
-                  title: 'Edit Profile',
-                  subtitle: 'Name · Photo · Bio',
-                  onTap: () {
-                    context.push('/profile');
-                  },
-                ),
-                _SettingsTile(
-                  icon: Icons.verified_user_outlined,
-                  iconColor: VeriRentColors.green,
-                  title: 'Verification & KYC',
-                  subtitle: 'Identity · NIN · CAC',
-                  trailing: _Badge(
-                    label: 'Verified',
-                    color: VeriRentColors.green,
                   ),
-                  onTap: () {},
-                ),
-                _SettingsTile(
-                  icon: Icons.lock_outlined,
-                  iconColor: VeriRentColors.gold,
-                  title: 'Change Password',
-                  onTap: () {},
-                ),
-                _SettingsTile(
-                  icon: Icons.workspace_premium_outlined,
-                  iconColor: VeriRentColors.gold,
-                  title: 'Subscription Plan',
-                  subtitle: 'Pro Member · Renews Jun 2026',
-                  onTap: () {},
-                ),
-              ],
-            ),
 
-            // ── Notifications ──────────────────────────────────────
-            _SectionHeader(label: 'Notifications'),
-            _SettingsGroup(
-              items: [
-                _ToggleTile(
-                  icon: Icons.notifications_outlined,
-                  iconColor: cs.primary,
-                  title: 'Push Notifications',
-                  subtitle: 'In-app alerts',
-                  value: _pushNotifs,
-                  onChanged: (v) => setState(() => _pushNotifs = v),
-                ),
-                _ToggleTile(
-                  icon: Icons.email_outlined,
-                  iconColor: VeriRentColors.primary300,
-                  title: 'Email Notifications',
-                  value: _emailNotifs,
-                  onChanged: (v) => setState(() => _emailNotifs = v),
-                ),
-                _ToggleTile(
-                  icon: Icons.sms_outlined,
-                  iconColor: VeriRentColors.primary200,
-                  title: 'SMS Alerts',
-                  value: _smsNotifs,
-                  onChanged: (v) => setState(() => _smsNotifs = v),
-                ),
-                _ToggleTile(
-                  icon: Icons.home_outlined,
-                  iconColor: VeriRentColors.gold,
-                  title: 'New Listing Alerts',
-                  subtitle: 'Matching your search filters',
-                  value: _newListingAlerts,
-                  onChanged: (v) => setState(() => _newListingAlerts = v),
-                ),
-                _ToggleTile(
-                  icon: Icons.trending_down_rounded,
-                  iconColor: VeriRentColors.green,
-                  title: 'Price Drop Alerts',
-                  value: _priceDropAlerts,
-                  onChanged: (v) => setState(() => _priceDropAlerts = v),
-                ),
-              ],
-            ),
-
-            // ── Appearance ─────────────────────────────────────────
-            _SectionHeader(label: 'Appearance'),
-            _SettingsGroup(
-              items: [
-                _ThemeSelectorTile(
-                  current: _themeMode,
-                  onChanged: (v) => setState(() => _themeMode = v),
-                ),
-                _SettingsTile(
-                  icon: Icons.language_rounded,
-                  iconColor: cs.primary,
-                  title: 'Language',
-                  subtitle: 'English (Nigeria)',
-                  onTap: () {},
-                ),
-              ],
-            ),
-
-            // ── Privacy ────────────────────────────────────────────
-            _SectionHeader(label: 'Privacy & Data'),
-            _SettingsGroup(
-              items: [
-                _ToggleTile(
-                  icon: Icons.location_on_outlined,
-                  iconColor: VeriRentColors.red,
-                  title: 'Location Services',
-                  subtitle: 'Used to show nearby listings',
-                  value: _locationEnabled,
-                  onChanged: (v) => setState(() => _locationEnabled = v),
-                ),
-                _ToggleTile(
-                  icon: Icons.bar_chart_rounded,
-                  iconColor: cs.primary,
-                  title: 'Share Usage Analytics',
-                  subtitle: 'Help us improve the app',
-                  value: _shareSearchData,
-                  onChanged: (v) => setState(() => _shareSearchData = v),
-                ),
-                _SettingsTile(
-                  icon: Icons.policy_outlined,
-                  iconColor: cs.primary,
-                  title: 'Privacy Policy',
-                  onTap: () {},
-                ),
-                _SettingsTile(
-                  icon: Icons.description_outlined,
-                  iconColor: cs.primary,
-                  title: 'Terms of Service',
-                  onTap: () {},
-                ),
-              ],
-            ),
-
-            // ── Support ────────────────────────────────────────────
-            _SectionHeader(label: 'Support'),
-            _SettingsGroup(
-              items: [
-                _SettingsTile(
-                  icon: Icons.help_outline_rounded,
-                  iconColor: cs.primary,
-                  title: 'Help Centre',
-                  onTap: () {},
-                ),
-                _SettingsTile(
-                  icon: Icons.chat_bubble_outline_rounded,
-                  iconColor: cs.primary,
-                  title: 'Contact Support',
-                  subtitle: 'support@verirent.ng',
-                  onTap: () {},
-                ),
-                _SettingsTile(
-                  icon: Icons.star_border_rounded,
-                  iconColor: VeriRentColors.gold,
-                  title: 'Rate VeriRent NG',
-                  onTap: () {},
-                ),
-                _SettingsTile(
-                  icon: Icons.share_outlined,
-                  iconColor: cs.primary,
-                  title: 'Share with Friends',
-                  onTap: () {},
-                ),
-              ],
-            ),
-
-            // ── Sign Out ───────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                child: OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.logout_rounded,
-                    size: 18,
-                    color: VeriRentColors.red,
+                  // ── Notifications ──────────────────────────────────────
+                  _SectionHeader(label: 'Notifications'),
+                  _SettingsGroup(
+                    items: [
+                      _ToggleTile(
+                        icon: Icons.notifications_outlined,
+                        iconColor: cs.primary,
+                        title: 'Push Notifications',
+                        subtitle: 'In-app alerts',
+                        value: settingsState.pushNotifs,
+                        onChanged: (value) =>
+                            cubit.updatePushNotification(value),
+                      ),
+                      _ToggleTile(
+                        icon: Icons.email_outlined,
+                        iconColor: VeriRentColors.primary300,
+                        title: 'Email Notifications',
+                        value: settingsState.emailNotifs,
+                        onChanged: (value) =>
+                            cubit.updateEmailNotification(value),
+                      ),
+                      _ToggleTile(
+                        icon: Icons.sms_outlined,
+                        iconColor: VeriRentColors.primary200,
+                        title: 'SMS Alerts',
+                        value: settingsState.smsNotifs,
+                        onChanged: (value) => cubit.updateSmsAlert(value),
+                      ),
+                      _ToggleTile(
+                        icon: Icons.home_outlined,
+                        iconColor: VeriRentColors.gold,
+                        title: 'New Listing Alerts',
+                        subtitle: 'Matching your search filters',
+                        value: settingsState.newListingAlerts,
+                        onChanged: (value) =>
+                            cubit.updateNewListingAlerts(value),
+                      ),
+                      _ToggleTile(
+                        icon: Icons.trending_down_rounded,
+                        iconColor: VeriRentColors.green,
+                        title: 'Price Drop Alerts',
+                        value: settingsState.priceDropAlerts,
+                        onChanged: (value) => cubit.updatePriceDropAlert(value),
+                      ),
+                    ],
                   ),
-                  label: Text(
-                    'Sign Out',
-                    style: VeriRentText.labelLarge.copyWith(
-                      color: VeriRentColors.red,
-                    ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: VeriRentColors.red, width: 1),
-                    minimumSize: const Size(double.infinity, 48),
-                  ),
-                ),
-              ),
-            ),
 
-            // ── Footer ─────────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8, bottom: 88),
-                child: Column(
-                  children: [
-                    Text(
-                      'VeriRent NG  v1.0.0',
-                      style: VeriRentText.bodySmall.copyWith(
-                        color: cs.onSurfaceVariant.withOpacity(0.5),
-                        fontSize: 11,
+                  // ── Appearance ─────────────────────────────────────────
+                  _SectionHeader(label: 'Appearance'),
+                  _SettingsGroup(
+                    items: [
+                      _ThemeSelectorTile(
+                        current: settingsState.themeMode,
+                        onChanged: (themeMode) => cubit.updateTheme(themeMode),
+                      ),
+                      _SettingsTile(
+                        icon: Icons.language_rounded,
+                        iconColor: cs.primary,
+                        title: 'Language',
+                        subtitle: 'English (Nigeria)',
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LanguagePage(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // ── Privacy ────────────────────────────────────────────
+                  _SectionHeader(label: 'Privacy & Data'),
+                  _SettingsGroup(
+                    items: [
+                      _ToggleTile(
+                        icon: Icons.location_on_outlined,
+                        iconColor: VeriRentColors.red,
+                        title: 'Location Services',
+                        subtitle: 'Used to show nearby listings',
+                        value: settingsState.locationEnabled,
+                        onChanged: (value) =>
+                            cubit.updateLocationService(value),
+                      ),
+                      _ToggleTile(
+                        icon: Icons.bar_chart_rounded,
+                        iconColor: cs.primary,
+                        title: 'Share Usage Analytics',
+                        subtitle: 'Help us improve the app',
+                        value: settingsState.shareSearchData,
+                        onChanged: (value) =>
+                            cubit.updateShareSearchData(value),
+                      ),
+                      _SettingsTile(
+                        icon: Icons.policy_outlined,
+                        iconColor: cs.primary,
+                        title: 'Privacy Policy',
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PrivacyPolicyPage(),
+                          ),
+                        ),
+                      ),
+                      _SettingsTile(
+                        icon: Icons.description_outlined,
+                        iconColor: cs.primary,
+                        title: 'Terms of Service',
+                        onTap: () {},
+                      ),
+                    ],
+                  ),
+
+                  // ── Support ────────────────────────────────────────────
+                  _SectionHeader(label: 'Support'),
+                  _SettingsGroup(
+                    items: [
+                      _SettingsTile(
+                        icon: Icons.help_outline_rounded,
+                        iconColor: cs.primary,
+                        title: 'Help Centre',
+                        onTap: () {},
+                      ),
+                      _SettingsTile(
+                        icon: Icons.chat_bubble_outline_rounded,
+                        iconColor: cs.primary,
+                        title: 'Contact Support',
+                        subtitle: 'support@agentng.ng',
+                        onTap: () {},
+                      ),
+                      _SettingsTile(
+                        icon: Icons.star_border_rounded,
+                        iconColor: VeriRentColors.gold,
+                        title: 'Rate Agent NG',
+                        onTap: () {},
+                      ),
+                      _SettingsTile(
+                        icon: Icons.share_outlined,
+                        iconColor: cs.primary,
+                        title: 'Share with Friends',
+                        onTap: () {},
+                      ),
+                    ],
+                  ),
+
+                  // ── Sign Out ───────────────────────────────────────────
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                      child: OutlinedButton.icon(
+                        onPressed: () {},
+                        icon: const Icon(
+                          Icons.logout_rounded,
+                          size: 18,
+                          color: VeriRentColors.red,
+                        ),
+                        label: Text(
+                          'Sign Out',
+                          style: VeriRentText.labelLarge.copyWith(
+                            color: VeriRentColors.red,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(
+                            color: VeriRentColors.red,
+                            width: 1,
+                          ),
+                          minimumSize: const Size(double.infinity, 48),
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'A Nixel Technology Global Product',
-                      style: VeriRentText.bodySmall.copyWith(
-                        color: cs.onSurfaceVariant.withOpacity(0.35),
-                        fontSize: 10,
+                  ),
+
+                  // ── Footer ─────────────────────────────────────────────
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8, bottom: 88),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Agent NG  v1.0.0',
+                            style: VeriRentText.bodySmall.copyWith(
+                              color: cs.onSurfaceVariant.withOpacity(0.5),
+                              fontSize: 11,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'A Nixel Technology Global Product',
+                            style: VeriRentText.bodySmall.copyWith(
+                              color: cs.onSurfaceVariant.withOpacity(0.35),
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -314,18 +262,18 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 16, 6),
-          child: Text(
-            label.toUpperCase(),
-            style: VeriRentText.labelSmall.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              letterSpacing: 1.0,
-              fontSize: 11,
-            ),
-          ),
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 16, 6),
+      child: Text(
+        label.toUpperCase(),
+        style: VeriRentText.labelSmall.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          letterSpacing: 1.0,
+          fontSize: 11,
         ),
-      );
+      ),
+    ),
+  );
 }
 
 class _SettingsGroup extends StatelessWidget {
@@ -403,7 +351,8 @@ class _SettingsTile extends StatelessWidget {
               ),
             )
           : null,
-      trailing: trailing ??
+      trailing:
+          trailing ??
           (onTap != null
               ? Icon(
                   Icons.chevron_right_rounded,
@@ -458,10 +407,7 @@ class _ToggleTile extends StatelessWidget {
               ),
             )
           : null,
-      trailing: Switch(
-        value: value,
-        onChanged: onChanged,
-      ),
+      trailing: Switch(value: value, onChanged: onChanged),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
     );
   }
@@ -558,8 +504,8 @@ class _ThemeOption extends StatelessWidget {
           decoration: BoxDecoration(
             color: selected
                 ? cs.brightness == Brightness.dark
-                    ? cs.primary
-                    : cs.surface
+                      ? cs.primary
+                      : cs.surface
                 : cs.surfaceVariant,
             borderRadius: BorderRadius.circular(VeriRentRadius.md),
             border: Border.all(
@@ -577,8 +523,9 @@ class _ThemeOption extends StatelessWidget {
               Text(
                 label,
                 style: VeriRentText.labelSmall.copyWith(
-                  color:
-                      selected ? VeriRentColors.primary : cs.onSurfaceVariant,
+                  color: selected
+                      ? VeriRentColors.primary
+                      : cs.onSurfaceVariant,
                   fontSize: 10,
                 ),
               ),
@@ -597,15 +544,15 @@ class _Badge extends StatelessWidget {
   final Color color;
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
-          borderRadius: BorderRadius.circular(VeriRentRadius.full),
-          border: Border.all(color: color.withOpacity(0.4)),
-        ),
-        child: Text(
-          label,
-          style: VeriRentText.labelSmall.copyWith(color: color, fontSize: 10),
-        ),
-      );
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+    decoration: BoxDecoration(
+      color: color.withOpacity(0.12),
+      borderRadius: BorderRadius.circular(VeriRentRadius.full),
+      border: Border.all(color: color.withOpacity(0.4)),
+    ),
+    child: Text(
+      label,
+      style: VeriRentText.labelSmall.copyWith(color: color, fontSize: 10),
+    ),
+  );
 }

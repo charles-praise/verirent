@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:verirent/core/di/agents_di.dart';
 import 'package:verirent/core/route/agents_route.dart';
 import 'package:verirent/core/theme/agents_theme.dart';
@@ -12,6 +15,14 @@ import 'features/shell/ui/cubit/main_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final storage = await HydratedStorage.build(
+    storageDirectory: kIsWeb
+        ? HydratedStorageDirectory.web
+        : HydratedStorageDirectory(
+            (await getApplicationDocumentsDirectory()).path,
+          ),
+  );
+  HydratedBloc.storage = storage;
   await registerServices();
   runApp(
     MultiBlocProvider(

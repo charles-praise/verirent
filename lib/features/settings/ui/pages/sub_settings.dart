@@ -5,6 +5,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:verirent/features/settings/ui/cubit/settings_cubit.dart';
 
 import '../../../../core/theme/agents_theme.dart';
 
@@ -67,11 +70,7 @@ class _Group extends StatelessWidget {
             children: [
               children[i],
               if (!isLast)
-                Divider(
-                  height: 1,
-                  color: cs.outlineVariant,
-                  indent: 54,
-                ),
+                Divider(height: 1, color: cs.outlineVariant, indent: 54),
             ],
           );
         }),
@@ -87,28 +86,28 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 16, 6),
-        child: Text(
-          label.toUpperCase(),
-          style: VeriRentText.labelSmall.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-            letterSpacing: 1.0,
-            fontSize: 11,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.fromLTRB(20, 20, 16, 6),
+    child: Text(
+      label.toUpperCase(),
+      style: VeriRentText.labelSmall.copyWith(
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+        letterSpacing: 1.0,
+        fontSize: 11,
+      ),
+    ),
+  );
 }
 
 /// Coloured icon container.
 Widget _iconBox(IconData icon, Color color) => Container(
-      width: 34,
-      height: 34,
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.10),
-        borderRadius: BorderRadius.circular(VeriRentRadius.sm),
-      ),
-      child: Icon(icon, size: 17, color: color),
-    );
+  width: 34,
+  height: 34,
+  decoration: BoxDecoration(
+    color: color.withOpacity(0.10),
+    borderRadius: BorderRadius.circular(VeriRentRadius.sm),
+  ),
+  child: Icon(icon, size: 17, color: color),
+);
 
 // =============================================================================
 //  1.  VERIFICATION & KYC PAGE
@@ -164,8 +163,9 @@ class VerificationKycPage extends StatelessWidget {
                         children: [
                           Text(
                             'Identity Verified',
-                            style: VeriRentText.titleMedium
-                                .copyWith(color: Colors.white),
+                            style: VeriRentText.titleMedium.copyWith(
+                              color: Colors.white,
+                            ),
                           ),
                           const SizedBox(height: 2),
                           Text(
@@ -214,7 +214,8 @@ class VerificationKycPage extends StatelessWidget {
 
             // ── Professional ──────────────────────────────────────
             SliverToBoxAdapter(
-                child: _SectionLabel('Professional Credentials')),
+              child: _SectionLabel('Professional Credentials'),
+            ),
             SliverToBoxAdapter(
               child: _Group(
                 children: [
@@ -306,8 +307,10 @@ class _KycTile extends StatelessWidget {
     Widget badge;
     switch (status) {
       case _KycStatus.verified:
-        badge =
-            _StatusBadge(label: 'Verified', color: VeriRentColors.success500);
+        badge = _StatusBadge(
+          label: 'Verified',
+          color: VeriRentColors.success500,
+        );
         break;
       case _KycStatus.pending:
         badge = _StatusBadge(label: 'Pending', color: VeriRentColors.gold);
@@ -319,10 +322,14 @@ class _KycTile extends StatelessWidget {
     return ListTile(
       onTap: onTap,
       leading: _iconBox(icon, iconColor),
-      title: Text(title,
-          style: VeriRentText.bodyMedium.copyWith(color: cs.onSurface)),
-      subtitle: Text(subtitle,
-          style: VeriRentText.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+      title: Text(
+        title,
+        style: VeriRentText.bodyMedium.copyWith(color: cs.onSurface),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: VeriRentText.bodySmall.copyWith(color: cs.onSurfaceVariant),
+      ),
       trailing: badge,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
     );
@@ -336,20 +343,17 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
-          borderRadius: BorderRadius.circular(VeriRentRadius.full),
-          border: Border.all(color: color.withOpacity(0.4)),
-        ),
-        child: Text(
-          label,
-          style: VeriRentText.labelSmall.copyWith(
-            color: color,
-            fontSize: 10,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+    decoration: BoxDecoration(
+      color: color.withOpacity(0.12),
+      borderRadius: BorderRadius.circular(VeriRentRadius.full),
+      border: Border.all(color: color.withOpacity(0.4)),
+    ),
+    child: Text(
+      label,
+      style: VeriRentText.labelSmall.copyWith(color: color, fontSize: 10),
+    ),
+  );
 }
 
 // =============================================================================
@@ -415,9 +419,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         backgroundColor: cs.surfaceVariant,
         body: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(
-              child: _SubPageAppBar(title: 'Change Password'),
-            ),
+            SliverToBoxAdapter(child: _SubPageAppBar(title: 'Change Password')),
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -557,8 +559,9 @@ class _PasswordField extends StatelessWidget {
       obscureText: !show,
       onChanged: onChanged,
       validator: validator,
-      style: VeriRentText.bodyMedium
-          .copyWith(color: Theme.of(context).colorScheme.onSurface),
+      style: VeriRentText.bodyMedium.copyWith(
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: const Icon(Icons.lock_outlined, size: 18),
@@ -718,29 +721,41 @@ class _SubscriptionPlanPageState extends State<SubscriptionPlanPage> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Current Plan',
-                            style: VeriRentText.bodySmall
-                                .copyWith(color: cs.onSurfaceVariant)),
-                        Text('Pro Member',
-                            style: VeriRentText.titleMedium
-                                .copyWith(color: cs.onSurface)),
+                        Text(
+                          'Current Plan',
+                          style: VeriRentText.bodySmall.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                        Text(
+                          'Pro Member',
+                          style: VeriRentText.titleMedium.copyWith(
+                            color: cs.onSurface,
+                          ),
+                        ),
                       ],
                     ),
                     const Spacer(),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: VeriRentColors.gold.withOpacity(0.12),
-                        borderRadius:
-                            BorderRadius.circular(VeriRentRadius.full),
+                        borderRadius: BorderRadius.circular(
+                          VeriRentRadius.full,
+                        ),
                         border: Border.all(
-                            color: VeriRentColors.gold.withOpacity(0.4)),
+                          color: VeriRentColors.gold.withOpacity(0.4),
+                        ),
                       ),
                       child: Text(
                         'Renews Jun 2026',
-                        style: VeriRentText.labelSmall
-                            .copyWith(color: VeriRentColors.gold, fontSize: 10),
+                        style: VeriRentText.labelSmall.copyWith(
+                          color: VeriRentColors.gold,
+                          fontSize: 10,
+                        ),
                       ),
                     ),
                   ],
@@ -826,8 +841,8 @@ class _SubscriptionPlanPageState extends State<SubscriptionPlanPage> {
                     _selected == 1
                         ? 'Current Plan'
                         : _selected == 0
-                            ? 'Downgrade to Basic'
-                            : 'Upgrade to Enterprise',
+                        ? 'Downgrade to Basic'
+                        : 'Upgrade to Enterprise',
                   ),
                 ),
               ),
@@ -845,8 +860,9 @@ class _SubscriptionPlanPageState extends State<SubscriptionPlanPage> {
                   ),
                   child: Text(
                     'Cancel Subscription',
-                    style: VeriRentText.labelLarge
-                        .copyWith(color: VeriRentColors.red),
+                    style: VeriRentText.labelLarge.copyWith(
+                      color: VeriRentColors.red,
+                    ),
                   ),
                 ),
               ),
@@ -901,7 +917,7 @@ class _PlanCard extends StatelessWidget {
                     color: color.withOpacity(0.14),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
-                  )
+                  ),
                 ]
               : null,
         ),
@@ -917,8 +933,10 @@ class _PlanCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 if (badge != null)
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: color.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(VeriRentRadius.full),
@@ -926,8 +944,10 @@ class _PlanCard extends StatelessWidget {
                     ),
                     child: Text(
                       badge!,
-                      style: VeriRentText.labelSmall
-                          .copyWith(color: color, fontSize: 9),
+                      style: VeriRentText.labelSmall.copyWith(
+                        color: color,
+                        fontSize: 9,
+                      ),
                     ),
                   ),
                 const Spacer(),
@@ -940,8 +960,9 @@ class _PlanCard extends StatelessWidget {
                     ),
                     Text(
                       priceSub,
-                      style: VeriRentText.bodySmall
-                          .copyWith(color: cs.onSurfaceVariant),
+                      style: VeriRentText.bodySmall.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
@@ -953,16 +974,13 @@ class _PlanCard extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 6),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.check_circle_rounded,
-                      size: 14,
-                      color: color,
-                    ),
+                    Icon(Icons.check_circle_rounded, size: 14, color: color),
                     const SizedBox(width: 8),
                     Text(
                       f,
-                      style:
-                          VeriRentText.bodySmall.copyWith(color: cs.onSurface),
+                      style: VeriRentText.bodySmall.copyWith(
+                        color: cs.onSurface,
+                      ),
                     ),
                   ],
                 ),
@@ -987,85 +1005,86 @@ class LanguagePage extends StatefulWidget {
 }
 
 class _LanguagePageState extends State<LanguagePage> {
-  String _selected = 'en_NG';
-
-  static const _languages = [
-    _LangOption('en_NG', 'English (Nigeria)', '🇳🇬'),
-    _LangOption('en_GB', 'English (UK)', '🇬🇧'),
-    _LangOption('en_US', 'English (US)', '🇺🇸'),
-    _LangOption('pcm', 'Nigerian Pidgin', '🇳🇬'),
-    _LangOption('yo', 'Yorùbá', '🇳🇬'),
-    _LangOption('ha', 'Hausa', '🇳🇬'),
-    _LangOption('ig', 'Igbo', '🇳🇬'),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: cs.brightness == Brightness.light
-          ? SystemUiOverlayStyle.dark
-          : SystemUiOverlayStyle.light,
-      child: Scaffold(
-        backgroundColor: cs.surfaceVariant,
-        body: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: _SubPageAppBar(title: 'Language'),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-                child: Text(
-                  'Choose your preferred language for the VeriRent NG interface.',
-                  style: VeriRentText.bodySmall
-                      .copyWith(color: cs.onSurfaceVariant),
-                ),
-              ),
-            ),
-            SliverToBoxAdapter(child: _SectionLabel('Interface Language')),
-            SliverToBoxAdapter(
-              child: _Group(
-                children: _languages
-                    .map(
-                      (l) => _LangTile(
-                        option: l,
-                        selected: _selected == l.code,
-                        onTap: () => setState(() => _selected = l.code),
+    return BlocProvider.value(
+      value: GetIt.I<SettingsCubit>(),
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: cs.brightness == Brightness.light
+            ? SystemUiOverlayStyle.dark
+            : SystemUiOverlayStyle.light,
+        child: BlocBuilder<SettingsCubit, SettingsState>(
+          builder: (context, state) {
+            final cubit = context.read<SettingsCubit>();
+            return Scaffold(
+              backgroundColor: cs.surfaceVariant,
+              body: CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(child: _SubPageAppBar(title: 'Language')),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                      child: Text(
+                        'Choose your preferred language for the Agent NG interface.',
+                        style: VeriRentText.bodySmall.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
                       ),
-                    )
-                    .toList(),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 48),
-                child: FilledButton(
-                  onPressed: () => Navigator.maybePop(context),
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 48),
+                    ),
                   ),
-                  child: const Text('Save Language'),
-                ),
+                  SliverToBoxAdapter(
+                    child: _SectionLabel('Interface Language'),
+                  ),
+                  SliverToBoxAdapter(
+                    child: _Group(
+                      children: state.languages
+                          .map(
+                            (l) => LangTile(
+                              option: l,
+                              selected: state.selectedLanguage == l.code,
+                              onTap: () => cubit.updateSelectedLanguage(l.code),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 20, 16, 48),
+                      child: FilledButton(
+                        onPressed: () => Navigator.maybePop(context),
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 48),
+                        ),
+                        child: const Text('Save Language'),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
   }
 }
 
-class _LangOption {
-  const _LangOption(this.code, this.name, this.flag);
+class LangOption {
+  const LangOption(this.code, this.name, this.flag);
   final String code, name, flag;
 }
 
-class _LangTile extends StatelessWidget {
-  const _LangTile(
-      {required this.option, required this.selected, required this.onTap});
-  final _LangOption option;
+class LangTile extends StatelessWidget {
+  const LangTile({
+    super.key,
+    required this.option,
+    required this.selected,
+    required this.onTap,
+  });
+  final LangOption option;
   final bool selected;
   final VoidCallback onTap;
 
@@ -1075,12 +1094,17 @@ class _LangTile extends StatelessWidget {
     return ListTile(
       onTap: onTap,
       leading: Text(option.flag, style: const TextStyle(fontSize: 22)),
-      title: Text(option.name,
-          style: VeriRentText.bodyMedium.copyWith(color: cs.onSurface)),
+      title: Text(
+        option.name,
+        style: VeriRentText.bodyMedium.copyWith(color: cs.onSurface),
+      ),
       trailing: selected
           ? Icon(Icons.check_circle_rounded, color: cs.primary, size: 20)
-          : Icon(Icons.radio_button_unchecked_rounded,
-              color: cs.outlineVariant, size: 20),
+          : Icon(
+              Icons.radio_button_unchecked_rounded,
+              color: cs.outlineVariant,
+              size: 20,
+            ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
     );
   }
@@ -1138,13 +1162,15 @@ class PrivacyPolicyPage extends StatelessWidget {
                             children: [
                               Text(
                                 'VeriRent NG Privacy Policy',
-                                style: VeriRentText.titleMedium
-                                    .copyWith(color: cs.onSurface),
+                                style: VeriRentText.titleMedium.copyWith(
+                                  color: cs.onSurface,
+                                ),
                               ),
                               Text(
                                 'Last updated: 1 January 2026',
-                                style: VeriRentText.bodySmall
-                                    .copyWith(color: cs.onSurfaceVariant),
+                                style: VeriRentText.bodySmall.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
                               ),
                             ],
                           ),
@@ -1180,12 +1206,18 @@ class _LegalSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(heading,
-              style: VeriRentText.titleSmall.copyWith(color: cs.onSurface)),
+          Text(
+            heading,
+            style: VeriRentText.titleSmall.copyWith(color: cs.onSurface),
+          ),
           const SizedBox(height: 6),
-          Text(body,
-              style: VeriRentText.bodySmall
-                  .copyWith(color: cs.onSurfaceVariant, height: 1.65)),
+          Text(
+            body,
+            style: VeriRentText.bodySmall.copyWith(
+              color: cs.onSurfaceVariant,
+              height: 1.65,
+            ),
+          ),
         ],
       ),
     );
@@ -1267,13 +1299,15 @@ class TermsOfServicePage extends StatelessWidget {
                             children: [
                               Text(
                                 'Terms of Service',
-                                style: VeriRentText.titleMedium
-                                    .copyWith(color: cs.onSurface),
+                                style: VeriRentText.titleMedium.copyWith(
+                                  color: cs.onSurface,
+                                ),
                               ),
                               Text(
                                 'Effective: 1 January 2026',
-                                style: VeriRentText.bodySmall
-                                    .copyWith(color: cs.onSurfaceVariant),
+                                style: VeriRentText.bodySmall.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
                               ),
                             ],
                           ),
@@ -1358,10 +1392,12 @@ class _HelpCentrePageState extends State<HelpCentrePage> {
     final cs = Theme.of(context).colorScheme;
 
     final filtered = _faqItems
-        .where((f) =>
-            _query.isEmpty ||
-            f.q.toLowerCase().contains(_query.toLowerCase()) ||
-            f.a.toLowerCase().contains(_query.toLowerCase()))
+        .where(
+          (f) =>
+              _query.isEmpty ||
+              f.q.toLowerCase().contains(_query.toLowerCase()) ||
+              f.a.toLowerCase().contains(_query.toLowerCase()),
+        )
         .toList();
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -1372,9 +1408,7 @@ class _HelpCentrePageState extends State<HelpCentrePage> {
         backgroundColor: cs.surfaceVariant,
         body: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(
-              child: _SubPageAppBar(title: 'Help Centre'),
-            ),
+            SliverToBoxAdapter(child: _SubPageAppBar(title: 'Help Centre')),
 
             // Search
             SliverToBoxAdapter(
@@ -1438,7 +1472,8 @@ class _HelpCentrePageState extends State<HelpCentrePage> {
 
             // FAQs
             SliverToBoxAdapter(
-                child: _SectionLabel('Frequently Asked Questions')),
+              child: _SectionLabel('Frequently Asked Questions'),
+            ),
             SliverToBoxAdapter(
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -1453,8 +1488,9 @@ class _HelpCentrePageState extends State<HelpCentrePage> {
                         child: Center(
                           child: Text(
                             'No results for "$_query"',
-                            style: VeriRentText.bodySmall
-                                .copyWith(color: cs.onSurfaceVariant),
+                            style: VeriRentText.bodySmall.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
                           ),
                         ),
                       )
@@ -1467,15 +1503,13 @@ class _HelpCentrePageState extends State<HelpCentrePage> {
                                 item: filtered[i],
                                 expanded: _expandedIndex == i,
                                 onTap: () => setState(() {
-                                  _expandedIndex =
-                                      _expandedIndex == i ? null : i;
+                                  _expandedIndex = _expandedIndex == i
+                                      ? null
+                                      : i;
                                 }),
                               ),
                               if (!isLast)
-                                Divider(
-                                  height: 1,
-                                  color: cs.outlineVariant,
-                                ),
+                                Divider(height: 1, color: cs.outlineVariant),
                             ],
                           );
                         }),
@@ -1491,22 +1525,35 @@ class _HelpCentrePageState extends State<HelpCentrePage> {
                   children: [
                     ListTile(
                       leading: _iconBox(
-                          Icons.chat_bubble_outline_rounded, cs.primary),
-                      title: Text('Still need help?',
-                          style: VeriRentText.bodyMedium
-                              .copyWith(color: cs.onSurface)),
-                      subtitle: Text('Contact our support team',
-                          style: VeriRentText.bodySmall
-                              .copyWith(color: cs.onSurfaceVariant)),
-                      trailing:
-                          const Icon(Icons.chevron_right_rounded, size: 18),
+                        Icons.chat_bubble_outline_rounded,
+                        cs.primary,
+                      ),
+                      title: Text(
+                        'Still need help?',
+                        style: VeriRentText.bodyMedium.copyWith(
+                          color: cs.onSurface,
+                        ),
+                      ),
+                      subtitle: Text(
+                        'Contact our support team',
+                        style: VeriRentText.bodySmall.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                      trailing: const Icon(
+                        Icons.chevron_right_rounded,
+                        size: 18,
+                      ),
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const ContactSupportPage()),
+                          builder: (_) => const ContactSupportPage(),
+                        ),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 4),
+                        horizontal: 16,
+                        vertical: 4,
+                      ),
                     ),
                   ],
                 ),
@@ -1521,8 +1568,11 @@ class _HelpCentrePageState extends State<HelpCentrePage> {
 }
 
 class _QuickHelpChip extends StatelessWidget {
-  const _QuickHelpChip(
-      {required this.icon, required this.label, required this.onTap});
+  const _QuickHelpChip({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
   final IconData icon;
   final String label;
   final VoidCallback onTap;
@@ -1544,9 +1594,13 @@ class _QuickHelpChip extends StatelessWidget {
             children: [
               Icon(icon, size: 18, color: cs.primary),
               const SizedBox(height: 4),
-              Text(label,
-                  style: VeriRentText.labelSmall
-                      .copyWith(color: cs.onSurface, fontSize: 9)),
+              Text(
+                label,
+                style: VeriRentText.labelSmall.copyWith(
+                  color: cs.onSurface,
+                  fontSize: 9,
+                ),
+              ),
             ],
           ),
         ),
@@ -1561,8 +1615,11 @@ class _FaqItem {
 }
 
 class _FaqTile extends StatelessWidget {
-  const _FaqTile(
-      {required this.item, required this.expanded, required this.onTap});
+  const _FaqTile({
+    required this.item,
+    required this.expanded,
+    required this.onTap,
+  });
   final _FaqItem item;
   final bool expanded;
   final VoidCallback onTap;
@@ -1574,16 +1631,23 @@ class _FaqTile extends StatelessWidget {
       children: [
         ListTile(
           onTap: onTap,
-          title: Text(item.q,
-              style: VeriRentText.bodyMedium.copyWith(color: cs.onSurface)),
+          title: Text(
+            item.q,
+            style: VeriRentText.bodyMedium.copyWith(color: cs.onSurface),
+          ),
           trailing: AnimatedRotation(
             turns: expanded ? 0.5 : 0,
             duration: const Duration(milliseconds: 180),
-            child: Icon(Icons.keyboard_arrow_down_rounded,
-                size: 18, color: cs.onSurfaceVariant),
+            child: Icon(
+              Icons.keyboard_arrow_down_rounded,
+              size: 18,
+              color: cs.onSurfaceVariant,
+            ),
           ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 4,
+          ),
         ),
         AnimatedCrossFade(
           firstChild: const SizedBox.shrink(),
@@ -1591,12 +1655,15 @@ class _FaqTile extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
             child: Text(
               item.a,
-              style: VeriRentText.bodySmall
-                  .copyWith(color: cs.onSurfaceVariant, height: 1.65),
+              style: VeriRentText.bodySmall.copyWith(
+                color: cs.onSurfaceVariant,
+                height: 1.65,
+              ),
             ),
           ),
-          crossFadeState:
-              expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+          crossFadeState: expanded
+              ? CrossFadeState.showSecond
+              : CrossFadeState.showFirst,
           duration: const Duration(milliseconds: 180),
         ),
       ],
@@ -1683,9 +1750,7 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
         backgroundColor: cs.surfaceVariant,
         body: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(
-              child: _SubPageAppBar(title: 'Contact Support'),
-            ),
+            SliverToBoxAdapter(child: _SubPageAppBar(title: 'Contact Support')),
             if (_sent)
               SliverFillRemaining(
                 child: Center(
@@ -1706,14 +1771,18 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Text('Message Sent!',
-                          style: VeriRentText.headlineMedium
-                              .copyWith(color: cs.onSurface)),
+                      Text(
+                        'Message Sent!',
+                        style: VeriRentText.headlineMedium.copyWith(
+                          color: cs.onSurface,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       Text(
                         'Our team will respond within 24 hours.',
-                        style: VeriRentText.bodySmall
-                            .copyWith(color: cs.onSurfaceVariant),
+                        style: VeriRentText.bodySmall.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
                       ),
                       const SizedBox(height: 28),
                       FilledButton(
@@ -1769,33 +1838,37 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
                           height: 36,
                           child: ListView(
                             scrollDirection: Axis.horizontal,
-                            children: [
-                              'General',
-                              'Verification',
-                              'Listing',
-                              'Billing',
-                              'Technical',
-                            ]
-                                .map(
-                                  (c) => Padding(
-                                    padding: const EdgeInsets.only(right: 8),
-                                    child: ChoiceChip(
-                                      label: Text(c),
-                                      selected: _category == c,
-                                      onSelected: (_) =>
-                                          setState(() => _category = c),
-                                    ),
-                                  ),
-                                )
-                                .toList(),
+                            children:
+                                [
+                                      'General',
+                                      'Verification',
+                                      'Listing',
+                                      'Billing',
+                                      'Technical',
+                                    ]
+                                    .map(
+                                      (c) => Padding(
+                                        padding: const EdgeInsets.only(
+                                          right: 8,
+                                        ),
+                                        child: ChoiceChip(
+                                          label: Text(c),
+                                          selected: _category == c,
+                                          onSelected: (_) =>
+                                              setState(() => _category = c),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
                           ),
                         ),
                         const SizedBox(height: 12),
 
                         TextFormField(
                           controller: _subjectCtrl,
-                          style: VeriRentText.bodyMedium
-                              .copyWith(color: cs.onSurface),
+                          style: VeriRentText.bodyMedium.copyWith(
+                            color: cs.onSurface,
+                          ),
                           decoration: const InputDecoration(
                             labelText: 'Subject',
                             prefixIcon: Icon(Icons.title_rounded, size: 18),
@@ -1808,8 +1881,9 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
                         TextFormField(
                           controller: _messageCtrl,
                           maxLines: 5,
-                          style: VeriRentText.bodyMedium
-                              .copyWith(color: cs.onSurface),
+                          style: VeriRentText.bodyMedium.copyWith(
+                            color: cs.onSurface,
+                          ),
                           decoration: const InputDecoration(
                             labelText: 'Message',
                             alignLabelWithHint: true,
@@ -1884,12 +1958,19 @@ class _ContactChannelTile extends StatelessWidget {
     return ListTile(
       onTap: onTap,
       leading: _iconBox(icon, iconColor),
-      title: Text(title,
-          style: VeriRentText.bodyMedium.copyWith(color: cs.onSurface)),
-      subtitle: Text(subtitle,
-          style: VeriRentText.bodySmall.copyWith(color: cs.onSurfaceVariant)),
-      trailing: Icon(Icons.chevron_right_rounded,
-          size: 18, color: cs.onSurfaceVariant),
+      title: Text(
+        title,
+        style: VeriRentText.bodyMedium.copyWith(color: cs.onSurface),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: VeriRentText.bodySmall.copyWith(color: cs.onSurfaceVariant),
+      ),
+      trailing: Icon(
+        Icons.chevron_right_rounded,
+        size: 18,
+        color: cs.onSurfaceVariant,
+      ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
     );
   }
@@ -1957,14 +2038,18 @@ class _RateAppPageState extends State<RateAppPage> {
                     children: [
                       const Text('🎉', style: TextStyle(fontSize: 56)),
                       const SizedBox(height: 16),
-                      Text('Thank you for your feedback!',
-                          style: VeriRentText.headlineMedium
-                              .copyWith(color: cs.onSurface)),
+                      Text(
+                        'Thank you for your feedback!',
+                        style: VeriRentText.headlineMedium.copyWith(
+                          color: cs.onSurface,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       Text(
                         'Your review helps us improve VeriRent NG.',
-                        style: VeriRentText.bodySmall
-                            .copyWith(color: cs.onSurfaceVariant),
+                        style: VeriRentText.bodySmall.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
                       ),
                       const SizedBox(height: 28),
                       FilledButton(
@@ -1986,8 +2071,9 @@ class _RateAppPageState extends State<RateAppPage> {
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           color: cs.surface,
-                          borderRadius:
-                              BorderRadius.circular(VeriRentRadius.lg),
+                          borderRadius: BorderRadius.circular(
+                            VeriRentRadius.lg,
+                          ),
                           border: Border.all(color: cs.outlineVariant),
                         ),
                         child: Column(
@@ -1997,8 +2083,9 @@ class _RateAppPageState extends State<RateAppPage> {
                               height: 64,
                               decoration: BoxDecoration(
                                 color: cs.primary,
-                                borderRadius:
-                                    BorderRadius.circular(VeriRentRadius.lg),
+                                borderRadius: BorderRadius.circular(
+                                  VeriRentRadius.lg,
+                                ),
                               ),
                               child: const Icon(
                                 Icons.verified_rounded,
@@ -2009,13 +2096,15 @@ class _RateAppPageState extends State<RateAppPage> {
                             const SizedBox(height: 12),
                             Text(
                               'VeriRent NG',
-                              style: VeriRentText.titleLarge
-                                  .copyWith(color: cs.onSurface),
+                              style: VeriRentText.titleLarge.copyWith(
+                                color: cs.onSurface,
+                              ),
                             ),
                             Text(
                               'How would you rate your experience?',
-                              style: VeriRentText.bodySmall
-                                  .copyWith(color: cs.onSurfaceVariant),
+                              style: VeriRentText.bodySmall.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
                             ),
 
                             const SizedBox(height: 20),
@@ -2068,15 +2157,17 @@ class _RateAppPageState extends State<RateAppPage> {
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: cs.surface,
-                          borderRadius:
-                              BorderRadius.circular(VeriRentRadius.lg),
+                          borderRadius: BorderRadius.circular(
+                            VeriRentRadius.lg,
+                          ),
                           border: Border.all(color: cs.outlineVariant),
                         ),
                         child: TextField(
                           controller: _reviewCtrl,
                           maxLines: 4,
-                          style: VeriRentText.bodyMedium
-                              .copyWith(color: cs.onSurface),
+                          style: VeriRentText.bodyMedium.copyWith(
+                            color: cs.onSurface,
+                          ),
                           decoration: InputDecoration(
                             hintText:
                                 'Share more about your experience (optional)…',
@@ -2155,10 +2246,7 @@ class ShareWithFriendsPage extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      cs.primary,
-                      cs.primary.withOpacity(0.8),
-                    ],
+                    colors: [cs.primary, cs.primary.withOpacity(0.8)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -2174,27 +2262,33 @@ class ShareWithFriendsPage extends StatelessWidget {
                     const SizedBox(height: 12),
                     Text(
                       'Invite & Earn',
-                      style: VeriRentText.headlineMedium
-                          .copyWith(color: Colors.white),
+                      style: VeriRentText.headlineMedium.copyWith(
+                        color: Colors.white,
+                      ),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       'Share VeriRent NG with colleagues and earn ₦500 for every verified referral.',
                       textAlign: TextAlign.center,
                       style: VeriRentText.bodySmall.copyWith(
-                          color: Colors.white.withOpacity(0.85), height: 1.6),
+                        color: Colors.white.withOpacity(0.85),
+                        height: 1.6,
+                      ),
                     ),
                     const SizedBox(height: 20),
 
                     // Referral code box
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(VeriRentRadius.md),
-                        border:
-                            Border.all(color: Colors.white.withOpacity(0.3)),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.3),
+                        ),
                       ),
                       child: Row(
                         children: [
@@ -2205,36 +2299,44 @@ class ShareWithFriendsPage extends StatelessWidget {
                                 Text(
                                   'Your Referral Code',
                                   style: VeriRentText.bodySmall.copyWith(
-                                      color: Colors.white.withOpacity(0.7)),
+                                    color: Colors.white.withOpacity(0.7),
+                                  ),
                                 ),
                                 Text(
                                   'VERIRENT-CPD2026',
                                   style: VeriRentText.titleMedium.copyWith(
-                                      color: Colors.white, letterSpacing: 1.5),
+                                    color: Colors.white,
+                                    letterSpacing: 1.5,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                           GestureDetector(
                             onTap: () {
-                              Clipboard.setData(const ClipboardData(
-                                  text: 'VERIRENT-CPD2026'));
+                              Clipboard.setData(
+                                const ClipboardData(text: 'VERIRENT-CPD2026'),
+                              );
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Code copied!')),
                               );
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 8),
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.2),
-                                borderRadius:
-                                    BorderRadius.circular(VeriRentRadius.sm),
+                                borderRadius: BorderRadius.circular(
+                                  VeriRentRadius.sm,
+                                ),
                               ),
                               child: Text(
                                 'Copy',
-                                style: VeriRentText.labelMedium
-                                    .copyWith(color: Colors.white),
+                                style: VeriRentText.labelMedium.copyWith(
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
@@ -2259,8 +2361,11 @@ class ShareWithFriendsPage extends StatelessWidget {
                       label: 'Copy Link',
                       color: cs.primary,
                       onTap: () {
-                        Clipboard.setData(const ClipboardData(
-                            text: 'https://verirent.ng/ref/CPD2026'));
+                        Clipboard.setData(
+                          const ClipboardData(
+                            text: 'https://verirent.ng/ref/CPD2026',
+                          ),
+                        );
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Link copied!')),
                         );
@@ -2307,7 +2412,10 @@ class ShareWithFriendsPage extends StatelessWidget {
                     _ReferralStat(label: 'Verified', value: '1'),
                     const SizedBox(width: 10),
                     _ReferralStat(
-                        label: 'Earned', value: '₦500', highlight: true),
+                      label: 'Earned',
+                      value: '₦500',
+                      highlight: true,
+                    ),
                   ],
                 ),
               ),
@@ -2419,8 +2527,9 @@ class _ReferralStat extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               label,
-              style:
-                  VeriRentText.bodySmall.copyWith(color: cs.onSurfaceVariant),
+              style: VeriRentText.bodySmall.copyWith(
+                color: cs.onSurfaceVariant,
+              ),
             ),
           ],
         ),
@@ -2444,10 +2553,7 @@ class _HowItWorksTile extends StatelessWidget {
       leading: Container(
         width: 34,
         height: 34,
-        decoration: BoxDecoration(
-          color: cs.primary,
-          shape: BoxShape.circle,
-        ),
+        decoration: BoxDecoration(color: cs.primary, shape: BoxShape.circle),
         child: Center(
           child: Text(
             step,
@@ -2455,10 +2561,14 @@ class _HowItWorksTile extends StatelessWidget {
           ),
         ),
       ),
-      title: Text(title,
-          style: VeriRentText.bodyMedium.copyWith(color: cs.onSurface)),
-      subtitle: Text(subtitle,
-          style: VeriRentText.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+      title: Text(
+        title,
+        style: VeriRentText.bodyMedium.copyWith(color: cs.onSurface),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: VeriRentText.bodySmall.copyWith(color: cs.onSurfaceVariant),
+      ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
     );
   }

@@ -318,51 +318,51 @@ class ResidentialFeaturedCard extends StatelessWidget {
                   ),
 
                   // Category pill — bottom left
-                  // Positioned(
-                  //   bottom: 8,
-                  //   left: 8,
-                  //   child: Container(
-                  //     padding: const EdgeInsets.symmetric(
-                  //       horizontal: 8,
-                  //       vertical: 3,
-                  //     ),
-                  //     margin: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  //     decoration: BoxDecoration(
-                  //       color: Colors.black.withOpacity(0.55),
-                  //       borderRadius: BorderRadius.circular(
-                  //         VeriRentRadius.full,
-                  //       ),
-                  //       border: Border.all(
-                  //         color: Colors.white24.withOpacity(0.1),
-                  //       ),
-                  //     ),
-                  //     child: Row(
-                  //       mainAxisSize: MainAxisSize.min,
-                  //       children: [
-                  //         const Icon(
-                  //           Icons.home_rounded,
-                  //           size: 9,
-                  //           color: Colors.white70,
-                  //         ),
-                  //         const SizedBox(width: 3),
-                  //         Flexible(
-                  //           child: SizedBox(
-                  //             width: 40,
-                  //             child: Text(
-                  //               card.propertyType!,
-                  //               style: VeriRentText.labelSmall.copyWith(
-                  //                 color: Colors.white,
-                  //                 fontSize: 9,
-                  //               ),
-                  //             ),
-                  //           ),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      margin: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.55),
+                        borderRadius: BorderRadius.circular(
+                          VeriRentRadius.full,
+                        ),
+                        border: Border.all(
+                          color: Colors.white24.withOpacity(0.1),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.home_rounded,
+                            size: 9,
+                            color: Colors.white70,
+                          ),
+                          const SizedBox(width: 3),
+                          Flexible(
+                            child: SizedBox(
+                              width: 40,
+                              child: Text(
+                                card.propertyType!,
+                                style: VeriRentText.labelSmall.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 9,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                   if (card.isVerified!)
-                    Positioned(top: 8, left: 8, child: _verifiedBadge()),
+                    Positioned(top: 8, right: 8, child: _verifiedBadge()),
 
                   Positioned(bottom: 6, right: 6, child: const _SaveButton()),
                 ],

@@ -51,9 +51,8 @@ class ShellCustomBottomNavbar extends StatelessWidget {
         final activeColor = Theme.of(context).brightness == Brightness.light
             ? VeriRentColors.primary
             : VeriRentColors.accent400;
-        final inactiveColor = isLight
-            ? const Color(0xFF8E8E93)
-            : const Color(0xFF8E8E93);
+        final inactiveColor =
+            isLight ? const Color(0xFF8E8E93) : const Color(0xFF8E8E93);
 
         return SafeArea(
           top: false,
@@ -81,7 +80,7 @@ class ShellCustomBottomNavbar extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(28),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: List.generate(navItems.length, (index) {
@@ -96,8 +95,8 @@ class ShellCustomBottomNavbar extends StatelessWidget {
                             duration: const Duration(milliseconds: 200),
                             curve: Curves.easeOutCubic,
                             margin: const EdgeInsets.symmetric(
-                              vertical: 6,
-                              horizontal: 4,
+                              vertical: 4,
+                              horizontal: 0,
                             ),
                             decoration: BoxDecoration(
                               color: isSelected
@@ -111,9 +110,8 @@ class ShellCustomBottomNavbar extends StatelessWidget {
                                 Icon(
                                   isSelected ? item.activeIcon : item.icon,
                                   size: 22,
-                                  color: isSelected
-                                      ? activeColor
-                                      : inactiveColor,
+                                  color:
+                                      isSelected ? activeColor : inactiveColor,
                                 ),
                                 const SizedBox(height: 2),
                                 Text(

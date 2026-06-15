@@ -35,12 +35,14 @@ class ProfilePage extends StatelessWidget {
                 items: [
                   _MenuItem(
                     icon: Icons.person_outlined,
+                    iconColor: cs.primary,
                     label: 'Edit Profile',
                     subtitle: 'Name, photo, bio',
                     onTap: () {},
                   ),
                   _MenuItem(
                     icon: Icons.verified_user_outlined,
+                    iconColor: VeriRentColors.green,
                     label: 'Verification Status',
                     subtitle: 'KYC · NIN · CAC',
                     trailing: _StatusChip(
@@ -58,6 +60,7 @@ class ProfilePage extends StatelessWidget {
                     icon: Icons.workspace_premium_outlined,
                     iconColor: VeriRentColors.gold,
                     label: 'Subscription PLan',
+                    subtitle: 'Pro Member · Renews Jun 2026',
                     onTap: () {},
                   ),
                 ],
