@@ -4,6 +4,7 @@
 // =============================================================================
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:verirent/core/api/domain/entities/agency_model.dart';
 
 import '../../data/mock.dart';
 import 'message_state.dart';
@@ -28,6 +29,102 @@ class MessagesCubit extends Cubit<MessagesState> {
         ),
       );
     }
+  }
+
+  void clearSelection() {
+    emit(state.copyWith(selectedChatId: {}, isSelected: false));
+  }
+
+  Future<void> deleteSelectedChats() async {
+    final updatedThreads = state.threads
+        .where((thread) => !state.selectedChatId.contains(thread.id))
+        .toList();
+
+    emit(
+      state.copyWith(
+        threads: updatedThreads,
+        selectedChatId: {},
+        isSelected: false,
+        activeChatId: updatedThreads.any((t) => t.id == state.activeChatId)
+            ? state.activeChatId
+            : null,
+      ),
+    );
+  }
+
+  void markSelectedAsRead() {
+    final updatedThreads = state.threads.map((thread) {
+      if (!state.selectedChatId.contains(thread.id)) {
+        return thread;
+      }
+
+      return thread.copyWith(unreadCount: 0);
+    }).toList();
+
+    emit(
+      state.copyWith(
+        threads: updatedThreads,
+        selectedChatId: {},
+        isSelected: false,
+      ),
+    );
+  }
+
+  void markSelectedAsUnread() {
+    final updatedThreads = state.threads.map((thread) {
+      if (!state.selectedChatId.contains(thread.id)) {
+        return thread;
+      }
+
+      return thread.copyWith(unreadCount: 1);
+    }).toList();
+
+    emit(
+      state.copyWith(
+        threads: updatedThreads,
+        selectedChatId: {},
+        isSelected: false,
+      ),
+    );
+  }
+
+  void toggleChatSelection(String threadId) {
+    final selected = {...state.selectedChatId};
+
+    if (selected.contains(threadId)) {
+      selected.remove(threadId);
+    } else {
+      selected.add(threadId);
+    }
+
+    emit(
+      state.copyWith(selectedChatId: selected, isSelected: selected.isNotEmpty),
+    );
+  }
+
+  Future<void> openChatFromListingPage(AgencyModel agency) async {
+    final existing = state.threads.where((t) => t.id == agency.id);
+
+    if (existing.isNotEmpty) {
+      openChat(agency.id);
+      return;
+    }
+
+    final thread = ChatThread(
+      id: agency.id,
+      participantName: agency.name ?? 'Agency',
+      participantRole: agency.verificationTier?.name ?? 'Agency',
+      initials: agency.name?.substring(0, 2).toUpperCase() ?? 'AG',
+      lastMessage: '',
+      lastMessageTime: DateTime.now(),
+    );
+
+    emit(
+      state.copyWith(
+        threads: [...state.threads, thread],
+        activeChatId: thread.id,
+      ),
+    );
   }
 
   /// Open a chat thread (navigate to chat screen)

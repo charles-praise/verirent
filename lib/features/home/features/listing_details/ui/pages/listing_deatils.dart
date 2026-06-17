@@ -17,7 +17,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
+import 'package:verirent/features/home/features/listing_details/ui/pages/view_profile.dart';
+import 'package:verirent/features/message/ui/cubit/message_cubit.dart';
 import 'package:verirent/features/saved/ui/cubit/saved_cubit.dart';
 import 'package:verirent/features/saved/ui/cubit/saved_state.dart';
 
@@ -931,15 +934,25 @@ class _AgencyBlock extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: accent.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(VeriRentRadius.md),
-                  border: Border.all(color: accent.withOpacity(0.3)),
+              GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ViewProfile(agency: listing.agency!),
+                  ),
                 ),
-                child: CustomNetworkImage(imgUrl: listing.agentAvatarUrl ?? ""),
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: accent.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(VeriRentRadius.md),
+                    border: Border.all(color: accent.withOpacity(0.3)),
+                  ),
+                  child: CustomNetworkImage(
+                    imgUrl: listing.agentAvatarUrl ?? "",
+                  ),
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -990,11 +1003,20 @@ class _AgencyBlock extends StatelessWidget {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    GetIt.I<MessagesCubit>().openChatFromListingPage(agency);
+                    if (context.mounted) {
+                      context.push(
+                        '/message/chat',
+                        extra: GetIt.I<MessagesCubit>(),
+                      );
+                    }
+                  },
                   icon: const Icon(Icons.message_outlined, size: 16),
                   label: const Text('Message'),
                 ),
               ),
+
               const SizedBox(width: 8),
               Expanded(
                 child: OutlinedButton.icon(

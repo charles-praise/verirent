@@ -57,14 +57,15 @@ abstract final class _VeriRentRoute {
             create: (context) => GetIt.instance<MainCubit>(),
             child: Main(),
           ),
-          transitionsBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-            Widget child,
-          ) {
-            return FadeTransition(opacity: animation, child: child);
-          },
+          transitionsBuilder:
+              (
+                BuildContext context,
+                Animation<double> animation,
+                Animation<double> secondaryAnimation,
+                Widget child,
+              ) {
+                return FadeTransition(opacity: animation, child: child);
+              },
         ),
       ),
 
@@ -77,14 +78,15 @@ abstract final class _VeriRentRoute {
             create: (context) => GetIt.instance<HomeCubit>(),
             child: Home(scaffoldKey: null),
           ),
-          transitionsBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-            Widget child,
-          ) {
-            return FadeTransition(opacity: animation, child: child);
-          },
+          transitionsBuilder:
+              (
+                BuildContext context,
+                Animation<double> animation,
+                Animation<double> secondaryAnimation,
+                Widget child,
+              ) {
+                return FadeTransition(opacity: animation, child: child);
+              },
         ),
       ),
 
@@ -100,14 +102,15 @@ abstract final class _VeriRentRoute {
               create: (context) => GetIt.instance<SeeAllCubit>(),
               child: SeeAllPage(properties: listing),
             ),
-            transitionsBuilder: (
-              BuildContext context,
-              Animation<double> animation,
-              Animation<double> secondaryAnimation,
-              Widget child,
-            ) {
-              return FadeTransition(opacity: animation, child: child);
-            },
+            transitionsBuilder:
+                (
+                  BuildContext context,
+                  Animation<double> animation,
+                  Animation<double> secondaryAnimation,
+                  Widget child,
+                ) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
           );
         },
       ),
@@ -129,14 +132,15 @@ abstract final class _VeriRentRoute {
                 create: (context) => GetIt.instance<AuthCubit>(),
                 child: LoginPage(),
               ),
-              transitionsBuilder: (
-                BuildContext context,
-                Animation<double> animation,
-                Animation<double> secondaryAnimation,
-                Widget child,
-              ) {
-                return FadeTransition(opacity: animation, child: child);
-              },
+              transitionsBuilder:
+                  (
+                    BuildContext context,
+                    Animation<double> animation,
+                    Animation<double> secondaryAnimation,
+                    Widget child,
+                  ) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
             ),
           ),
 
@@ -149,14 +153,15 @@ abstract final class _VeriRentRoute {
                 create: (context) => GetIt.instance<AuthCubit>(),
                 child: SignupPage(),
               ),
-              transitionsBuilder: (
-                BuildContext context,
-                Animation<double> animation,
-                Animation<double> secondaryAnimation,
-                Widget child,
-              ) {
-                return FadeTransition(opacity: animation, child: child);
-              },
+              transitionsBuilder:
+                  (
+                    BuildContext context,
+                    Animation<double> animation,
+                    Animation<double> secondaryAnimation,
+                    Widget child,
+                  ) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
             ),
           ),
         ],
@@ -171,14 +176,15 @@ abstract final class _VeriRentRoute {
             create: (context) => GetIt.instance<SearchCubit>(),
             child: SearchPage(),
           ),
-          transitionsBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-            Widget child,
-          ) {
-            return FadeTransition(opacity: animation, child: child);
-          },
+          transitionsBuilder:
+              (
+                BuildContext context,
+                Animation<double> animation,
+                Animation<double> secondaryAnimation,
+                Widget child,
+              ) {
+                return FadeTransition(opacity: animation, child: child);
+              },
         ),
       ),
 
@@ -191,14 +197,15 @@ abstract final class _VeriRentRoute {
             create: (context) => GetIt.instance<ProfileCubit>(),
             child: ProfilePage(),
           ),
-          transitionsBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-            Widget child,
-          ) {
-            return FadeTransition(opacity: animation, child: child);
-          },
+          transitionsBuilder:
+              (
+                BuildContext context,
+                Animation<double> animation,
+                Animation<double> secondaryAnimation,
+                Widget child,
+              ) {
+                return FadeTransition(opacity: animation, child: child);
+              },
         ),
       ),
 
@@ -211,14 +218,15 @@ abstract final class _VeriRentRoute {
             create: (context) => GetIt.instance<SettingsCubit>(),
             child: SettingsPage(),
           ),
-          transitionsBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-            Widget child,
-          ) {
-            return FadeTransition(opacity: animation, child: child);
-          },
+          transitionsBuilder:
+              (
+                BuildContext context,
+                Animation<double> animation,
+                Animation<double> secondaryAnimation,
+                Widget child,
+              ) {
+                return FadeTransition(opacity: animation, child: child);
+              },
         ),
       ),
 
@@ -233,14 +241,15 @@ abstract final class _VeriRentRoute {
               create: (context) => GetIt.instance<ListingDetailsCubit>(),
               child: ListingDetailsFactory.build(context, listing),
             ),
-            transitionsBuilder: (
-              BuildContext context,
-              Animation<double> animation,
-              Animation<double> secondaryAnimation,
-              Widget child,
-            ) {
-              return FadeTransition(opacity: animation, child: child);
-            },
+            transitionsBuilder:
+                (
+                  BuildContext context,
+                  Animation<double> animation,
+                  Animation<double> secondaryAnimation,
+                  Widget child,
+                ) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
           );
         },
       ),
@@ -255,62 +264,63 @@ abstract final class _VeriRentRoute {
               create: (context) => GetIt.instance<SavedCubit>(),
               child: SavedPage(),
             ),
-            transitionsBuilder: (
-              BuildContext context,
-              Animation<double> animation,
-              Animation<double> secondaryAnimation,
-              Widget child,
-            ) {
-              return FadeTransition(opacity: animation, child: child);
-            },
+            transitionsBuilder:
+                (
+                  BuildContext context,
+                  Animation<double> animation,
+                  Animation<double> secondaryAnimation,
+                  Widget child,
+                ) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
           );
         },
       ),
 
       // Message Route
       GoRoute(
-          name: "Message Page",
-          path: _Route.message,
-          pageBuilder: (context, state) {
-            return CustomTransitionPage(
-              child: BlocProvider(
-                create: (context) => GetIt.instance<MessagesCubit>(),
-                child: MessagesPage(),
-              ),
-              transitionsBuilder: (
-                BuildContext context,
-                Animation<double> animation,
-                Animation<double> secondaryAnimation,
-                Widget child,
-              ) {
-                return FadeTransition(opacity: animation, child: child);
-              },
-            );
-          },
-          routes: [
-            // chat route
-            GoRoute(
-              name: "Chat Page",
-              path: _Route.chatView,
-              pageBuilder: (context, state) {
-                final sameContext = state.extra as MessagesCubit;
-                return CustomTransitionPage(
-                  child: ChatView(
-                    key: const ValueKey('chat'),
-                    messagesCubit: sameContext,
-                  ),
-                  transitionsBuilder: (
-                    BuildContext context,
-                    Animation<double> animation,
-                    Animation<double> secondaryAnimation,
-                    Widget child,
-                  ) {
-                    return FadeTransition(opacity: animation, child: child);
-                  },
-                );
-              },
-            ),
-          ]),
+        name: "Message Page",
+        path: _Route.message,
+        pageBuilder: (context, state) {
+          return CustomTransitionPage(
+            child: MessagesPage(),
+            transitionsBuilder:
+                (
+                  BuildContext context,
+                  Animation<double> animation,
+                  Animation<double> secondaryAnimation,
+                  Widget child,
+                ) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+          );
+        },
+        routes: [
+          // chat route
+          GoRoute(
+            name: "Chat Page",
+            path: _Route.chatView,
+            pageBuilder: (context, state) {
+              final sameContext = state.extra as MessagesCubit;
+              return CustomTransitionPage(
+                child: ChatView(
+                  key: const ValueKey('chat'),
+                  messagesCubit: sameContext,
+                ),
+                transitionsBuilder:
+                    (
+                      BuildContext context,
+                      Animation<double> animation,
+                      Animation<double> secondaryAnimation,
+                      Widget child,
+                    ) {
+                      return FadeTransition(opacity: animation, child: child);
+                    },
+              );
+            },
+          ),
+        ],
+      ),
     ],
   );
 }

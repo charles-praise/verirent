@@ -22,13 +22,13 @@ class ChatMessage extends Equatable {
   });
 
   ChatMessage copyWith({MessageStatus? status}) => ChatMessage(
-        id: id,
-        senderId: senderId,
-        text: text,
-        timestamp: timestamp,
-        status: status ?? this.status,
-        isSystem: isSystem,
-      );
+    id: id,
+    senderId: senderId,
+    text: text,
+    timestamp: timestamp,
+    status: status ?? this.status,
+    isSystem: isSystem,
+  );
 
   bool get isMe => senderId == 'me';
 
@@ -70,31 +70,30 @@ class ChatThread extends Equatable {
     String? lastMessage,
     DateTime? lastMessageTime,
     int? unreadCount,
-  }) =>
-      ChatThread(
-        id: id,
-        participantName: participantName,
-        participantRole: participantRole,
-        avatarUrl: avatarUrl,
-        initials: initials,
-        lastMessage: lastMessage ?? this.lastMessage,
-        lastMessageTime: lastMessageTime ?? this.lastMessageTime,
-        unreadCount: unreadCount ?? this.unreadCount,
-        isOnline: isOnline,
-        isVerifiedAgency: isVerifiedAgency,
-        propertyTitle: propertyTitle,
-        messages: messages ?? this.messages,
-      );
+  }) => ChatThread(
+    id: id,
+    participantName: participantName,
+    participantRole: participantRole,
+    avatarUrl: avatarUrl,
+    initials: initials,
+    lastMessage: lastMessage ?? this.lastMessage,
+    lastMessageTime: lastMessageTime ?? this.lastMessageTime,
+    unreadCount: unreadCount ?? this.unreadCount,
+    isOnline: isOnline,
+    isVerifiedAgency: isVerifiedAgency,
+    propertyTitle: propertyTitle,
+    messages: messages ?? this.messages,
+  );
 
   @override
   List<Object?> get props => [
-        id,
-        participantName,
-        lastMessage,
-        lastMessageTime,
-        unreadCount,
-        messages,
-      ];
+    id,
+    participantName,
+    lastMessage,
+    lastMessageTime,
+    unreadCount,
+    messages,
+  ];
 }
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -102,14 +101,18 @@ class ChatThread extends Equatable {
 enum MessagesStatus { initial, loading, loaded, error }
 
 class MessagesState extends Equatable {
+  final Set<String> selectedChatId;
+  final bool isSelected;
   final MessagesStatus status;
   final List<ChatThread> threads;
-  final String? activeChatId; // null = list view, non-null = chat screen
+  final String? activeChatId;
   final String composingText;
   final bool isSending;
   final String? errorMessage;
 
   const MessagesState({
+    this.selectedChatId = const {},
+    this.isSelected = false,
     this.status = MessagesStatus.initial,
     this.threads = const [],
     this.activeChatId,
@@ -128,33 +131,38 @@ class MessagesState extends Equatable {
   int get totalUnread => threads.fold(0, (sum, t) => sum + t.unreadCount);
 
   MessagesState copyWith({
+    Set<String>? selectedChatId,
+    bool? isSelected,
     MessagesStatus? status,
     List<ChatThread>? threads,
     Object? activeChatId = _sentinel,
     String? composingText,
     bool? isSending,
     String? errorMessage,
-  }) =>
-      MessagesState(
-        status: status ?? this.status,
-        threads: threads ?? this.threads,
-        activeChatId: activeChatId == _sentinel
-            ? this.activeChatId
-            : activeChatId as String?,
-        composingText: composingText ?? this.composingText,
-        isSending: isSending ?? this.isSending,
-        errorMessage: errorMessage ?? this.errorMessage,
-      );
+  }) => MessagesState(
+    status: status ?? this.status,
+    threads: threads ?? this.threads,
+    activeChatId: activeChatId == _sentinel
+        ? this.activeChatId
+        : activeChatId as String?,
+    composingText: composingText ?? this.composingText,
+    isSending: isSending ?? this.isSending,
+    errorMessage: errorMessage ?? this.errorMessage,
+    selectedChatId: selectedChatId ?? this.selectedChatId,
+    isSelected: isSelected ?? this.isSelected,
+  );
 
   @override
   List<Object?> get props => [
-        status,
-        threads,
-        activeChatId,
-        composingText,
-        isSending,
-        errorMessage,
-      ];
+    status,
+    threads,
+    activeChatId,
+    composingText,
+    isSending,
+    errorMessage,
+    selectedChatId,
+    isSelected,
+  ];
 }
 
 // Sentinel for nullable copyWith

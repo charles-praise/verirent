@@ -5,6 +5,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:verirent/features/message/ui/cubit/message_cubit.dart';
 
 import '../../../home/ui/pages/home.dart';
 import '../../../message/ui/pages/messages.dart';
@@ -23,7 +25,10 @@ class Main extends StatelessWidget {
   final List<Widget> _mainScreens = [
     // Pass the key down once, from here.
     Home(scaffoldKey: _scaffoldKey),
-    MessagesPage(),
+    BlocProvider(
+      create: (context) => GetIt.I<MessagesCubit>(),
+      child: MessagesPage(),
+    ),
     SavedPage(),
     SettingsPage(),
   ];

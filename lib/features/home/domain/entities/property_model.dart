@@ -498,9 +498,13 @@ class PropertyModel {
   final UserType? listedBy;
   final String? userId;
   final String? agencyId;
+  // -------------------------
   final VerificationStatus? verificationStatus;
+  // -------------------------
   final AgencyModel? agency;
+  // -----------------------
   final DocumentModel? documents;
+  //--------------------------
   final DateTime? createdAt;
   final DateTime? updatedAt;
   // ------------------------

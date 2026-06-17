@@ -6,7 +6,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
@@ -33,10 +32,7 @@ class MessagesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: GetIt.I<MessagesCubit>(),
-      child: const ThreadListView(),
-    );
+    return const ThreadListView();
   }
 }
 
@@ -65,52 +61,35 @@ class ThreadListView extends StatelessWidget {
                 backgroundColor: cs.surface,
                 elevation: 0,
                 scrolledUnderElevation: 1,
-                title: Row(
-                  children: [
-                    Text(
-                      'Messages',
-                      style: VeriRentText.headlineMedium.copyWith(
-                        color: cs.onSurface,
-                      ),
-                    ),
-                    if (state.totalUnread > 0) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 7,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: cs.brightness == Brightness.dark
-                              ? cs.secondary
-                              : cs.primary,
-                          borderRadius: BorderRadius.circular(
-                            VeriRentRadius.full,
-                          ),
-                        ),
-                        child: Text(
-                          '${state.totalUnread}',
-                          style: VeriRentText.labelSmall.copyWith(
-                            color: cs.brightness == Brightness.dark
-                                ? cs.onSecondary
-                                : cs.onPrimary,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
+                leading: state.isSelected
+                    ? IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          context.read<MessagesCubit>().clearSelection();
+                        },
+                      )
+                    : null,
+
+                title: state.isSelected
+                    ? Text('${state.selectedChatId.length} selected')
+                    : const Text('Messages'),
+
                 actions: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.edit_note_sharp,
-                      color: cs.primary,
-                      size: 22,
+                  if (state.isSelected) ...[
+                    IconButton(
+                      icon: const Icon(Icons.mark_chat_read),
+                      onPressed: () {
+                        context.read<MessagesCubit>().markSelectedAsRead();
+                      },
                     ),
-                    onPressed: () {},
-                    tooltip: 'New message',
-                  ),
+
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline),
+                      onPressed: () {
+                        context.read<MessagesCubit>().deleteSelectedChats();
+                      },
+                    ),
+                  ],
                 ],
               ),
 
@@ -132,33 +111,47 @@ class ThreadListView extends StatelessWidget {
               // ── Content ───────────────────────────────────────────
               switch (state.status) {
                 MessagesStatus.loading => const SliverFillRemaining(
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
                 MessagesStatus.error => SliverFillRemaining(
-                    child: _MessagesError(message: state.errorMessage),
-                  ),
-                _ => state.threads.isEmpty
-                    ? const SliverFillRemaining(child: _EmptyMessages())
-                    : SliverList(
-                        delegate: SliverChildBuilderDelegate((ctx, i) {
-                          if (i == 0) {
-                            return _SectionLabel(label: 'Recent');
-                          }
-                          final thread = state.threads[i - 1];
-                          return _ThreadTile(
-                            thread: thread,
-                            onTap: () {
-                              HapticFeedback.selectionClick();
-                              context.read<MessagesCubit>().openChat(
-                                    thread.id,
-                                  );
-                              WidgetsFlutterBinding.ensureInitialized();
-                              context.push('/message/chat',
-                                  extra: context.read<MessagesCubit>());
-                            },
-                          );
-                        }, childCount: state.threads.length + 1),
-                      ),
+                  child: _MessagesError(message: state.errorMessage),
+                ),
+                _ =>
+                  state.threads.isEmpty
+                      ? const SliverFillRemaining(child: _EmptyMessages())
+                      : SliverList(
+                          delegate: SliverChildBuilderDelegate((ctx, i) {
+                            if (i == 0) {
+                              return _SectionLabel(label: 'Recent');
+                            }
+                            final thread = state.threads[i - 1];
+                            return _ThreadTile(
+                              state: state,
+                              thread: thread,
+                              onLongPress: () {
+                                context
+                                    .read<MessagesCubit>()
+                                    .toggleChatSelection(thread.id);
+                              },
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                context.read<MessagesCubit>().openChat(
+                                  thread.id,
+                                );
+                                if (state.isSelected) {
+                                  context
+                                      .read<MessagesCubit>()
+                                      .toggleChatSelection(thread.id);
+                                }
+                                WidgetsFlutterBinding.ensureInitialized();
+                                context.push(
+                                  '/message/chat',
+                                  extra: context.read<MessagesCubit>(),
+                                );
+                              },
+                            );
+                          }, childCount: state.threads.length + 1),
+                        ),
               },
 
               const SliverToBoxAdapter(child: SizedBox(height: 100)),
@@ -173,9 +166,16 @@ class ThreadListView extends StatelessWidget {
 // ── Thread Tile ────────────────────────────────────────────────────────────────
 
 class _ThreadTile extends StatelessWidget {
-  const _ThreadTile({required this.thread, required this.onTap});
+  const _ThreadTile({
+    required this.thread,
+    required this.onTap,
+    required this.onLongPress,
+    required this.state,
+  });
   final ChatThread thread;
   final VoidCallback onTap;
+  final VoidCallback onLongPress;
+  final MessagesState state;
 
   @override
   Widget build(BuildContext context) {
@@ -183,6 +183,7 @@ class _ThreadTile extends StatelessWidget {
     final hasUnread = thread.unreadCount > 0;
 
     return InkWell(
+      onLongPress: onLongPress,
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -196,6 +197,13 @@ class _ThreadTile extends StatelessWidget {
         ),
         child: Row(
           children: [
+            Container(
+              decoration: BoxDecoration(
+                color: state.selectedChatId.contains(thread.id)
+                    ? Theme.of(context).colorScheme.primaryContainer
+                    : null,
+              ),
+            ),
             // ── Avatar ──────────────────────────────────────────────
             Stack(
               children: [
@@ -216,7 +224,8 @@ class _ThreadTile extends StatelessWidget {
                   ),
                   child: thread.avatarUrl != null
                       ? ClipOval(
-                          child: CustomNetworkImage(imgUrl: thread.avatarUrl!))
+                          child: CustomNetworkImage(imgUrl: thread.avatarUrl!),
+                        )
                       : Center(
                           child: Text(
                             thread.initials,
@@ -267,8 +276,9 @@ class _ThreadTile extends StatelessWidget {
                           thread.participantName,
                           style: VeriRentText.titleSmall.copyWith(
                             color: cs.onSurface,
-                            fontWeight:
-                                hasUnread ? FontWeight.w700 : FontWeight.w600,
+                            fontWeight: hasUnread
+                                ? FontWeight.w700
+                                : FontWeight.w600,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -279,8 +289,9 @@ class _ThreadTile extends StatelessWidget {
                         style: VeriRentText.bodySmall.copyWith(
                           color: hasUnread ? cs.primary : cs.onSurfaceVariant,
                           fontSize: 10,
-                          fontWeight:
-                              hasUnread ? FontWeight.w600 : FontWeight.w400,
+                          fontWeight: hasUnread
+                              ? FontWeight.w600
+                              : FontWeight.w400,
                         ),
                       ),
                     ],
@@ -316,10 +327,12 @@ class _ThreadTile extends StatelessWidget {
                         child: Text(
                           thread.lastMessage,
                           style: VeriRentText.bodySmall.copyWith(
-                            color:
-                                hasUnread ? cs.onSurface : cs.onSurfaceVariant,
-                            fontWeight:
-                                hasUnread ? FontWeight.w500 : FontWeight.w400,
+                            color: hasUnread
+                                ? cs.onSurface
+                                : cs.onSurfaceVariant,
+                            fontWeight: hasUnread
+                                ? FontWeight.w500
+                                : FontWeight.w400,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
