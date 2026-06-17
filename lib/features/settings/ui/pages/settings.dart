@@ -155,7 +155,12 @@ class _SettingsPageState extends State<SettingsPage> {
                         icon: Icons.description_outlined,
                         iconColor: cs.primary,
                         title: 'Terms of Service',
-                        onTap: () {},
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TermsOfServicePage(),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -168,27 +173,48 @@ class _SettingsPageState extends State<SettingsPage> {
                         icon: Icons.help_outline_rounded,
                         iconColor: cs.primary,
                         title: 'Help Centre',
-                        onTap: () {},
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HelpCentrePage(),
+                          ),
+                        ),
                       ),
                       _SettingsTile(
                         icon: Icons.chat_bubble_outline_rounded,
                         iconColor: cs.primary,
                         title: 'Contact Support',
                         subtitle: 'support@agentng.ng',
-                        onTap: () {},
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ContactSupportPage(),
+                          ),
+                        ),
                       ),
                       _SettingsTile(
                         icon: Icons.star_border_rounded,
                         iconColor: VeriRentColors.gold,
                         title: 'Rate Agent NG',
-                        onTap: () {},
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RateAppPage(),
+                          ),
+                        ),
                       ),
-                      _SettingsTile(
-                        icon: Icons.share_outlined,
-                        iconColor: cs.primary,
-                        title: 'Share with Friends',
-                        onTap: () {},
-                      ),
+                      // TODO: ShareWithFriend feature missing core functionalities.
+                      // _SettingsTile(
+                      //   icon: Icons.share_outlined,
+                      //   iconColor: cs.primary,
+                      //   title: 'Share with Friends',
+                      //   onTap: () => Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //       builder: (context) => ShareWithFriendsPage(),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
 

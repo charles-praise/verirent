@@ -81,9 +81,9 @@ class _HomeState extends State<Home> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.read<SearchCubit>().searchProperties(
-            kAllListings,
-            _searchController.text,
-          );
+        kAllListings,
+        _searchController.text,
+      );
     });
   }
 
@@ -139,7 +139,8 @@ class _HomeState extends State<Home> {
             // FIX 2: activeFilterCount > 0 is the missing condition.
             // Without it, a filter-only apply from the sheet (no query, no
             // category chip) never switches Home to the filtered-grid view.
-            final isFiltering = searchState.query.isNotEmpty ||
+            final isFiltering =
+                searchState.query.isNotEmpty ||
                 searchState.selectedCategory != PropertyCategory.initial ||
                 searchState.activeFilterCount > 0;
 
@@ -163,107 +164,109 @@ class _HomeState extends State<Home> {
             }
 
             // ── Normal full-feed home ────────────────────────────────────
-            return RefreshIndicator(
-              onRefresh: _onRefresh,
-              displacement: 60,
-              strokeWidth: 2,
-              child: CustomScrollView(
-                controller: _scrollController,
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                slivers: [
-                  SliverPersistentHeader(
-                    pinned: true,
-                    delegate: HomeAppBar(
-                      topPadding: topPad,
-                      scaffoldKey: widget.scaffoldKey!,
-                      focusNode: _searchFocus,
-                      controller: _searchController,
-                    ),
+            return CustomScrollView(
+              controller: _scrollController,
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              slivers: [
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: HomeAppBar(
+                    topPadding: topPad,
+                    scaffoldKey: widget.scaffoldKey!,
+                    focusNode: _searchFocus,
+                    controller: _searchController,
                   ),
+                ),
 
-                  SliverToBoxAdapter(
-                    child: ValueListenableBuilder<bool>(
-                      valueListenable: _isVisible,
-                      builder: (_, visible, __) => AnimatedOpacity(
-                        duration: const Duration(milliseconds: 220),
-                        opacity: visible ? 1 : 1,
-                        child: SearchFilter(
-                          filters: homeState.filters,
-                          filterIcons: homeState.filterIcons,
-                          activeIndex: homeState.activeIndex,
-                          onFilterTap: _onFilterTap,
-                        ),
+                SliverToBoxAdapter(
+                  child: ValueListenableBuilder<bool>(
+                    valueListenable: _isVisible,
+                    builder: (_, visible, __) => AnimatedOpacity(
+                      duration: const Duration(milliseconds: 220),
+                      opacity: visible ? 1 : 1,
+                      child: SearchFilter(
+                        filters: homeState.filters,
+                        filterIcons: homeState.filterIcons,
+                        activeIndex: homeState.activeIndex,
+                        onFilterTap: _onFilterTap,
                       ),
                     ),
                   ),
-                  // Featured
-                  const SliverToBoxAdapter(
-                    child: FeaturedListingsHorizontalUseCase(),
-                  ),
-                  // Recent
-                  SliverToBoxAdapter(
-                    child: SectionHeader(
-                      title: 'Recently Added',
-                      onSeeAll: () => context.push("/see_all",
-                          extra: HomeLocalRepo().recentProperties),
+                ),
+                // Featured
+                const SliverToBoxAdapter(
+                  child: FeaturedListingsHorizontalUseCase(),
+                ),
+                // Recent
+                SliverToBoxAdapter(
+                  child: SectionHeader(
+                    title: 'Recently Added',
+                    onSeeAll: () => context.push(
+                      "/see_all",
+                      extra: HomeLocalRepo().recentProperties,
                     ),
                   ),
-                  const RecentListingUseCase(),
-                  // Ads (become an agent)
-                  SliverToBoxAdapter(
-                    child: buildAgencyBanner(context: context),
-                  ),
-                  // Residential
-                  SliverToBoxAdapter(
-                    child: SectionHeader(
-                      title: 'Residential',
-                      onSeeAll: () => context.push(
-                        "/see_all",
-                        extra: HomeLocalRepo().residentialProperties,
-                      ),
+                ),
+                const RecentListingUseCase(),
+                // Ads (become an agent)
+                SliverToBoxAdapter(child: buildAgencyBanner(context: context)),
+                // Residential
+                SliverToBoxAdapter(
+                  child: SectionHeader(
+                    title: 'Residential',
+                    onSeeAll: () => context.push(
+                      "/see_all",
+                      extra: HomeLocalRepo().residentialProperties,
                     ),
                   ),
-                  const ResidentialPropertiesListingUseCase(),
-                  // Land
-                  SliverToBoxAdapter(
-                    child: SectionHeader(
-                      title: 'Land & Plots',
-                      onSeeAll: () => context.push("/see_all",
-                          extra: HomeLocalRepo().landedProperties),
+                ),
+                const ResidentialPropertiesListingUseCase(),
+                // Land
+                SliverToBoxAdapter(
+                  child: SectionHeader(
+                    title: 'Land & Plots',
+                    onSeeAll: () => context.push(
+                      "/see_all",
+                      extra: HomeLocalRepo().landedProperties,
                     ),
                   ),
-                  const LandedPropertiesUseCase(),
-                  // Commercial
-                  SliverToBoxAdapter(
-                    child: SectionHeader(
-                      title: 'Commercial',
-                      onSeeAll: () => context.push("/see_all",
-                          extra: HomeLocalRepo().commercialProperties),
+                ),
+                const LandedPropertiesUseCase(),
+                // Commercial
+                SliverToBoxAdapter(
+                  child: SectionHeader(
+                    title: 'Commercial',
+                    onSeeAll: () => context.push(
+                      "/see_all",
+                      extra: HomeLocalRepo().commercialProperties,
                     ),
                   ),
-                  const CommercialPropertiesUseCase(),
-                  // Estate's
-                  SliverToBoxAdapter(
-                    child: SectionHeader(
-                      title: 'Estates & Housing',
-                      onSeeAll: () => context.push("/see_all",
-                          extra: HomeLocalRepo().estateProperties),
+                ),
+                const CommercialPropertiesUseCase(),
+                // Estate's
+                SliverToBoxAdapter(
+                  child: SectionHeader(
+                    title: 'Estates & Housing',
+                    onSeeAll: () => context.push(
+                      "/see_all",
+                      extra: HomeLocalRepo().estateProperties,
                     ),
                   ),
-                  const EstatePropertiesUseCase(),
-                  //  Short Let's
-                  SliverToBoxAdapter(
-                    child: SectionHeader(
-                      title: 'Short Lets',
-                      onSeeAll: () => context.push("/see_all",
-                          extra: HomeLocalRepo().shortletProperties),
+                ),
+                const EstatePropertiesUseCase(),
+                //  Short Let's
+                SliverToBoxAdapter(
+                  child: SectionHeader(
+                    title: 'Short Lets',
+                    onSeeAll: () => context.push(
+                      "/see_all",
+                      extra: HomeLocalRepo().shortletProperties,
                     ),
                   ),
-                  const ShortLetPropertiesUseCase(),
-                  const SliverToBoxAdapter(child: SizedBox(height: 80)),
-                ],
-              ),
+                ),
+                const ShortLetPropertiesUseCase(),
+                const SliverToBoxAdapter(child: SizedBox(height: 80)),
+              ],
             );
           },
         );
@@ -348,8 +351,8 @@ class _FilteredView extends StatelessWidget {
                       Text(
                         'Searching…',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: cs.onSurfaceVariant,
-                            ),
+                          color: cs.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   )
@@ -360,9 +363,9 @@ class _FilteredView extends StatelessWidget {
                           ? 'No properties found'
                           : '${results.length} propert${results.length == 1 ? 'y' : 'ies'} found',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: cs.onSurface,
-                            fontSize: 12,
-                          ),
+                        color: cs.onSurface,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
 
@@ -438,7 +441,7 @@ class _FilteredView extends StatelessWidget {
                 crossAxisCount: 2,
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
-                childAspectRatio: 0.64,
+                childAspectRatio: 0.74,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) =>

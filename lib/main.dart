@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:verirent/core/di/agents_di.dart';
 import 'package:verirent/core/route/agents_route.dart';
 import 'package:verirent/core/theme/agents_theme.dart';
+import 'package:verirent/features/settings/ui/cubit/settings_cubit.dart';
 
 import 'core/shared/location/ui/cubit/location_cubit.dart';
 import 'features/home/ui/cubit/home_cubit.dart';
@@ -43,16 +44,25 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: "Agents-NG",
-      color: Colors.transparent,
-      darkTheme: AgentsTheme.dark.copyWith(
-        extensions: [VeriRentExtension.dark],
+    return BlocProvider(
+      create: (context) => GetIt.I<SettingsCubit>(),
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (context, settingsState) {
+          return MaterialApp.router(
+            title: "Agents-NG",
+            color: Colors.transparent,
+            darkTheme: AgentsTheme.dark.copyWith(
+              extensions: [VeriRentExtension.dark],
+            ),
+            theme: AgentsTheme.light.copyWith(
+              extensions: [VeriRentExtension.light],
+            ),
+            themeMode: settingsState.themeMode,
+            routerConfig: agentNgRoute,
+            debugShowCheckedModeBanner: false,
+          );
+        },
       ),
-      theme: AgentsTheme.light.copyWith(extensions: [VeriRentExtension.light]),
-      themeMode: ThemeMode.system,
-      routerConfig: agentNgRoute,
-      debugShowCheckedModeBanner: false,
     );
   }
 }

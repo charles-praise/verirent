@@ -43,9 +43,9 @@ class _SeeAllPageState extends State<SeeAllPage> {
 
   void _search() {
     context.read<SearchCubit>().searchProperties(
-          widget.properties,
-          _searchController.text,
-        );
+      widget.properties,
+      _searchController.text,
+    );
   }
 
   @override
@@ -98,35 +98,35 @@ class _SeeAllPageState extends State<SeeAllPage> {
               ),
               SliverToBoxAdapter(
                 child: _SearchFilter(
-                    filters: seeAllState.filters,
-                    filterIcons: seeAllState.filterIcons,
-                    activeIndex: seeAllState.activeIndex,
-                    onFilterTap: (index) {
-                      context.read<SeeAllCubit>().activeIndex(index);
-                    }),
+                  filters: seeAllState.filters,
+                  filterIcons: seeAllState.filterIcons,
+                  activeIndex: seeAllState.activeIndex,
+                  onFilterTap: (index) {
+                    context.read<SeeAllCubit>().activeIndex(index);
+                  },
+                ),
               ),
               SliverToBoxAdapter(
                 child: SectionHeader(
-                    padding: EdgeInsets.fromLTRB(
-                      VeriRentSpacing.base,
-                      VeriRentSpacing.sm,
-                      VeriRentSpacing.sm,
-                      VeriRentSpacing.sm,
-                    ),
-                    title:
-                        "Results for ${_categoryFinder("${widget.properties[0].category?.name.toSentenceCase()}")}"),
+                  padding: EdgeInsets.fromLTRB(
+                    VeriRentSpacing.base,
+                    VeriRentSpacing.sm,
+                    VeriRentSpacing.sm,
+                    VeriRentSpacing.sm,
+                  ),
+                  title:
+                      "Results for ${_categoryFinder("${widget.properties[0].category?.name.toSentenceCase()}")}",
+                ),
               ),
               // initial state
               if (seeAllState.seeAllStage == SeeAllStage.initial)
                 _PropertyGrid(properties: widget.properties),
               // loading state
               if (seeAllState.seeAllStage == SeeAllStage.loading)
-                SliverToBoxAdapter(
-                  child: CircularProgressIndicator.adaptive(),
-                ),
+                SliverToBoxAdapter(child: CircularProgressIndicator.adaptive()),
               if (seeAllState.seeAllStage == SeeAllStage.loaded)
                 if (seeAllState.filteredProperties.isEmpty) _EmptyView(),
-              _PropertyGrid(properties: seeAllState.filteredProperties)
+              _PropertyGrid(properties: seeAllState.filteredProperties),
             ],
           );
         },
@@ -157,12 +157,7 @@ class _SearchFilter extends StatelessWidget {
       children: [
         // ── Filter chips ─────────────────────────────────────────
         Container(
-          padding: EdgeInsets.fromLTRB(
-            0,
-            VeriRentSpacing.sm,
-            0,
-            0,
-          ),
+          padding: EdgeInsets.fromLTRB(0, VeriRentSpacing.sm, 0, 0),
           color: cs.brightness == Brightness.light
               ? VeriRentColors.neutral50
               : VeriRentColors.neutral900,
@@ -192,8 +187,8 @@ class _SearchFilter extends StatelessWidget {
                       color: active
                           ? VeriRentColors.accent400
                           : cs.brightness == Brightness.light
-                              ? VeriRentColors.white
-                              : VeriRentColors.surface2,
+                          ? VeriRentColors.white
+                          : VeriRentColors.surface2,
                       border: Border.all(color: VeriRentColors.transparent),
                       borderRadius: BorderRadius.circular(VeriRentRadius.full),
                     ),
@@ -212,8 +207,9 @@ class _SearchFilter extends StatelessWidget {
                           filters[i],
                           style: TextStyle(
                             fontSize: VeriRentSpacing.md,
-                            fontWeight:
-                                active ? FontWeight.w600 : FontWeight.w400,
+                            fontWeight: active
+                                ? FontWeight.w600
+                                : FontWeight.w400,
                             color: active
                                 ? VeriRentColors.primary
                                 : VeriRentColors.textMuted,
@@ -380,7 +376,7 @@ class _PropertyGrid extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 8,
           mainAxisSpacing: 8,
-          childAspectRatio: 0.64,
+          childAspectRatio: 0.74,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) =>

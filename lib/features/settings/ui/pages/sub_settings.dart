@@ -1135,7 +1135,12 @@ class PrivacyPolicyPage extends StatelessWidget {
                 actions: [
                   IconButton(
                     icon: const Icon(Icons.share_outlined, size: 18),
-                    onPressed: () {},
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ShareWithFriendsPage(),
+                      ),
+                    ),
                   ),
                 ],
               ),

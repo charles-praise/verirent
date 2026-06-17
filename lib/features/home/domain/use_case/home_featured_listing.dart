@@ -17,11 +17,14 @@ class AllListingUseCase extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 8,
           mainAxisSpacing: 8,
-          childAspectRatio: 0.64,
+          childAspectRatio:
+              0.73, //TODO: SliverGrid childAspectRatio not responsive across devices.
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) => FeaturedCardFactory.build(
-              context, HomeLocalRepo().allListedProperties[index]),
+            context,
+            HomeLocalRepo().allListedProperties[index],
+          ),
           childCount: HomeLocalRepo().allListedProperties.length,
         ),
       ),
@@ -42,10 +45,13 @@ class FeaturedListingsHorizontalUseCase extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: VeriRentSpacing.base),
         itemCount: HomeLocalRepo().featuredProperties.length,
-        separatorBuilder: (_, __) => const SizedBox(width: VeriRentSpacing.sm),
+        separatorBuilder: (context, index) =>
+            const SizedBox(width: VeriRentSpacing.sm),
         itemBuilder: (context, index) {
           return FeaturedCardFactory.build(
-              context, HomeLocalRepo().featuredProperties[index]);
+            context,
+            HomeLocalRepo().featuredProperties[index],
+          );
         },
       ),
     );
@@ -66,11 +72,13 @@ class ResidentialPropertiesListingUseCase extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 8,
           mainAxisSpacing: 8,
-          childAspectRatio: 0.64,
+          childAspectRatio: 0.73,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) => FeaturedCardFactory.build(
-              context, HomeLocalRepo().residentialProperties[index]),
+            context,
+            HomeLocalRepo().residentialProperties[index],
+          ),
           childCount: HomeLocalRepo().residentialProperties.length,
         ),
       ),
@@ -92,11 +100,13 @@ class EstatePropertiesUseCase extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 8,
           mainAxisSpacing: 8,
-          childAspectRatio: 0.64,
+          childAspectRatio: 0.73,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) => FeaturedCardFactory.build(
-              context, HomeLocalRepo().estateProperties[index]),
+            context,
+            HomeLocalRepo().estateProperties[index],
+          ),
           childCount: HomeLocalRepo().estateProperties.length,
         ),
       ),
@@ -118,11 +128,13 @@ class LandedPropertiesUseCase extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 8,
           mainAxisSpacing: 8,
-          childAspectRatio: 0.64,
+          childAspectRatio: 0.73,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) => FeaturedCardFactory.build(
-              context, HomeLocalRepo().landedProperties[index]),
+            context,
+            HomeLocalRepo().landedProperties[index],
+          ),
           childCount: HomeLocalRepo().landedProperties.length,
         ),
       ),
@@ -144,11 +156,13 @@ class CommercialPropertiesUseCase extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 8,
           mainAxisSpacing: 8,
-          childAspectRatio: 0.64,
+          childAspectRatio: 0.73,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) => FeaturedCardFactory.build(
-              context, HomeLocalRepo().commercialProperties[index]),
+            context,
+            HomeLocalRepo().commercialProperties[index],
+          ),
           childCount: HomeLocalRepo().commercialProperties.length,
         ),
       ),
@@ -170,11 +184,13 @@ class ShortLetPropertiesUseCase extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 8,
           mainAxisSpacing: 8,
-          childAspectRatio: 0.64,
+          childAspectRatio: 0.73,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) => FeaturedCardFactory.build(
-              context, HomeLocalRepo().shortletProperties[index]),
+            context,
+            HomeLocalRepo().shortletProperties[index],
+          ),
           childCount: HomeLocalRepo().shortletProperties.length,
         ),
       ),

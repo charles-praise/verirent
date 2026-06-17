@@ -354,6 +354,136 @@ class PropertyModel {
     this.nearbyFacilities,
   });
 
+  factory PropertyModel.fromJson(Map<String, dynamic> json) {
+    return PropertyModel(
+      id: json['id'] as String?,
+      userId: json['userId'] as String?,
+      agencyId: json['agencyId'] as String?,
+      title: json['title'] as String?,
+      address: json['address'] as String?,
+      lga: json['lga'] as String?,
+      state: json['state'] as String?,
+      area: json['area'] as String?,
+      price: json['price'] as String?,
+      priceUnit: json['priceUnit'] as String?,
+      paymentTerms: json['paymentTerms'] as String?,
+      bedrooms: json['bedrooms'] as int?,
+      bathrooms: json['bathrooms'] as int?,
+      toilets: json['toilets'] as int?,
+      condition: json['condition'] as String?,
+      isVerified: json['isVerified'] as bool?,
+      isFeatured: json['isFeatured'] as bool?,
+      rating: (json['rating'] as num?)?.toDouble(),
+      reviewCount: (json['reviewCount'] as num?)?.toDouble(),
+      areaSqm: (json['areaSqm'] as num?)?.toDouble(),
+      description: json['description'] as String?,
+      location: json['location'] as String?,
+      agencyName: json['agencyName'] as String?,
+      tierLabel: json['tierLabel'] as String?,
+      tierColor: json['tierColor'] != null
+          ? Color(json['tierColor'] as int)
+          : null,
+      emoji: json['emoji'] as String?,
+      agentInitials: json['agentInitials'] as String?,
+      agentAvatarUrl: json['agentAvatarUrl'] as String?,
+      propertyType: json['propertyType'] as String?,
+      documentType: json['documentType'] as String?,
+      dimensions: json['dimensions'] as String?,
+      floorLevel: json['floorLevel'] as int?,
+      layoutType: json['layoutType'] as String?,
+      parkingSpaces: json['parkingSpaces'] as String?,
+      unitCount: json['unitCount'] as int?,
+      category: json['category'] != null
+          ? PropertyCategory.values[json['category'] as int]
+          : PropertyCategory.initial,
+      listingType: json['listingType'] != null
+          ? ListingType.values[json['listingType'] as int]
+          : null,
+      type: json['type'] != null
+          ? PropertyType.values[json['type'] as int]
+          : null,
+      listedBy: json['listedBy'] != null
+          ? UserType.values[json['listedBy'] as int]
+          : null,
+      verificationStatus: json['verificationStatus'] != null
+          ? VerificationStatus.values[json['verificationStatus'] as int]
+          : null,
+      imageUrls: (json['imageUrls'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      amenities: (json['amenities'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      features: (json['features'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      utilities: (json['utilities'] as Map<String, dynamic>?)?.map(
+        (k, v) => MapEntry(k, v as String),
+      ),
+      nearbyFacilities: (json['nearbyFacilities'] as List<dynamic>?)
+          ?.map((e) => NearbyFacility.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'] as String)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userId': userId,
+      'agencyId': agencyId,
+      'title': title,
+      'address': address,
+      'lga': lga,
+      'state': state,
+      'area': area,
+      'price': price,
+      'priceUnit': priceUnit,
+      'paymentTerms': paymentTerms,
+      'bedrooms': bedrooms,
+      'bathrooms': bathrooms,
+      'toilets': toilets,
+      'condition': condition,
+      'isVerified': isVerified,
+      'isFeatured': isFeatured,
+      'rating': rating,
+      'reviewCount': reviewCount,
+      'areaSqm': areaSqm,
+      'description': description,
+      'location': location,
+      'agencyName': agencyName,
+      'tierLabel': tierLabel,
+      'tierColor': tierColor?.value, // Color → int (ARGB)
+      'emoji': emoji,
+      'agentInitials': agentInitials,
+      'agentAvatarUrl': agentAvatarUrl,
+      'propertyType': propertyType,
+      'documentType': documentType,
+      'dimensions': dimensions,
+      'floorLevel': floorLevel,
+      'layoutType': layoutType,
+      'parkingSpaces': parkingSpaces,
+      'unitCount': unitCount,
+      'category': category?.index,
+      'listingType': listingType?.index,
+      'type': type?.index,
+      'listedBy': listedBy?.index,
+      'verificationStatus': verificationStatus?.index,
+      'imageUrls': imageUrls,
+      'amenities': amenities,
+      'features': features,
+      'utilities': utilities,
+      'nearbyFacilities': nearbyFacilities?.map((f) => f.toJson()).toList(),
+      'createdAt': createdAt?.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
+    };
+  }
+
   // -------------------------
   final Key? key;
   final PropertyCategory? category;

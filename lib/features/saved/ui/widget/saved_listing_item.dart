@@ -40,8 +40,8 @@ class SavedListItem extends StatelessWidget {
                 child: RecentCardFactory.build(context, item[index]),
               ),
               Positioned(
-                bottom: 5,
-                left: 60,
+                top: -10,
+                right: -5,
                 child: GestureDetector(
                   onTap: onRemove,
                   child: Container(
@@ -52,10 +52,19 @@ class SavedListItem extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     child: CircleAvatar(
-                      child: const Icon(
-                        Icons.favorite_rounded,
-                        size: 14,
-                        color: VeriRentColors.red,
+                      backgroundColor:
+                          Theme.of(context).colorScheme.brightness ==
+                              Brightness.dark
+                          ? VeriRentColors.primary
+                          : VeriRentColors.white,
+                      child: Icon(
+                        Icons.close,
+                        size: 16,
+                        color:
+                            Theme.of(context).colorScheme.brightness ==
+                                Brightness.dark
+                            ? VeriRentColors.accent400
+                            : VeriRentColors.primary,
                       ),
                     ),
                   ),

@@ -1,5 +1,3 @@
-// ── State ─────────────────────────────────────────────────────────────────────
-
 import 'package:equatable/equatable.dart';
 
 import '../../../home/domain/entities/property_model.dart';
@@ -22,6 +20,27 @@ class SavedState extends Equatable {
     this.activeFilterIndex = 0,
     this.filters = const ['All', 'Rent', 'Sale', 'Verified'],
   });
+  factory SavedState.fromJson(Map<String, dynamic> json) {
+    return SavedState(
+      status: SavedStatus.values[json['status'] as int? ?? 0],
+      items: (json['items'] as List<dynamic>? ?? [])
+          .map((e) => PropertyModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      removingIds: (json['removingIds'] as List<dynamic>? ?? [])
+          .map((e) => e as String)
+          .toSet(),
+      activeFilterIndex: json['activeFilterIndex'] as int? ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.index,
+      'items': items.map((p) => p.toJson()).toList(),
+      'removingIds': removingIds.toList(),
+      'activeFilterIndex': activeFilterIndex,
+    };
+  }
 
   SavedState copyWith({
     SavedStatus? status,

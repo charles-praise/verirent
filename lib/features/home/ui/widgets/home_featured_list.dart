@@ -14,11 +14,15 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
+import 'package:verirent/features/saved/ui/cubit/saved_cubit.dart';
 
 import '../../../../core/theme/agents_theme.dart';
 import '../../../../core/util/rating_formatter.dart';
+import '../../../saved/ui/cubit/saved_state.dart';
 import '../../domain/entities/property_model.dart';
 import 'home_tier_badge.dart';
 
@@ -46,94 +50,73 @@ abstract final class FeaturedCardFactory {
 //  SHARED PRIVATE WIDGETS
 // =============================================================================
 
-class _SaveButton extends StatefulWidget {
-  const _SaveButton({this.size = 28});
+class _SaveButton extends StatelessWidget {
+  const _SaveButton({required this.item, this.size = 28});
+
+  final PropertyModel item;
   final double size;
-  @override
-  State<_SaveButton> createState() => _SaveButtonState();
-}
-
-class _SaveButtonState extends State<_SaveButton>
-    with SingleTickerProviderStateMixin {
-  bool _isSaved = false;
-  late final AnimationController _ctrl;
-  late final Animation<double> _scale;
 
   @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    );
-    _scale = Tween<double>(
-      begin: 1,
-      end: 1.35,
-    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
-  }
+  Widget build(BuildContext context) {
+    return BlocProvider.value(
+      value: GetIt.I<SavedCubit>(),
+      child: BlocBuilder<SavedCubit, SavedState>(
+        builder: (context, state) {
+          final isSaved = state.items.any((p) => p.id == item.id);
 
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
+          return GestureDetector(
+            onTap: () {
+              HapticFeedback.lightImpact();
 
-  void _toggle() {
-    HapticFeedback.lightImpact();
-    setState(() => _isSaved = !_isSaved);
-    _ctrl.forward(from: 0).then((_) => _ctrl.reverse());
-  }
-
-  @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTap: _toggle,
-        child: ScaleTransition(
-          scale: _scale,
-          child: Container(
-            width: widget.size,
-            height: widget.size,
-            decoration: BoxDecoration(
-              color: _isSaved
-                  ? VeriRentColors.red.withOpacity(0.65)
-                  : Colors.black.withOpacity(0.28),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: _isSaved
-                    ? VeriRentColors.red.withOpacity(0.4)
-                    : Colors.white24,
+              if (isSaved) {
+                context.read<SavedCubit>().removeSaved(item.id!);
+              } else {
+                context.read<SavedCubit>().addSaved(item);
+              }
+            },
+            child: Container(
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                color: VeriRentColors.black.withValues(alpha: 0.4),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                isSaved
+                    ? Icons.favorite_rounded
+                    : Icons.favorite_border_rounded,
+                size: size * .5,
+                color: isSaved ? VeriRentColors.red : VeriRentColors.textMuted,
               ),
             ),
-            child: Icon(
-              _isSaved ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-              size: widget.size * 0.5,
-              color: _isSaved ? VeriRentColors.red : VeriRentColors.textMuted,
-            ),
-          ),
-        ),
-      );
+          );
+        },
+      ),
+    );
+  }
 }
 
 Widget _verifiedBadge() => Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-      decoration: BoxDecoration(
-        color: VeriRentColors.success500,
-        borderRadius: BorderRadius.circular(VeriRentRadius.full),
+  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+  decoration: BoxDecoration(
+    color: VeriRentColors.success500,
+    borderRadius: BorderRadius.circular(VeriRentRadius.full),
+  ),
+  child: Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      const Icon(Icons.verified_rounded, size: 9, color: Colors.white),
+      const SizedBox(width: 3),
+      Text(
+        'Verified',
+        style: VeriRentText.labelSmall.copyWith(
+          color: Colors.white,
+          fontSize: 9,
+        ),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.verified_rounded, size: 9, color: Colors.white),
-          const SizedBox(width: 3),
-          Text(
-            'Verified',
-            style: VeriRentText.labelSmall.copyWith(
-              color: Colors.white,
-              fontSize: 9,
-            ),
-          ),
-        ],
-      ),
-    );
+    ],
+  ),
+);
 
 class _Chip extends StatelessWidget {
   const _Chip({required this.icon, required this.label, this.accent});
@@ -265,9 +248,9 @@ class _PriceRow extends StatelessWidget {
 }
 
 BorderRadius _topRadius() => BorderRadius.only(
-      topLeft: Radius.circular(VeriRentRadius.lg),
-      topRight: Radius.circular(VeriRentRadius.lg),
-    );
+  topLeft: Radius.circular(VeriRentRadius.lg),
+  topRight: Radius.circular(VeriRentRadius.lg),
+);
 
 // =============================================================================
 //  1. RESIDENTIAL FEATURED CARD  (warm teal, home icon, bed/bath/area)
@@ -328,7 +311,7 @@ class ResidentialFeaturedCard extends StatelessWidget {
                       ),
                       margin: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.55),
+                        color: VeriRentColors.black.withValues(alpha: 0.55),
                         borderRadius: BorderRadius.circular(
                           VeriRentRadius.full,
                         ),
@@ -363,8 +346,11 @@ class ResidentialFeaturedCard extends StatelessWidget {
                   ),
                   if (card.isVerified!)
                     Positioned(top: 8, right: 8, child: _verifiedBadge()),
-
-                  Positioned(bottom: 6, right: 6, child: const _SaveButton()),
+                  Positioned(
+                    bottom: 6,
+                    right: 6,
+                    child: _SaveButton(item: card),
+                  ),
                 ],
               ),
               Expanded(
@@ -572,7 +558,11 @@ class LandFeaturedCard extends StatelessWidget {
                   ),
                   if (card.isVerified!)
                     Positioned(top: 8, right: 8, child: _verifiedBadge()),
-                  Positioned(bottom: 6, right: 6, child: const _SaveButton()),
+                  Positioned(
+                    bottom: 6,
+                    right: 6,
+                    child: _SaveButton(item: card),
+                  ),
                 ],
               ),
               Expanded(
@@ -673,8 +663,9 @@ class CommercialFeaturedCard extends StatelessWidget {
             color: cs.surface,
             borderRadius: BorderRadius.circular(VeriRentRadius.lg),
             border: Border.all(
-              color:
-                  card.isVerified! ? _blue.withOpacity(0.4) : cs.outlineVariant,
+              color: card.isVerified!
+                  ? _blue.withOpacity(0.4)
+                  : cs.outlineVariant,
               width: card.isVerified! ? 1.5 : 1,
             ),
             boxShadow: [
@@ -715,40 +706,40 @@ class CommercialFeaturedCard extends StatelessWidget {
                     ),
                   ),
                   // Commercial pill — top left
-                  // Positioned(
-                  //   top: 8,
-                  //   left: 8,
-                  //   child: Container(
-                  //     padding: const EdgeInsets.symmetric(
-                  //       horizontal: 8,
-                  //       vertical: 3,
-                  //     ),
-                  //     decoration: BoxDecoration(
-                  //       color: _blue,
-                  //       borderRadius: BorderRadius.circular(
-                  //         VeriRentRadius.full,
-                  //       ),
-                  //     ),
-                  //     child: Row(
-                  //       mainAxisSize: MainAxisSize.min,
-                  //       children: [
-                  //         const Icon(
-                  //           Icons.business_center_rounded,
-                  //           size: 9,
-                  //           color: Colors.white,
-                  //         ),
-                  //         const SizedBox(width: 3),
-                  //         Text(
-                  //           card.propertyType!,
-                  //           style: VeriRentText.labelSmall.copyWith(
-                  //             color: Colors.white,
-                  //             fontSize: 9,
-                  //           ),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _blue,
+                        borderRadius: BorderRadius.circular(
+                          VeriRentRadius.full,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.business_center_rounded,
+                            size: 9,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            card.propertyType!,
+                            style: VeriRentText.labelSmall.copyWith(
+                              color: Colors.white,
+                              fontSize: 9,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                   if (card.isVerified!)
                     Positioned(top: 8, right: 8, child: _verifiedBadge()),
                   // Floor + area overlay
@@ -764,7 +755,11 @@ class CommercialFeaturedCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Positioned(bottom: 6, right: 6, child: const _SaveButton()),
+                  Positioned(
+                    bottom: 6,
+                    right: 6,
+                    child: _SaveButton(item: card),
+                  ),
                 ],
               ),
               Expanded(
@@ -961,7 +956,11 @@ class EstateFeaturedCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Positioned(bottom: 6, right: 6, child: const _SaveButton()),
+                  Positioned(
+                    bottom: 6,
+                    right: 6,
+                    child: _SaveButton(item: card),
+                  ),
                 ],
               ),
               Expanded(

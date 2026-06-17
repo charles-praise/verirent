@@ -1,5 +1,7 @@
 part of 'settings_cubit.dart';
 
+enum SettingStage { initial, loading, loaded, error }
+
 class SettingsState extends Equatable {
   // Notification states
   final bool pushNotifs;
@@ -7,6 +9,8 @@ class SettingsState extends Equatable {
   final bool smsNotifs;
   final bool newListingAlerts;
   final bool priceDropAlerts;
+
+  // settingsState
 
   // Appearance
   final ThemeMode themeMode;

@@ -15,7 +15,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
+import 'package:verirent/features/saved/ui/cubit/saved_cubit.dart';
+import 'package:verirent/features/saved/ui/cubit/saved_state.dart';
 
 import '../../../../../../core/theme/agents_theme.dart';
 import '../../../../domain/entities/property_model.dart';
@@ -51,14 +55,14 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-        child: Text(
-          text,
-          style: VeriRentText.titleMedium.copyWith(
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
+    child: Text(
+      text,
+      style: VeriRentText.titleMedium.copyWith(
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
+    ),
+  );
 }
 
 class _InfoCard extends StatelessWidget {
@@ -111,11 +115,13 @@ class _InfoRow extends StatelessWidget {
                   color: color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(VeriRentRadius.sm),
                 ),
-                child: Icon(icon,
-                    size: 15,
-                    color: cs.brightness == Brightness.dark
-                        ? VeriRentColors.accent400
-                        : color),
+                child: Icon(
+                  icon,
+                  size: 15,
+                  color: cs.brightness == Brightness.dark
+                      ? VeriRentColors.accent400
+                      : color,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -257,19 +263,22 @@ class _HeroStatsBar extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     child: Column(
                       children: [
-                        Icon(stats[i].icon,
-                            size: 20,
-                            color: cs.brightness == Brightness.dark
-                                ? VeriRentColors.accent400
-                                : VeriRentColors.primary),
+                        Icon(
+                          stats[i].icon,
+                          size: 20,
+                          color: cs.brightness == Brightness.dark
+                              ? VeriRentColors.accent400
+                              : VeriRentColors.primary,
+                        ),
                         const SizedBox(height: 4),
                         FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
                             stats[i].value,
                             style: VeriRentText.titleSmall.copyWith(
-                                color: cs.onSurface,
-                                overflow: TextOverflow.ellipsis),
+                              color: cs.onSurface,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
                         FittedBox(
@@ -277,8 +286,9 @@ class _HeroStatsBar extends StatelessWidget {
                           child: Text(
                             stats[i].label,
                             style: VeriRentText.bodySmall.copyWith(
-                                color: cs.onSurfaceVariant,
-                                overflow: TextOverflow.ellipsis),
+                              color: cs.onSurfaceVariant,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
                       ],
@@ -328,7 +338,6 @@ class _DetailScaffold extends StatefulWidget {
 
 class _DetailScaffoldState extends State<_DetailScaffold> {
   int _imgIndex = 0;
-  bool _isSaved = false;
   late final PageController _pageCtrl;
 
   @override
@@ -429,26 +438,44 @@ class _DetailScaffoldState extends State<_DetailScaffold> {
                 ],
               ),
               actions: [
-                GestureDetector(
-                  onTap: () {
-                    HapticFeedback.lightImpact();
-                    setState(() => _isSaved = !_isSaved);
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: _isSaved
-                          ? VeriRentColors.red.withOpacity(0.15)
-                          : Colors.transparent,
-                    ),
-                    child: Icon(
-                      _isSaved
-                          ? Icons.favorite_rounded
-                          : Icons.favorite_border_rounded,
-                      color: _isSaved ? VeriRentColors.red : cs.onSurface,
-                      size: 20,
-                    ),
+                BlocProvider.value(
+                  value: GetIt.I<SavedCubit>(),
+                  child: BlocBuilder<SavedCubit, SavedState>(
+                    builder: (context, state) {
+                      final bool isSaved = state.items.any(
+                        (p) => p.id == widget.listing.id,
+                      );
+                      return GestureDetector(
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          if (isSaved) {
+                            context.read<SavedCubit>().removeSaved(
+                              widget.listing.id!,
+                            );
+                          } else {
+                            context.read<SavedCubit>().addSaved(listing);
+                          }
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            color: isSaved
+                                ? cs.brightness == Brightness.dark
+                                      ? VeriRentColors.red.withOpacity(0.15)
+                                      : VeriRentColors.transparent
+                                : Colors.transparent,
+                          ),
+                          child: Icon(
+                            isSaved
+                                ? Icons.favorite_rounded
+                                : Icons.favorite_border_rounded,
+                            color: isSaved ? VeriRentColors.red : cs.onSurface,
+                            size: 20,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
                 GestureDetector(
@@ -714,16 +741,18 @@ class _QuickInfoBar extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: (listing.isVerified!
-                      ? VeriRentColors.success500
-                      : VeriRentColors.warning500)
-                  .withOpacity(0.12),
+              color:
+                  (listing.isVerified!
+                          ? VeriRentColors.success500
+                          : VeriRentColors.warning500)
+                      .withOpacity(0.12),
               borderRadius: BorderRadius.circular(VeriRentRadius.md),
               border: Border.all(
-                color: (listing.isVerified!
-                        ? VeriRentColors.success500
-                        : VeriRentColors.warning500)
-                    .withOpacity(0.4),
+                color:
+                    (listing.isVerified!
+                            ? VeriRentColors.success500
+                            : VeriRentColors.warning500)
+                        .withOpacity(0.4),
               ),
             ),
             child: Row(
@@ -774,9 +803,10 @@ class _TitleBlock extends StatelessWidget {
             listing.title ?? "",
             overflow: TextOverflow.ellipsis,
             style: VeriRentText.headlineSmall.copyWith(
-                color: cs.brightness == Brightness.dark
-                    ? cs.onSurfaceVariant
-                    : cs.primary),
+              color: cs.brightness == Brightness.dark
+                  ? cs.onSurfaceVariant
+                  : cs.primary,
+            ),
           ),
           const SizedBox(height: 4),
           Row(
@@ -1660,8 +1690,8 @@ class _BoolRowSimple extends StatelessWidget {
     final okColor = trueColor ?? VeriRentColors.success500;
     final activeColor = value
         ? cs.brightness == Brightness.dark
-            ? VeriRentColors.accent400
-            : okColor
+              ? VeriRentColors.accent400
+              : okColor
         : cs.onSurfaceVariant;
     return Column(
       children: [
@@ -1765,9 +1795,10 @@ class _PricingBlock extends StatelessWidget {
           Text(
             'Pricing & Terms',
             style: VeriRentText.titleSmall.copyWith(
-                color: cs.brightness == Brightness.dark
-                    ? cs.onSurfaceVariant
-                    : cs.primary),
+              color: cs.brightness == Brightness.dark
+                  ? cs.onSurfaceVariant
+                  : cs.primary,
+            ),
           ),
           const SizedBox(height: 8),
           Row(
@@ -1777,18 +1808,20 @@ class _PricingBlock extends StatelessWidget {
                 child: Text(
                   '₦${listing.price}',
                   style: VeriRentText.headlineMedium.copyWith(
-                      color: cs.brightness == Brightness.dark
-                          ? cs.onSurfaceVariant
-                          : cs.primary),
+                    color: cs.brightness == Brightness.dark
+                        ? cs.onSurfaceVariant
+                        : cs.primary,
+                  ),
                 ),
               ),
               Flexible(
                 child: Text(
                   listing.priceUnit!,
                   style: VeriRentText.labelMedium.copyWith(
-                      color: cs.brightness == Brightness.dark
-                          ? cs.onSurfaceVariant
-                          : cs.primary),
+                    color: cs.brightness == Brightness.dark
+                        ? cs.onSurfaceVariant
+                        : cs.primary,
+                  ),
                 ),
               ),
             ],
@@ -1805,8 +1838,9 @@ class _PricingBlock extends StatelessWidget {
               ),
               child: Text(
                 listing.paymentTerms!,
-                style: VeriRentText.bodySmall
-                    .copyWith(color: VeriRentColors.primary),
+                style: VeriRentText.bodySmall.copyWith(
+                  color: VeriRentColors.primary,
+                ),
               ),
             ),
           ],

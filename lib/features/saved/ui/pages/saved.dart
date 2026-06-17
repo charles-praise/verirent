@@ -50,30 +50,33 @@ class _SavedView extends StatelessWidget {
                     ),
                   ),
                   actions: [
-                    if (state.status == SavedStatus.loaded &&
-                        state.items.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 16),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: cs.primaryContainer.withValues(alpha: 0.5),
-                            borderRadius: BorderRadius.circular(
-                              VeriRentRadius.full,
+                    if (state.items.isNotEmpty)
+                      IconButton(
+                        icon: const Icon(Icons.delete_sweep_rounded),
+                        onPressed: () async {
+                          final confirmed = await showDialog<bool>(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              title: const Text('Clear Saved Listings'),
+                              content: const Text('Remove all saved listings?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text('Cancel'),
+                                ),
+                                FilledButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  child: const Text('Clear'),
+                                ),
+                              ],
                             ),
-                          ),
-                          child: Text(
-                            '${state.items.length} saved',
-                            style: VeriRentText.labelSmall.copyWith(
-                              color: cs.brightness == Brightness.light
-                                  ? cs.primary
-                                  : cs.secondary,
-                            ),
-                          ),
-                        ),
+                          );
+
+                          if (confirmed == true && context.mounted) {
+                            context.read<SavedCubit>().removeAllSaved();
+                          }
+                        },
                       ),
                   ],
                 ),
@@ -95,41 +98,42 @@ class _SavedView extends StatelessWidget {
                 // ── Body content ───────────────────────────────────────────
                 switch (state.status) {
                   SavedStatus.loading => const SliverFillRemaining(
-                      child: Center(child: CircularProgressIndicator()),
-                    ),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
                   SavedStatus.error => SliverFillRemaining(
-                      child: _ErrorView(message: state.errorMessage),
-                    ),
+                    child: _ErrorView(message: state.errorMessage),
+                  ),
                   SavedStatus.empty => const SliverFillRemaining(
-                      child: _EmptyView(),
-                    ),
-                  _ => state.filteredItems.isEmpty
-                      ? const SliverFillRemaining(child: _EmptyFilterView())
-                      : SliverPadding(
-                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-                          sliver: SliverList(
-                            delegate: SliverChildBuilderDelegate((ctx, i) {
-                              return SavedListItem(
-                                index: i,
-                                key: ValueKey(state.filteredItems[i]),
-                                item: state.filteredItems,
-                                isRemoving: state.removingIds.contains(
-                                  state.filteredItems[i].id,
-                                ),
-                                onRemove: () {
-                                  HapticFeedback.mediumImpact();
-                                  context.read<SavedCubit>().removeSaved(
-                                        state.filteredItems[i].id!,
-                                      );
-                                },
-                                onTap: () => context.push(
-                                  '/listing_details',
-                                  extra: state.filteredItems[i],
-                                ),
-                              );
-                            }, childCount: state.filteredItems.length),
+                    child: _EmptyView(),
+                  ),
+                  _ =>
+                    state.filteredItems.isEmpty
+                        ? const SliverFillRemaining(child: _EmptyFilterView())
+                        : SliverPadding(
+                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+                            sliver: SliverList(
+                              delegate: SliverChildBuilderDelegate((ctx, i) {
+                                return SavedListItem(
+                                  index: i,
+                                  key: ValueKey(state.filteredItems[i]),
+                                  item: state.filteredItems,
+                                  isRemoving: state.removingIds.contains(
+                                    state.filteredItems[i].id,
+                                  ),
+                                  onRemove: () {
+                                    HapticFeedback.mediumImpact();
+                                    context.read<SavedCubit>().removeSaved(
+                                      state.filteredItems[i].id!,
+                                    );
+                                  },
+                                  onTap: () => context.push(
+                                    '/listing_details',
+                                    extra: state.filteredItems[i],
+                                  ),
+                                );
+                              }, childCount: state.filteredItems.length),
+                            ),
                           ),
-                        ),
                 },
               ],
             );
@@ -177,15 +181,15 @@ class _FilterRow extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: active
                         ? cs.brightness == Brightness.light
-                            ? cs.primary
-                            : cs.secondary
+                              ? cs.primary
+                              : cs.secondary
                         : cs.surfaceVariant,
                     borderRadius: BorderRadius.circular(VeriRentRadius.full),
                     border: Border.all(
                       color: active
                           ? cs.brightness == Brightness.light
-                              ? cs.primary
-                              : cs.secondary
+                                ? cs.primary
+                                : cs.secondary
                           : cs.outlineVariant,
                     ),
                   ),

@@ -263,7 +263,9 @@ class PriceTag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: VeriRentColors.primaryDim,
+        color: Theme.of(context).colorScheme.brightness == Brightness.light
+            ? VeriRentColors.primaryDim
+            : VeriRentColors.accent400.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(VeriRentRadius.xs),
       ),
       child: Text(
