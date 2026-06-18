@@ -125,29 +125,24 @@ class ThreadListView extends StatelessWidget {
                               return _SectionLabel(label: 'Recent');
                             }
                             final thread = state.threads[i - 1];
+                            final cubit = context.read<MessagesCubit>();
                             return _ThreadTile(
                               state: state,
                               thread: thread,
                               onLongPress: () {
-                                context
-                                    .read<MessagesCubit>()
-                                    .toggleChatSelection(thread.id);
+                                cubit.toggleChatSelection(thread.id);
                               },
                               onTap: () {
                                 HapticFeedback.selectionClick();
-                                context.read<MessagesCubit>().openChat(
-                                  thread.id,
-                                );
+                                cubit.openChat(thread.id);
                                 if (state.isSelected) {
-                                  context
-                                      .read<MessagesCubit>()
-                                      .toggleChatSelection(thread.id);
+                                  cubit.toggleChatSelection(thread.id);
+                                } else {
+                                  context.push(
+                                    '/message/chat',
+                                    extra: context.read<MessagesCubit>(),
+                                  );
                                 }
-                                WidgetsFlutterBinding.ensureInitialized();
-                                context.push(
-                                  '/message/chat',
-                                  extra: context.read<MessagesCubit>(),
-                                );
                               },
                             );
                           }, childCount: state.threads.length + 1),
@@ -188,72 +183,88 @@ class _ThreadTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: hasUnread
-              ? cs.primaryContainer.withOpacity(0.08)
+          color: state.selectedChatId.contains(thread.id)
+              ? Theme.of(context).colorScheme.primaryContainer
+              : hasUnread
+              ? cs.primaryContainer.withValues(alpha: 0.08)
               : Colors.transparent,
           border: Border(
             bottom: BorderSide(color: cs.outlineVariant, width: 0.5),
           ),
+          borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           children: [
-            Container(
-              decoration: BoxDecoration(
-                color: state.selectedChatId.contains(thread.id)
-                    ? Theme.of(context).colorScheme.primaryContainer
-                    : null,
-              ),
-            ),
             // ── Avatar ──────────────────────────────────────────────
-            Stack(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: thread.isVerifiedAgency
-                        ? cs.primaryContainer
-                        : cs.surfaceVariant,
-                    shape: BoxShape.circle,
-                    border: thread.isVerifiedAgency
-                        ? Border.all(
-                            color: cs.primary.withOpacity(0.4),
-                            width: 1.5,
-                          )
-                        : null,
-                  ),
-                  child: thread.avatarUrl != null
-                      ? ClipOval(
-                          child: CustomNetworkImage(imgUrl: thread.avatarUrl!),
-                        )
-                      : Center(
-                          child: Text(
-                            thread.initials,
-                            style: VeriRentText.titleSmall.copyWith(
-                              color: thread.isVerifiedAgency
-                                  ? cs.primary
-                                  : cs.onSurfaceVariant,
+            state.selectedChatId.contains(thread.id)
+                ? Container(
+                    height: 48,
+                    width: 48,
+                    decoration: BoxDecoration(
+                      color: thread.isVerifiedAgency
+                          ? cs.primaryContainer
+                          : cs.surfaceVariant,
+                      shape: BoxShape.circle,
+                      border: thread.isVerifiedAgency
+                          ? Border.all(
+                              color: cs.primary.withOpacity(0.4),
+                              width: 1.5,
+                            )
+                          : null,
+                    ),
+                    child: Center(child: Icon(Icons.check)),
+                  )
+                : Stack(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: thread.isVerifiedAgency
+                              ? cs.primaryContainer
+                              : cs.surfaceVariant,
+                          shape: BoxShape.circle,
+                          border: thread.isVerifiedAgency
+                              ? Border.all(
+                                  color: cs.primary.withOpacity(0.4),
+                                  width: 1.5,
+                                )
+                              : null,
+                        ),
+                        child: thread.avatarUrl != null
+                            ? ClipOval(
+                                child: CustomNetworkImage(
+                                  imgUrl: thread.avatarUrl!,
+                                ),
+                              )
+                            : Center(
+                                child: Text(
+                                  thread.initials,
+                                  style: VeriRentText.titleSmall.copyWith(
+                                    color: thread.isVerifiedAgency
+                                        ? cs.primary
+                                        : cs.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                      ),
+                      // Online indicator
+                      if (thread.isOnline)
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
+                          child: Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: VeriRentColors.green,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: cs.surface, width: 2),
                             ),
                           ),
                         ),
-                ),
-                // Online indicator
-                if (thread.isOnline)
-                  Positioned(
-                    right: 0,
-                    bottom: 0,
-                    child: Container(
-                      width: 12,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: VeriRentColors.green,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: cs.surface, width: 2),
-                      ),
-                    ),
+                    ],
                   ),
-              ],
-            ),
             const SizedBox(width: 12),
 
             // ── Content ─────────────────────────────────────────────

@@ -17,8 +17,7 @@ class AllListingUseCase extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 8,
           mainAxisSpacing: 8,
-          childAspectRatio:
-              0.73, //TODO: SliverGrid childAspectRatio not responsive across devices.
+          mainAxisExtent: 260,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) => FeaturedCardFactory.build(
@@ -72,7 +71,7 @@ class ResidentialPropertiesListingUseCase extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 8,
           mainAxisSpacing: 8,
-          childAspectRatio: 0.73,
+          mainAxisExtent: 260,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) => FeaturedCardFactory.build(
@@ -100,7 +99,7 @@ class EstatePropertiesUseCase extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 8,
           mainAxisSpacing: 8,
-          childAspectRatio: 0.73,
+          mainAxisExtent: 260,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) => FeaturedCardFactory.build(
@@ -128,7 +127,7 @@ class LandedPropertiesUseCase extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 8,
           mainAxisSpacing: 8,
-          childAspectRatio: 0.73,
+          mainAxisExtent: 260,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) => FeaturedCardFactory.build(
@@ -156,7 +155,7 @@ class CommercialPropertiesUseCase extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 8,
           mainAxisSpacing: 8,
-          childAspectRatio: 0.73,
+          mainAxisExtent: 260,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) => FeaturedCardFactory.build(
@@ -184,7 +183,7 @@ class ShortLetPropertiesUseCase extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 8,
           mainAxisSpacing: 8,
-          childAspectRatio: 0.73,
+          mainAxisExtent: 260,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) => FeaturedCardFactory.build(

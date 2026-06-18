@@ -6,7 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:verirent/features/home/ui/cubit/home_cubit.dart';
 import 'package:verirent/features/message/ui/cubit/message_cubit.dart';
+import 'package:verirent/features/saved/ui/cubit/saved_cubit.dart';
+import 'package:verirent/features/settings/ui/cubit/settings_cubit.dart';
 
 import '../../../home/ui/pages/home.dart';
 import '../../../message/ui/pages/messages.dart';
@@ -23,51 +26,52 @@ class Main extends StatelessWidget {
   Main({super.key});
 
   final List<Widget> _mainScreens = [
-    // Pass the key down once, from here.
-    Home(scaffoldKey: _scaffoldKey),
-    BlocProvider(
-      create: (context) => GetIt.I<MessagesCubit>(),
-      child: MessagesPage(),
+    BlocProvider.value(
+      value: GetIt.I<HomeCubit>(),
+      child: Home(scaffoldKey: _scaffoldKey),
     ),
-    SavedPage(),
-    SettingsPage(),
+    BlocProvider.value(value: GetIt.I<MessagesCubit>(), child: MessagesPage()),
+    BlocProvider.value(value: GetIt.I<SavedCubit>(), child: SavedPage()),
+    BlocProvider.value(value: GetIt.I<SettingsCubit>(), child: SettingsPage()),
   ];
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return BlocBuilder<MainCubit, MainState>(
-      builder: (context, state) {
-        return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: cs.brightness == Brightness.light
-              ? SystemUiOverlayStyle.dark
-              : SystemUiOverlayStyle.light,
-          child: SafeArea(
-            top: false,
-            child: Scaffold(
-              // Shell owns the key — not Home.
-              key: _scaffoldKey,
-              drawer: const NotificationDrawer(),
-              resizeToAvoidBottomInset: false,
-              body: Stack(
-                children: [
-                  IndexedStack(
-                    index: state.navigationIndex,
-                    children: _mainScreens,
-                  ),
-                  const Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: ShellCustomBottomNavbar(),
-                  ),
-                ],
+    return BlocProvider(
+      create: (create) => GetIt.I<MainCubit>(),
+      child: BlocBuilder<MainCubit, MainState>(
+        builder: (context, state) {
+          return AnnotatedRegion<SystemUiOverlayStyle>(
+            value: cs.brightness == Brightness.light
+                ? SystemUiOverlayStyle.dark
+                : SystemUiOverlayStyle.light,
+            child: SafeArea(
+              top: false,
+              child: Scaffold(
+                key: _scaffoldKey,
+                drawer: const NotificationDrawer(),
+                resizeToAvoidBottomInset: false,
+                body: Stack(
+                  children: [
+                    IndexedStack(
+                      index: state.navigationIndex,
+                      children: _mainScreens,
+                    ),
+                    const Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: ShellCustomBottomNavbar(),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

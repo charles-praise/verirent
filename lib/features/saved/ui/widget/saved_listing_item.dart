@@ -32,8 +32,9 @@ class SavedListItem extends StatelessWidget {
         duration: const Duration(milliseconds: 280),
         offset: isRemoving ? const Offset(0.15, 0) : Offset.zero,
         child: Padding(
-          padding: const EdgeInsets.only(top: VeriRentSpacing.md),
+          padding: const EdgeInsets.only(top: 12),
           child: Stack(
+            clipBehavior: Clip.none,
             children: [
               SizedBox(
                 height: 100,
@@ -55,16 +56,12 @@ class SavedListItem extends StatelessWidget {
                       backgroundColor:
                           Theme.of(context).colorScheme.brightness ==
                               Brightness.dark
-                          ? VeriRentColors.primary
-                          : VeriRentColors.white,
+                          ? VeriRentColors.accent400
+                          : VeriRentColors.primary50,
                       child: Icon(
                         Icons.close,
                         size: 16,
-                        color:
-                            Theme.of(context).colorScheme.brightness ==
-                                Brightness.dark
-                            ? VeriRentColors.accent400
-                            : VeriRentColors.primary,
+                        color: VeriRentColors.primary,
                       ),
                     ),
                   ),

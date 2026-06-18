@@ -17,7 +17,7 @@ import 'package:verirent/features/profile/ui/pages/profile.dart';
 import 'package:verirent/features/saved/ui/cubit/saved_cubit.dart';
 import 'package:verirent/features/saved/ui/pages/saved.dart';
 import 'package:verirent/features/search/ui/cubit/search_cubit.dart';
-import 'package:verirent/features/search/ui/search.dart';
+import 'package:verirent/features/search/ui/pages/search.dart';
 import 'package:verirent/features/settings/ui/cubit/settings_cubit.dart';
 import 'package:verirent/features/settings/ui/pages/settings.dart';
 

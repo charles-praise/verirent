@@ -10,9 +10,7 @@ import 'package:verirent/core/theme/agents_theme.dart';
 import 'package:verirent/features/settings/ui/cubit/settings_cubit.dart';
 
 import 'core/shared/location/ui/cubit/location_cubit.dart';
-import 'features/home/ui/cubit/home_cubit.dart';
 import 'features/search/ui/cubit/search_cubit.dart';
-import 'features/shell/ui/cubit/main_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,10 +26,8 @@ void main() async {
   runApp(
     MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => GetIt.I<HomeCubit>()),
         BlocProvider(create: (_) => SearchCubit()),
         BlocProvider.value(value: GetIt.I<LocationCubit>()),
-        BlocProvider(create: (_) => GetIt.I<MainCubit>()),
       ],
       child: const App(),
     ),
@@ -44,8 +40,8 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => GetIt.I<SettingsCubit>(),
+    return BlocProvider.value(
+      value: GetIt.I<SettingsCubit>(),
       child: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, settingsState) {
           return MaterialApp.router(

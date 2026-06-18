@@ -24,6 +24,7 @@ import 'package:verirent/features/message/ui/cubit/message_cubit.dart';
 import 'package:verirent/features/saved/ui/cubit/saved_cubit.dart';
 import 'package:verirent/features/saved/ui/cubit/saved_state.dart';
 
+import '../../../../../../core/api/domain/entities/agency_model.dart';
 import '../../../../../../core/theme/agents_theme.dart';
 import '../../../../domain/entities/property_model.dart';
 
@@ -686,7 +687,20 @@ class _DetailScaffoldState extends State<_DetailScaffold> {
                 accent: VeriRentColors.primary,
               ),
             ),
-
+            // ----- Agency active Listing ----------------------
+            SliverToBoxAdapter(
+              child: _ActiveListingsStrip(
+                tierColor: listing.tierColor ?? VeriRentColors.primary,
+                listing: listing,
+              ),
+            ),
+            // -------- Review Sections -------------------------
+            SliverToBoxAdapter(
+              child: _ReviewsSection(
+                agency: listing.agency!,
+                tierColor: listing.tierColor ?? VeriRentColors.primary,
+              ),
+            ),
             // ── Category-specific body ────────────────────────────
             ...widget.body,
 
@@ -1014,6 +1028,9 @@ class _AgencyBlock extends StatelessWidget {
                   },
                   icon: const Icon(Icons.message_outlined, size: 16),
                   label: const Text('Message'),
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: listing.tierColor!.withValues(alpha: 0.1),
+                  ),
                 ),
               ),
 
@@ -1023,11 +1040,443 @@ class _AgencyBlock extends StatelessWidget {
                   onPressed: () {},
                   icon: const Icon(Icons.call_rounded, size: 16),
                   label: const Text('Call'),
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: listing.tierColor!.withValues(alpha: 0.1),
+                  ),
                 ),
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+//  ⑦ REVIEWS SECTION
+// =============================================================================
+
+class _ReviewsSection extends StatelessWidget {
+  const _ReviewsSection({required this.agency, required this.tierColor});
+  final AgencyModel agency;
+  final Color tierColor;
+
+  static const _reviews = [
+    _ReviewData(
+      name: 'Chisom A.',
+      initials: 'CA',
+      rating: 5,
+      date: '2 weeks ago',
+      text:
+          'Greenfield handled my duplex search professionally. Found a verified 4-bed in Trans-Amadi within 3 days.',
+    ),
+    _ReviewData(
+      name: 'Emeka O.',
+      initials: 'EO',
+      rating: 5,
+      date: '1 month ago',
+      text:
+          'Very transparent about document status. No hidden charges. Would recommend to colleagues.',
+    ),
+    _ReviewData(
+      name: 'Blessing T.',
+      initials: 'BT',
+      rating: 4,
+      date: '2 months ago',
+      text:
+          'Responsive and knowledgeable. Slight delay with the NIN check but resolved quickly.',
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final rating = agency.rating ?? 0;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 14, right: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header row
+          Row(
+            children: [
+              Text(
+                'Reviews',
+                style: VeriRentText.titleSmall.copyWith(color: cs.onSurface),
+              ),
+              const Spacer(),
+              TextButton(
+                onPressed: () {},
+                child: Text(
+                  'Write a review',
+                  style: VeriRentText.labelMedium.copyWith(color: cs.primary),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+
+          // Rating overview card
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: cs.surface,
+              borderRadius: BorderRadius.circular(VeriRentRadius.lg),
+              border: Border.all(color: cs.outlineVariant),
+            ),
+            child: Row(
+              children: [
+                // Big number
+                Column(
+                  children: [
+                    Text(
+                      rating.toStringAsFixed(1),
+                      style: VeriRentText.displayMedium.copyWith(
+                        color: cs.onSurface,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    _StarRow(rating: rating, size: 14),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${agency.transactions ?? 0} reviews',
+                      style: VeriRentText.bodySmall.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 24),
+                // Breakdown bars
+                Expanded(
+                  child: Column(
+                    children: [
+                      _RatingBar(
+                        stars: 5,
+                        fill: 0.80,
+                        color: VeriRentColors.gold,
+                      ),
+                      const SizedBox(height: 5),
+                      _RatingBar(
+                        stars: 4,
+                        fill: 0.14,
+                        color: VeriRentColors.gold,
+                      ),
+                      const SizedBox(height: 5),
+                      _RatingBar(
+                        stars: 3,
+                        fill: 0.04,
+                        color: VeriRentColors.warning500,
+                      ),
+                      const SizedBox(height: 5),
+                      _RatingBar(
+                        stars: 2,
+                        fill: 0.01,
+                        color: VeriRentColors.red,
+                      ),
+                      const SizedBox(height: 5),
+                      _RatingBar(
+                        stars: 1,
+                        fill: 0.01,
+                        color: VeriRentColors.red,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Individual review cards
+          ..._reviews.map(
+            (r) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: _ReviewCard(review: r),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RatingBar extends StatelessWidget {
+  const _RatingBar({
+    required this.stars,
+    required this.fill,
+    required this.color,
+  });
+  final int stars;
+  final double fill;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        SizedBox(
+          width: 14,
+          child: Text(
+            '$stars',
+            style: VeriRentText.bodySmall.copyWith(
+              color: cs.onSurfaceVariant,
+              fontSize: 10,
+            ),
+          ),
+        ),
+        const Icon(Icons.star_rounded, size: 10, color: VeriRentColors.gold),
+        const SizedBox(width: 6),
+        Expanded(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(VeriRentRadius.full),
+            child: LinearProgressIndicator(
+              value: fill,
+              minHeight: 6,
+              backgroundColor: cs.outlineVariant,
+              valueColor: AlwaysStoppedAnimation(color),
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+        SizedBox(
+          width: 28,
+          child: Text(
+            '${(fill * 100).round()}%',
+            style: VeriRentText.bodySmall.copyWith(
+              color: cs.onSurfaceVariant,
+              fontSize: 9,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ReviewData {
+  const _ReviewData({
+    required this.name,
+    required this.initials,
+    required this.rating,
+    required this.date,
+    required this.text,
+  });
+  final String name, initials, date, text;
+  final int rating;
+}
+
+class _ReviewCard extends StatelessWidget {
+  const _ReviewCard({required this.review});
+  final _ReviewData review;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(VeriRentRadius.lg),
+        border: Border.all(color: cs.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              // Avatar
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: VeriRentColors.primary.withOpacity(0.10),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    review.initials,
+                    style: VeriRentText.labelSmall.copyWith(
+                      color: VeriRentColors.primary,
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      review.name,
+                      style: VeriRentText.titleSmall.copyWith(
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    Text(
+                      review.date,
+                      style: VeriRentText.bodySmall.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              _StarRow(rating: review.rating.toDouble(), size: 12),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            review.text,
+            style: VeriRentText.bodySmall.copyWith(
+              color: cs.onSurface,
+              height: 1.65,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StarRow extends StatelessWidget {
+  const _StarRow({required this.rating, required this.size});
+  final double rating;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: List.generate(5, (i) {
+      final filled = i < rating.floor();
+      return Icon(
+        filled ? Icons.star_rounded : Icons.star_border_rounded,
+        size: size,
+        color: VeriRentColors.gold,
+      );
+    }),
+  );
+}
+
+// =============================================================================
+//  ⑥ ACTIVE LISTINGS STRIP  (placeholder — connect to real BLoC in prod)
+// =============================================================================
+
+class _ActiveListingsStrip extends StatelessWidget {
+  const _ActiveListingsStrip({
+    required this.tierColor,
+    required PropertyModel this.listing,
+  });
+  final Color tierColor;
+  final PropertyModel listing;
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(left: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                'Active Listings from ${listing.agency!.name}',
+                style: VeriRentText.titleSmall.copyWith(color: cs.onSurface),
+              ),
+              const Spacer(),
+              TextButton(
+                onPressed: () {},
+                child: Text(
+                  'See all',
+                  style: VeriRentText.labelMedium.copyWith(color: cs.primary),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          SizedBox(
+            height: 122,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: 5,
+              separatorBuilder: (_, __) => const SizedBox(width: 10),
+              itemBuilder: (context, i) =>
+                  _ListingThumb(index: i, color: tierColor),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ListingThumb extends StatelessWidget {
+  const _ListingThumb({required this.index, required this.color});
+  final int index;
+  final Color color;
+
+  static const _titles = [
+    '3 Bed Flat, GRA Phase 2',
+    'Executive Duplex, Trans-Amadi',
+    'Office Space, D-Line',
+    'Studio Apt, Rumuola',
+    'Land 648m², Rumuigbo',
+  ];
+  static const _prices = [
+    '₦1.8M/yr',
+    '₦4.5M/yr',
+    '₦2.2M/yr',
+    '₦550k/yr',
+    '₦18.5M',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return SizedBox(
+      width: 168,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: cs.surface,
+          borderRadius: BorderRadius.circular(VeriRentRadius.lg),
+          border: Border.all(color: cs.outlineVariant),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 56,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(VeriRentRadius.md),
+                border: Border.all(color: color.withOpacity(0.2)),
+              ),
+              child: Center(
+                child: Icon(Icons.home_rounded, color: color, size: 22),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              _titles[index % _titles.length],
+              style: VeriRentText.titleSmall.copyWith(color: cs.onSurface),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              _prices[index % _prices.length],
+              style: VeriRentText.labelMedium.copyWith(
+                color: color,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

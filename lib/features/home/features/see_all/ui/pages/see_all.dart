@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:verirent/features/home/features/see_all/ui/cubit/see_all_cubit.dart';
 import 'package:verirent/features/home/ui/widgets/home_featured_list.dart';
@@ -31,18 +32,11 @@ class _SeeAllPageState extends State<SeeAllPage> {
   @override
   void initState() {
     super.initState();
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   context.read<SeeAllCubit>().searchProperties(
-    //         widget.properties,
-    //         _searchController.text.trim().toLowerCase(),
-    //       );
-    // });
-
     _searchController.addListener(_search);
   }
 
   void _search() {
-    context.read<SearchCubit>().searchProperties(
+    GetIt.I<SearchCubit>().searchProperties(
       widget.properties,
       _searchController.text,
     );
@@ -81,13 +75,14 @@ class _SeeAllPageState extends State<SeeAllPage> {
                   searchCtrl: _searchController,
                   focusNode: _focusNode,
                   state: seeAllState,
-                  onChanged: (value) => context
-                      .read<SeeAllCubit>()
-                      .searchProperties(widget.properties, value),
+                  onChanged: (value) => GetIt.I<SearchCubit>().searchProperties(
+                    widget.properties,
+                    value,
+                  ),
                   onSubmitted: (value) {
-                    // if (value.trim().isNotEmpty) {
-                    //   context.read<SearchCubit>().saveSearch(value);
-                    // }
+                    if (value.trim().isNotEmpty) {
+                      GetIt.I<SearchCubit>().saveSearch(value);
+                    }
                   },
                   onClear: () {
                     _searchController.clear();
@@ -376,7 +371,7 @@ class _PropertyGrid extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 8,
           mainAxisSpacing: 8,
-          childAspectRatio: 0.74,
+          mainAxisExtent: 260,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) =>

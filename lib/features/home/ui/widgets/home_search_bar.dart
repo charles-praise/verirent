@@ -10,6 +10,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../../core/api/data/mock_data.dart';
 import '../../../../core/theme/agents_theme.dart';
@@ -112,125 +113,130 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return BlocBuilder<SearchCubit, SearchState>(
-      builder: (context, state) {
-        return Row(
-          children: [
-            // ── Search field ─────────────────────────────────────────────
-            Expanded(
-              child: SizedBox(
-                height: 42,
-                child: TextField(
-                  controller: widget.controller,
-                  focusNode: widget.focusNode,
-                  onChanged: (value) {
-                    context.read<SearchCubit>().searchProperties(
-                      context.read<HomeCubit>().state.allProperties,
-                      value,
-                    );
-                  },
-                  onSubmitted: (query) {
-                    if (query.trim().isNotEmpty) {
-                      context.read<SearchCubit>().saveSearch(query);
-                    }
-                  },
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: cs.surface,
-                    hintText: widget.hintText,
-                    prefixIcon: Icon(
-                      Icons.search_rounded,
-                      color: cs.onSurfaceVariant,
-                      size: 20,
+    return BlocProvider.value(
+      value: GetIt.I<SearchCubit>(),
+      child: BlocBuilder<SearchCubit, SearchState>(
+        builder: (context, state) {
+          return Row(
+            children: [
+              // ── Search field ─────────────────────────────────────────────
+              Expanded(
+                child: SizedBox(
+                  height: 42,
+                  child: TextField(
+                    controller: widget.controller,
+                    focusNode: widget.focusNode,
+                    onChanged: (value) {
+                      GetIt.I<SearchCubit>().searchProperties(
+                        context.read<HomeCubit>().state.allProperties,
+                        value,
+                      );
+                    },
+                    onSubmitted: (query) {
+                      if (query.trim().isNotEmpty) {
+                        GetIt.I<SearchCubit>().saveSearch(query);
+                      }
+                    },
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: cs.surface,
+                      hintText: widget.hintText,
+                      prefixIcon: Icon(
+                        Icons.search_rounded,
+                        color: cs.onSurfaceVariant,
+                        size: 20,
+                      ),
+                      suffixIcon: state.query.isNotEmpty
+                          ? GestureDetector(
+                              onTap: () {
+                                widget.controller.clear();
+                                GetIt.I<SearchCubit>().clearQuery();
+                              },
+                              child: Icon(
+                                Icons.close_rounded,
+                                size: 18,
+                                color: cs.onSurfaceVariant,
+                              ),
+                            )
+                          : null,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(VeriRentRadius.md),
+                        borderSide: BorderSide(color: cs.outlineVariant),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(VeriRentRadius.md),
+                        borderSide: BorderSide(color: cs.outlineVariant),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(VeriRentRadius.md),
+                        borderSide: BorderSide(color: cs.primary, width: 1.5),
+                      ),
                     ),
-                    suffixIcon: state.query.isNotEmpty
-                        ? GestureDetector(
-                            onTap: () {
-                              widget.controller.clear();
-                              context.read<SearchCubit>().clearQuery();
-                            },
-                            child: Icon(
-                              Icons.close_rounded,
-                              size: 18,
-                              color: cs.onSurfaceVariant,
-                            ),
-                          )
-                        : null,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(VeriRentRadius.md),
-                      borderSide: BorderSide(color: cs.outlineVariant),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(VeriRentRadius.md),
-                      borderSide: BorderSide(color: cs.outlineVariant),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(VeriRentRadius.md),
-                      borderSide: BorderSide(color: cs.primary, width: 1.5),
+                    style: VeriRentText.bodyMedium.copyWith(
+                      color: cs.onSurface,
                     ),
                   ),
-                  style: VeriRentText.bodyMedium.copyWith(color: cs.onSurface),
                 ),
               ),
-            ),
 
-            const SizedBox(width: VeriRentSpacing.sm),
+              const SizedBox(width: VeriRentSpacing.sm),
 
-            // ── Filter button ────────────────────────────────────────────
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                GestureDetector(
-                  onTap: _toggleSheet,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    width: 42,
-                    height: 42,
-                    decoration: BoxDecoration(
-                      color: _sheetOpen ? cs.primaryContainer : cs.surface,
-                      borderRadius: BorderRadius.circular(VeriRentRadius.sm),
-                      border: Border.all(
-                        color: _sheetOpen ? cs.primary : cs.outlineVariant,
+              // ── Filter button ────────────────────────────────────────────
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  GestureDetector(
+                    onTap: _toggleSheet,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: _sheetOpen ? cs.primaryContainer : cs.surface,
+                        borderRadius: BorderRadius.circular(VeriRentRadius.sm),
+                        border: Border.all(
+                          color: _sheetOpen ? cs.primary : cs.outlineVariant,
+                        ),
                       ),
-                    ),
-                    child: Icon(
-                      Icons.tune_rounded,
-                      size: 18,
-                      color: _sheetOpen ? cs.primary : cs.onSurfaceVariant,
+                      child: Icon(
+                        Icons.tune_rounded,
+                        size: 18,
+                        color: _sheetOpen ? cs.primary : cs.onSurfaceVariant,
+                      ),
                     ),
                   ),
-                ),
-                if (state.activeFilterCount > 0)
-                  Positioned(
-                    top: -4,
-                    right: -4,
-                    child: Container(
-                      width: 16,
-                      height: 16,
-                      decoration: BoxDecoration(
-                        color: VeriRentColors.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Text(
-                          '${state.activeFilterCount}',
-                          style: VeriRentText.labelSmall.copyWith(
-                            color: Colors.white,
-                            fontSize: 9,
+                  if (state.activeFilterCount > 0)
+                    Positioned(
+                      top: -4,
+                      right: -4,
+                      child: Container(
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: VeriRentColors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            '${state.activeFilterCount}',
+                            style: VeriRentText.labelSmall.copyWith(
+                              color: Colors.white,
+                              fontSize: 9,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-          ],
-        );
-      },
+                ],
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }

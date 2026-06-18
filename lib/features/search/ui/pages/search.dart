@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:verirent/features/search/ui/cubit/search_cubit.dart';
 import 'package:verirent/features/search/ui/cubit/search_state.dart';
 
-import '../../../../core/api/data/mock_data.dart';
-import '../../../../core/theme/agents_theme.dart';
-import '../../home/domain/entities/property_model.dart';
-import '../utils/formatPrice.dart';
-import 'widget/filter_panel.dart';
+import '../../../../../core/api/data/mock_data.dart';
+import '../../../../../core/theme/agents_theme.dart';
+import '../../../home/domain/entities/property_model.dart';
+import '../../utils/formatPrice.dart';
+import '../widget/filter_panel.dart';
 
 /// developer: Charles Praise Diepriye
 class SearchPage extends StatefulWidget {
@@ -60,109 +61,116 @@ class _SearchView extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final topPad = MediaQuery.of(context).padding.top;
     // listen and reacts to changes from the search state
-    return BlocBuilder<SearchCubit, SearchState>(
-      builder: (context, state) {
-        return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: cs.brightness == Brightness.light
-              ? SystemUiOverlayStyle.dark
-              : SystemUiOverlayStyle.light,
-          child: Scaffold(
-            backgroundColor: cs.surfaceVariant,
-            body: CustomScrollView(
-              slivers: [
-                // sticky search header
-                SliverPersistentHeader(
-                  pinned: true,
-                  delegate: _SearchHeader(
-                    topPadding: topPad,
-                    searchCtrl: searchCtrl,
-                    focusNode: focusNode,
-                    state: state,
-                    onChanged: (value) => context
-                        .read<SearchCubit>()
-                        .searchProperties(kAllListings, value),
-                    onSubmitted: (value) {
-                      if (value.trim().isNotEmpty) {
-                        context.read<SearchCubit>().saveSearch(value);
-                      }
-                    },
-                    onClear: () {
-                      searchCtrl.clear();
-                      context.read<SearchCubit>().clearQuery();
-                    },
-                    onToggleFilters: context.read<SearchCubit>().toggleFilters,
-                  ),
-                ),
-
-                // collapsible filter panel
-                if (state.filtersExpanded)
-                  SliverToBoxAdapter(
-                    child: FiltersPanel(
-                      priceRange: state.priceRange,
-                      selectedType: state.selectedType,
-                      minBeds: state.minBeds,
-                      minBaths: state.minBaths,
-                      verifiedOnly: state.verifiedOnly,
-                      propertyTypes: state.propertyTypes,
-                      onPriceChanged: context.read<SearchCubit>().updatePrice,
-                      onTypeChanged: context.read<SearchCubit>().updateType,
-                      onBedsChanged: context.read<SearchCubit>().updateBeds,
-                      onBathsChanged: context.read<SearchCubit>().updateBaths,
-                      onVerifiedChanged: context
+    return BlocProvider.value(
+      value: GetIt.I<SearchCubit>(),
+      child: BlocBuilder<SearchCubit, SearchState>(
+        builder: (context, state) {
+          return AnnotatedRegion<SystemUiOverlayStyle>(
+            value: cs.brightness == Brightness.light
+                ? SystemUiOverlayStyle.dark
+                : SystemUiOverlayStyle.light,
+            child: Scaffold(
+              backgroundColor: cs.surfaceVariant,
+              body: CustomScrollView(
+                slivers: [
+                  // sticky search header
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: _SearchHeader(
+                      topPadding: topPad,
+                      searchCtrl: searchCtrl,
+                      focusNode: focusNode,
+                      state: state,
+                      onChanged: (value) => context
                           .read<SearchCubit>()
-                          .updateVerified,
-                      onReset: context.read<SearchCubit>().resetFilters,
-                      onApply: context.read<SearchCubit>().closeFilters,
-                      formatPrice: formatPrice,
-                      showFilterOnHomePage: false,
-                    ),
-                  ),
-
-                // content
-                if (state.query.isEmpty)
-                  SliverToBoxAdapter(
-                    child: _RecentSearches(
-                      searches: state.recentSearches,
-                      onClearAll: context
-                          .read<SearchCubit>()
-                          .clearRecentSearches,
-                      onTap: (s) {
-                        searchCtrl.text = s;
-                        context.read<SearchCubit>().searchProperties(
-                          kAllListings,
-                          s,
-                        );
-                        context.read<SearchCubit>().saveSearch(s);
+                          .searchProperties(kAllListings, value),
+                      onSubmitted: (value) {
+                        if (value.trim().isNotEmpty) {
+                          context.read<SearchCubit>().saveSearch(value);
+                        }
                       },
-                    ),
-                  )
-                else ...[
-                  // Result count bar
-                  SliverToBoxAdapter(
-                    child: _ResultCountBar(
-                      count: state.filteredProperties.length,
-                      query: state.query,
-                      activeFilters: state.activeFilterCount,
-                      onClearFilters: context.read<SearchCubit>().resetFilters,
+                      onClear: () {
+                        searchCtrl.clear();
+                        context.read<SearchCubit>().clearQuery();
+                      },
+                      onToggleFilters: context
+                          .read<SearchCubit>()
+                          .toggleFilters,
                     ),
                   ),
 
-                  // Results grid or empty state
-                  if (state.filteredProperties.isEmpty)
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: _EmptyResults(query: state.query),
-                    )
-                  else
-                    _ResultsGrid(properties: state.filteredProperties),
-                ],
+                  // collapsible filter panel
+                  if (state.filtersExpanded)
+                    SliverToBoxAdapter(
+                      child: FiltersPanel(
+                        priceRange: state.priceRange,
+                        selectedType: state.selectedType,
+                        minBeds: state.minBeds,
+                        minBaths: state.minBaths,
+                        verifiedOnly: state.verifiedOnly,
+                        propertyTypes: state.propertyTypes,
+                        onPriceChanged: context.read<SearchCubit>().updatePrice,
+                        onTypeChanged: context.read<SearchCubit>().updateType,
+                        onBedsChanged: context.read<SearchCubit>().updateBeds,
+                        onBathsChanged: context.read<SearchCubit>().updateBaths,
+                        onVerifiedChanged: context
+                            .read<SearchCubit>()
+                            .updateVerified,
+                        onReset: context.read<SearchCubit>().resetFilters,
+                        onApply: context.read<SearchCubit>().closeFilters,
+                        formatPrice: formatPrice,
+                        showFilterOnHomePage: false,
+                      ),
+                    ),
 
-                const SliverToBoxAdapter(child: SizedBox(height: 80)),
-              ],
+                  // content
+                  if (state.query.isEmpty)
+                    SliverToBoxAdapter(
+                      child: _RecentSearches(
+                        searches: state.recentSearches,
+                        onClearAll: context
+                            .read<SearchCubit>()
+                            .clearRecentSearches,
+                        onTap: (s) {
+                          searchCtrl.text = s;
+                          context.read<SearchCubit>().searchProperties(
+                            kAllListings,
+                            s,
+                          );
+                          context.read<SearchCubit>().saveSearch(s);
+                        },
+                      ),
+                    )
+                  else ...[
+                    // Result count bar
+                    SliverToBoxAdapter(
+                      child: _ResultCountBar(
+                        count: state.filteredProperties.length,
+                        query: state.query,
+                        activeFilters: state.activeFilterCount,
+                        onClearFilters: context
+                            .read<SearchCubit>()
+                            .resetFilters,
+                      ),
+                    ),
+
+                    // Results grid or empty state
+                    if (state.filteredProperties.isEmpty)
+                      SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: _EmptyResults(query: state.query),
+                      )
+                    else
+                      _ResultsGrid(properties: state.filteredProperties),
+                  ],
+
+                  const SliverToBoxAdapter(child: SizedBox(height: 80)),
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
