@@ -8,7 +8,7 @@ import 'package:verirent/features/search/ui/cubit/search_state.dart';
 import '../../../../../core/api/data/mock_data.dart';
 import '../../../../../core/theme/agents_theme.dart';
 import '../../../home/domain/entities/property_model.dart';
-import '../../utils/formatPrice.dart';
+import '../../utils/kFormatPrice.dart';
 import '../widget/filter_panel.dart';
 
 /// developer: Charles Praise Diepriye
@@ -118,7 +118,7 @@ class _SearchView extends StatelessWidget {
                             .updateVerified,
                         onReset: context.read<SearchCubit>().resetFilters,
                         onApply: context.read<SearchCubit>().closeFilters,
-                        formatPrice: formatPrice,
+                        formatPrice: kFormatPrice,
                         showFilterOnHomePage: false,
                       ),
                     ),

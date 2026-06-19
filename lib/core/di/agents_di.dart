@@ -1,13 +1,13 @@
 import 'package:get_it/get_it.dart';
 import 'package:verirent/core/shared/location/ui/cubit/location_cubit.dart';
 import 'package:verirent/features/auth/ui/cubit/auth_cubit.dart';
-import 'package:verirent/features/home/features/listing_details/ui/cubit/listing_details_cubit.dart';
+import 'package:verirent/features/home/features/listing/ui/cubit/listing_details_cubit.dart';
 import 'package:verirent/features/message/ui/cubit/message_cubit.dart';
 import 'package:verirent/features/saved/ui/cubit/saved_cubit.dart';
 import 'package:verirent/features/search/ui/cubit/search_cubit.dart';
 import 'package:verirent/features/settings/ui/cubit/settings_cubit.dart';
 
-import '../../features/home/features/see_all/ui/cubit/see_all_cubit.dart';
+import '../../features/home/features/view/ui/cubit/see_all_cubit.dart';
 import '../../features/home/ui/cubit/home_cubit.dart';
 import '../../features/profile/ui/cubit/profile_cubit.dart';
 import '../../features/shell/ui/cubit/main_cubit.dart';

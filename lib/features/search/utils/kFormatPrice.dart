@@ -1,4 +1,4 @@
-String formatPrice(double value) {
+String kFormatPrice(double value) {
   if (value >= 1000000) {
     return '₦${(value / 1000000).toStringAsFixed(1)}M';
   }

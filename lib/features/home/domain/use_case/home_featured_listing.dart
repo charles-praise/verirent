@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
+import 'package:verirent/features/home/domain/entities/property_model.dart';
 
 import '../../../../core/theme/agents_theme.dart';
 import '../../data/local_repo.dart';
@@ -191,6 +193,131 @@ class ShortLetPropertiesUseCase extends StatelessWidget {
             HomeLocalRepo().shortletProperties[index],
           ),
           childCount: HomeLocalRepo().shortletProperties.length,
+        ),
+      ),
+    );
+  }
+}
+
+// ── Property Option Listing  UseCase ─────────────────────────────────────────────────────────────────
+
+class PropertyOption extends StatelessWidget {
+  const PropertyOption({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(left: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                'Discount available in',
+                style: VeriRentText.titleSmall.copyWith(color: cs.onSurface),
+              ),
+              const Spacer(),
+              TextButton(
+                onPressed: () {},
+                child: Text(
+                  'See all',
+                  style: VeriRentText.labelMedium.copyWith(color: cs.primary),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          SizedBox(
+            height: 120,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: HomeLocalRepo().featuredProperties.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 10),
+              itemBuilder: (context, i) => _ListingThumb(
+                index: i,
+                property: HomeLocalRepo().featuredProperties[i],
+                color:
+                    HomeLocalRepo().featuredProperties[i].tierColor ??
+                    VeriRentColors.tierBasic,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ListingThumb extends StatelessWidget {
+  const _ListingThumb({
+    super.key,
+    required this.index,
+    required this.color,
+    required this.property,
+  });
+  final int index;
+  final Color color;
+  final PropertyModel property;
+
+  static const _titles = [
+    '3 Bed Flat, GRA Phase 2',
+    'Executive Duplex, Trans-Amadi',
+    'Office Space, D-Line',
+    'Studio Apt, Rumuola',
+    'Land 648m², Rumuigbo',
+  ];
+  static const _prices = [
+    '₦1.8M/yr',
+    '₦4.5M/yr',
+    '₦2.2M/yr',
+    '₦550k/yr',
+    '₦18.5M',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return SizedBox(
+      width: 168,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: cs.surface,
+          borderRadius: BorderRadius.circular(VeriRentRadius.lg),
+          border: Border.all(color: cs.outlineVariant),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 56,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(VeriRentRadius.md),
+                border: Border.all(color: color.withOpacity(0.2)),
+              ),
+              child: Center(
+                child: CustomNetworkImage(imgUrl: property.imageUrls!.first),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              _titles[index % _titles.length],
+              style: VeriRentText.titleSmall.copyWith(color: cs.onSurface),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              _prices[index % _prices.length],
+              style: VeriRentText.labelMedium.copyWith(
+                color: color,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
         ),
       ),
     );

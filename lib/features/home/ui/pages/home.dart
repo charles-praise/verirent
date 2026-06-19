@@ -270,6 +270,8 @@ List<Widget> _defaultViewList({
     ),
     // Featured
     const SliverToBoxAdapter(child: FeaturedListingsHorizontalUseCase()),
+    // Property Options
+    const SliverToBoxAdapter(child: PropertyOption()),
     // Recent
     SliverToBoxAdapter(
       child: SectionHeader(

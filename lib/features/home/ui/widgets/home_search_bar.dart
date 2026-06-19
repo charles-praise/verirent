@@ -17,7 +17,7 @@ import '../../../../core/theme/agents_theme.dart';
 import '../../../search/ui/cubit/search_cubit.dart';
 import '../../../search/ui/cubit/search_state.dart';
 import '../../../search/ui/widget/filter_panel.dart';
-import '../../../search/utils/formatPrice.dart';
+import '../../../search/utils/kFormatPrice.dart';
 import '../cubit/home_cubit.dart';
 
 class HomeSearchBar extends StatefulWidget {
@@ -88,7 +88,7 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                     searchCubit.applyFilters(kAllListings);
                     Navigator.of(sheetCtx).pop();
                   },
-                  formatPrice: formatPrice,
+                  formatPrice: kFormatPrice,
                   showFilterOnHomePage: true,
                 ),
               ),
