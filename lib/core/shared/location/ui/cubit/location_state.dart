@@ -3,103 +3,89 @@
 //
 //  Immutable state for the LocationCubit.
 //
+//  Gating contract
+//  ────────────────
+//  • [isComplete] is the single source of truth for "geographical content
+//    may be shown / app may proceed." It requires BOTH [selectedState] and
+//    [selectedLga] to be non-null — regardless of whether they were set via
+//    GPS or manual selection. The router guard and any screen requiring
+//    location should check this, not [hasSelection].
+//
+//  • [needsLgaConfirmation] is true specifically when GPS resolved a state
+//    but could not confidently match an LGA, AND the user has not yet
+//    picked one. This drives the forced-open, non-dismissible dropdown
+//    behaviour, distinct from the general manual-selection flow.
+//
+//  Confirmation-pending contract (2-read agreement)
+//  ──────────────────────────────────────────────────
+//  To avoid GPS jitter near state/LGA borders silently flipping a user's
+//  confirmed location, a NEW state/LGA detected by GPS is not applied
+//  immediately if the user already has a confirmed selection. Instead it is
+//  stored in [pendingState]/[pendingLga]/[pendingDetectedAt]. Only if the
+//  *next* GPS read agrees with the pending value does the cubit promote it
+//  to [selectedState]/[selectedLga]. A single noisy read is therefore
+//  self-correcting and never overwrites the confirmed selection.
+//
 //  Serialization contract
 //  ──────────────────────
-//  • Only fields that are meaningful to restore across sessions are persisted:
-//      - selectedState, selectedLga  → last known manual/auto selection
-//      - latitude, longitude         → last known GPS coordinates
-//      - country, city               → last known geocode result
-//      - detectedStateRaw            → raw geocoder string for debugging
-//
-//  • Fields that are NOT persisted (reset on every cold start):
-//      - phase       → always starts as LocationPhase.initial so the cubit
-//                       re-validates permissions on next launch
-//      - error       → stale error messages are meaningless next session
-//      - permanentlyDenied → re-checked live each session
-//      - isOpen      → UI-only; overlay is never open at startup
+//  • Persisted: selectedState, selectedLga, latitude, longitude, country,
+//    city, detectedStateRaw, lastConfirmedAt.
+//  • NOT persisted (reset on cold start): phase, error, permanentlyDenied,
+//    isOpen, pendingState, pendingLga, pendingDetectedAt, looseLgaSuggestion.
 //
 //  developer: charles praise diepriye
 // =============================================================================
 
-// ── Phase enum ────────────────────────────────────────────────────────────────
-
-/// Represents the current phase of the location resolution pipeline.
-///
-/// Transitions:
-///   initial → loading → ready
-///                    ↘ denied
-///                    ↘ permanentlyDenied
-///                    ↘ error
 enum LocationPhase {
-  /// Default state before [LocationCubit.init] is called.
   initial,
-
-  /// GPS / permission resolution is in progress.
   loading,
-
-  /// GPS resolved successfully; [LocationState.latitude] and
-  /// [LocationState.longitude] are populated.
   ready,
-
-  /// User denied the location permission (can ask again).
   denied,
-
-  /// User permanently denied the permission; must route to app settings.
   permanentlyDenied,
-
-  /// An unexpected error occurred during permission check or geocoding.
   error,
 }
 
-// ── State ─────────────────────────────────────────────────────────────────────
-
 class LocationState {
   // ── Phase & error ──────────────────────────────────────────────────────────
-
-  /// Current step in the location resolution pipeline.
   final LocationPhase phase;
-
-  /// Human-readable error message when [phase] is [LocationPhase.error],
-  /// [LocationPhase.denied], or [LocationPhase.permanentlyDenied].
   final String? error;
-
-  /// True when the OS will no longer show the permission dialog for this app.
-  /// The UI should show a button that routes to app settings.
   final bool permanentlyDenied;
 
   // ── Coordinates & geocode ──────────────────────────────────────────────────
-
-  /// WGS-84 latitude returned by [Geolocator].
   final double? latitude;
-
-  /// WGS-84 longitude returned by [Geolocator].
   final double? longitude;
-
-  /// ISO country name from the geocoder (e.g. "Nigeria").
   final String? country;
-
-  /// Raw [administrativeArea] string from the geocoder
-  /// (e.g. "Rivers State"). Used for fuzzy state matching and debugging.
   final String? detectedStateRaw;
-
-  /// Locality/city name from the geocoder (e.g. "Port Harcourt").
   final String? city;
 
-  // ── Dropdown UI state ──────────────────────────────────────────────────────
-
-  /// The Nigerian state currently selected in the dropdown,
-  /// either auto-detected from GPS or manually picked by the user.
+  // ── Confirmed dropdown selection (the only thing that gates content) ───────
   final String? selectedState;
-
-  /// The LGA currently selected under [selectedState].
-  /// Always null when [selectedState] is null.
   final String? selectedLga;
-
-  /// Whether the dropdown overlay is currently visible.
-  /// Never persisted — overlay is always closed at startup.
   final bool isOpen;
 
-  // ── Constructor ────────────────────────────────────────────────────────────
+  /// Timestamp of the last time [selectedState]/[selectedLga] were set
+  /// (manually or via confirmed GPS promotion). Used to avoid redundant
+  /// GPS re-fetches — see [LocationCubit] caching policy.
+  final DateTime? lastConfirmedAt;
+
+  // ── Pending GPS read awaiting a second agreeing read ────────────────────────
+
+  /// A state GPS detected that disagrees with [selectedState] and has not
+  /// yet been confirmed by a second consecutive matching read.
+  final String? pendingState;
+
+  /// The LGA paired with [pendingState], if matched.
+  final String? pendingLga;
+
+  /// When [pendingState] was first observed — used to decide whether a
+  /// fresh read counts as "the next read" or is too stale to chain.
+  final DateTime? pendingDetectedAt;
+
+  /// A loose, unverified LGA guess derived from the geocoder's raw
+  /// locality/subAdministrativeArea string when strict fuzzy matching
+  /// failed. Offered to the user as a one-tap fallback ("Use Eneka — our
+  /// best guess") inside the forced-confirmation prompt. Never auto-applied.
+  final String? looseLgaSuggestion;
 
   const LocationState({
     this.phase = LocationPhase.initial,
@@ -113,41 +99,39 @@ class LocationState {
     this.selectedState,
     this.selectedLga,
     this.isOpen = false,
+    this.lastConfirmedAt,
+    this.pendingState,
+    this.pendingLga,
+    this.pendingDetectedAt,
+    this.looseLgaSuggestion,
   });
 
   // ── Serialization ──────────────────────────────────────────────────────────
 
-  /// Restores a [LocationState] from a JSON map written by [toJson].
-  ///
-  /// Deliberately resets ephemeral fields:
-  ///   - [phase] → [LocationPhase.initial] (cubit always re-runs init)
-  ///   - [error], [permanentlyDenied], [isOpen] → defaults
   factory LocationState.fromJson(Map<String, dynamic> json) {
     return LocationState(
-      // Phase always resets — permissions must be re-validated each launch.
       phase: LocationPhase.initial,
-
-      // Persisted location data — restored for immediate display while the
-      // cubit fetches a fresh position in the background.
       latitude: (json['latitude'] as num?)?.toDouble(),
       longitude: (json['longitude'] as num?)?.toDouble(),
       country: json['country'] as String?,
       city: json['city'] as String?,
       detectedStateRaw: json['detectedStateRaw'] as String?,
-
-      // Persisted selection — user sees their last choice instantly.
       selectedState: json['selectedState'] as String?,
       selectedLga: json['selectedLga'] as String?,
-
+      lastConfirmedAt: json['lastConfirmedAt'] != null
+          ? DateTime.tryParse(json['lastConfirmedAt'] as String)
+          : null,
       // Ephemeral — never persisted.
       error: null,
       permanentlyDenied: false,
       isOpen: false,
+      pendingState: null,
+      pendingLga: null,
+      pendingDetectedAt: null,
+      looseLgaSuggestion: null,
     );
   }
 
-  /// Serializes only the fields that are meaningful to restore.
-  /// Ephemeral fields (phase, error, permanentlyDenied, isOpen) are omitted.
   Map<String, dynamic> toJson() {
     return {
       'latitude': latitude,
@@ -157,19 +141,12 @@ class LocationState {
       'detectedStateRaw': detectedStateRaw,
       'selectedState': selectedState,
       'selectedLga': selectedLga,
+      'lastConfirmedAt': lastConfirmedAt?.toIso8601String(),
     };
   }
 
   // ── copyWith ───────────────────────────────────────────────────────────────
 
-  /// Returns a copy of this state with selected fields replaced.
-  ///
-  /// [clearLga] — when true, sets [selectedLga] to null regardless of whether
-  /// [selectedLga] was provided. Use when changing [selectedState] to avoid
-  /// a stale LGA from a previous state remaining selected.
-  ///
-  /// [error] uses a sentinel [_unset] so that passing `error: null` explicitly
-  /// clears the error, while omitting [error] preserves the current value.
   LocationState copyWith({
     LocationPhase? phase,
     Object? error = _unset,
@@ -183,6 +160,11 @@ class LocationState {
     bool clearLga = false,
     String? selectedLga,
     bool? isOpen,
+    DateTime? lastConfirmedAt,
+    Object? pendingState = _unset,
+    Object? pendingLga = _unset,
+    Object? pendingDetectedAt = _unset,
+    Object? looseLgaSuggestion = _unset,
   }) {
     return LocationState(
       phase: phase ?? this.phase,
@@ -196,11 +178,19 @@ class LocationState {
       selectedState: selectedState ?? this.selectedState,
       selectedLga: clearLga ? null : (selectedLga ?? this.selectedLga),
       isOpen: isOpen ?? this.isOpen,
+      lastConfirmedAt: lastConfirmedAt ?? this.lastConfirmedAt,
+      pendingState:
+          pendingState == _unset ? this.pendingState : pendingState as String?,
+      pendingLga: pendingLga == _unset ? this.pendingLga : pendingLga as String?,
+      pendingDetectedAt: pendingDetectedAt == _unset
+          ? this.pendingDetectedAt
+          : pendingDetectedAt as DateTime?,
+      looseLgaSuggestion: looseLgaSuggestion == _unset
+          ? this.looseLgaSuggestion
+          : looseLgaSuggestion as String?,
     );
   }
 
-  /// Private sentinel used by [copyWith] to distinguish an explicit
-  /// `error: null` (clear error) from an omitted `error` (keep current).
   static const _unset = Object();
 
   // ── Convenience getters ────────────────────────────────────────────────────
@@ -208,20 +198,88 @@ class LocationState {
   /// True when [selectedState] has been set by GPS or manual selection.
   bool get hasSelection => selectedState != null;
 
-  /// True when the location pipeline resolved successfully.
+  /// True when both state AND LGA are set, regardless of source. This is
+  /// a DATA-completeness check, not a UI gating signal — use
+  /// [requiresManualSelection] / [hasGpsLayerIssue] for deciding what to
+  /// show. Geographical content/queries should still check this before
+  /// using selectedState/selectedLga.
+  bool get isComplete => selectedState != null && selectedLga != null;
+
   bool get isReady => phase == LocationPhase.ready;
-
-  /// True while permissions / GPS are being resolved.
   bool get isLoading => phase == LocationPhase.loading;
-
-  /// True when we have restored coordinates from a previous session,
-  /// but the current [phase] is still [LocationPhase.initial] or [loading].
-  /// Useful for showing a "last known location" label in the UI.
   bool get hasRestoredLocation => latitude != null && longitude != null;
 
-  /// Human-readable label for the trigger button.
+  /// True when location is NOT yet complete and the app should be blocked
+  /// by the full-screen gate (LocationGateOverlay) — REGARDLESS of why.
+  /// This is the single source of truth for "must the user manually set
+  /// state+LGA before proceeding." It fires for:
+  ///   - phase == ready but state and/or LGA missing (detection ran, came
+  ///     up short — e.g. rural area, unmatched geocoder result), AND
+  ///   - phase == denied / permanentlyDenied / error (GPS/permission
+  ///     failed entirely — manual selection is the ONLY path forward).
+  /// Manual selection always remains available via LocationPickerPanel
+  /// regardless of phase, so a GPS failure is never a dead end — it just
+  /// means the user must pick state+LGA by hand instead of relying on
+  /// auto-detection. The moment isComplete becomes true (by any means),
+  /// this flips false and the gate clears immediately.
   ///
-  /// Priority: LGA + State → State only → fallback hint.
+  /// NOTE: previously this only fired when phase == ready, which meant a
+  /// denied/error phase let the user straight into the app with NO
+  /// location set at all — an unintended bypass of the compulsory
+  /// requirement. That hole is closed here: every non-loading,
+  /// non-complete phase blocks.
+  bool get requiresManualSelection =>
+      phase != LocationPhase.loading &&
+      phase != LocationPhase.initial &&
+      !isComplete;
+
+  /// True when GPS resolved a state but could not confidently match an
+  /// LGA, and the user hasn't picked one manually. A sub-case of
+  /// [requiresManualSelection] — when this is true, the overlay is
+  /// already up; this getter exists to tailor copy/nudges, not to control
+  /// whether blocking happens.
+  bool get needsLgaConfirmation =>
+      phase == LocationPhase.ready &&
+      selectedState != null &&
+      selectedLga == null;
+
+  /// True when permission was denied, location services are off, or an
+  /// unexpected error occurred during GPS/geocoding. NO LONGER a bypass
+  /// of the gate — [requiresManualSelection] already accounts for these
+  /// phases and blocks regardless. This getter now exists purely to
+  /// tailor copy/actions (e.g. show an "Open Settings" button instead of
+  /// "Retry" inside the gate overlay, or to drive the separate
+  /// LocationGpsBanner shown once the user IS past the gate but a later
+  /// background refresh fails — e.g. they completed manual selection,
+  /// then a subsequent refresh() call hit a permission error; isComplete
+  /// stays true in that case since selectedState/selectedLga are untouched
+  /// by a failed refresh, so the gate correctly does NOT reappear, but the
+  /// banner can still inform them the background refresh failed).
+  bool get hasGpsLayerIssue =>
+      phase == LocationPhase.denied ||
+      phase == LocationPhase.permanentlyDenied ||
+      phase == LocationPhase.error;
+
+  /// True when a GPS read disagrees with the confirmed selection and is
+  /// awaiting a second agreeing read before being promoted.
+  bool get hasPendingChange => pendingState != null;
+
+  /// THE single condition that shows the location picker modal — there is
+  /// now exactly ONE presentation surface (LocationModal) for both the
+  /// compulsory startup gate and casual manual editing. Fires when either:
+  ///   - [requiresManualSelection] is true (compulsory — non-dismissible), or
+  ///   - the user tapped the trigger to edit ([isOpen], dismissible).
+  /// See [isDismissible] to distinguish which case is active for rendering
+  /// the close affordance.
+  bool get showLocationModal => requiresManualSelection || isOpen;
+
+  /// True when the modal currently showing may be dismissed by the user
+  /// without completing a selection. False during the compulsory gate
+  /// (requiresManualSelection) — that case has no escape regardless of
+  /// isOpen, since closing it would leave location incomplete.
+  bool get isDismissible => !requiresManualSelection;
+
+
   String get displayLabel {
     if (selectedLga != null && selectedState != null) {
       return '$selectedLga, $selectedState';

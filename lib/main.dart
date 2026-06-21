@@ -6,10 +6,10 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:verirent/core/di/agents_di.dart';
 import 'package:verirent/core/route/agents_route.dart';
+import 'package:verirent/core/shared/location/ui/cubit/location_cubit.dart';
 import 'package:verirent/core/theme/agents_theme.dart';
 import 'package:verirent/features/settings/ui/cubit/settings_cubit.dart';
 
-import 'core/shared/location/ui/cubit/location_cubit.dart';
 import 'features/search/ui/cubit/search_cubit.dart';
 
 void main() async {
@@ -23,12 +23,10 @@ void main() async {
   );
   HydratedBloc.storage = storage;
   await registerServices();
+  GetIt.I<LocationCubit>();
   runApp(
     MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (_) => SearchCubit()),
-        BlocProvider.value(value: GetIt.I<LocationCubit>()),
-      ],
+      providers: [BlocProvider(create: (_) => GetIt.I<SearchCubit>())],
       child: const App(),
     ),
   );

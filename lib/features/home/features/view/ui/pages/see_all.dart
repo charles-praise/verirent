@@ -4,22 +4,16 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:verirent/features/home/features/view/ui/cubit/see_all_cubit.dart';
 import 'package:verirent/features/home/ui/widgets/home_featured_list.dart';
-import 'package:verirent/features/home/ui/widgets/home_section_header.dart';
 
 import '../../../../../../core/theme/agents_theme.dart';
+import '../../../../../../core/util/sentenceCase.dart';
 import '../../../../../search/ui/cubit/search_cubit.dart';
 import '../../../../domain/entities/property_model.dart';
 
-extension StringCasing on String {
-  String toSentenceCase() {
-    if (isEmpty) return this;
-    return '${this[0].toUpperCase()}${substring(1).toLowerCase()}';
-  }
-}
-
 class SeeAllPage extends StatefulWidget {
   final List<PropertyModel> properties;
-  const SeeAllPage({super.key, required this.properties});
+  final String title;
+  const SeeAllPage({super.key, required this.properties, required this.title});
 
   @override
   State<SeeAllPage> createState() => _SeeAllPageState();
@@ -49,11 +43,7 @@ class _SeeAllPageState extends State<SeeAllPage> {
   }
 
   String _categoryFinder(String category) {
-    if (category.toLowerCase() != 'residential' ||
-        category.toLowerCase() != 'commercial' ||
-        category.toLowerCase() != 'land') {
-      return 'recently added'.toSentenceCase();
-    }
+    debugPrint(category);
     return category.toSentenceCase();
   }
 
@@ -91,8 +81,11 @@ class _SeeAllPageState extends State<SeeAllPage> {
                   onToggleFilters: () {},
                 ),
               ),
-              SliverToBoxAdapter(
-                child: _SearchFilter(
+              SliverAppBar(
+                pinned: true,
+                automaticallyImplyLeading: false,
+                automaticallyImplyActions: false,
+                title: _SearchFilter(
                   filters: seeAllState.filters,
                   filterIcons: seeAllState.filterIcons,
                   activeIndex: seeAllState.activeIndex,
@@ -102,15 +95,17 @@ class _SeeAllPageState extends State<SeeAllPage> {
                 ),
               ),
               SliverToBoxAdapter(
-                child: SectionHeader(
-                  padding: EdgeInsets.fromLTRB(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
                     VeriRentSpacing.base,
                     VeriRentSpacing.sm,
                     VeriRentSpacing.sm,
                     VeriRentSpacing.sm,
                   ),
-                  title:
-                      "Results for ${_categoryFinder("${widget.properties[0].category?.name.toSentenceCase()}")}",
+                  child: Text(
+                    widget.title.toSentenceCase(),
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
                 ),
               ),
               // initial state

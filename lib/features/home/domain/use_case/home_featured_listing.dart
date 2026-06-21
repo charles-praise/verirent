@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
+import 'package:verirent/core/shared/location/ui/cubit/location_cubit.dart';
+import 'package:verirent/core/shared/location/ui/cubit/location_state.dart';
 import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
+import 'package:verirent/core/shared/widgets/verifiedBadge.dart';
 import 'package:verirent/features/home/domain/entities/property_model.dart';
 
+import '../../../../core/shared/widgets/saveButton.dart';
 import '../../../../core/theme/agents_theme.dart';
 import '../../data/local_repo.dart';
 import '../../ui/widgets/home_featured_list.dart';
@@ -207,44 +214,29 @@ class PropertyOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.only(left: 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                'Discount available in',
-                style: VeriRentText.titleSmall.copyWith(color: cs.onSurface),
-              ),
-              const Spacer(),
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  'See all',
-                  style: VeriRentText.labelMedium.copyWith(color: cs.primary),
+    return BlocProvider.value(
+      value: GetIt.I<LocationCubit>(),
+      child: BlocBuilder<LocationCubit, LocationState>(
+        builder: (context, locationState) {
+          return Padding(
+            padding: const EdgeInsets.only(left: 14),
+            child: SizedBox(
+              height: 120,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: HomeLocalRepo().featuredProperties.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                itemBuilder: (context, i) => _ListingThumb(
+                  index: i,
+                  property: HomeLocalRepo().featuredProperties[i],
+                  color:
+                      HomeLocalRepo().featuredProperties[i].tierColor ??
+                      VeriRentColors.tierBasic,
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          SizedBox(
-            height: 120,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: HomeLocalRepo().featuredProperties.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 10),
-              itemBuilder: (context, i) => _ListingThumb(
-                index: i,
-                property: HomeLocalRepo().featuredProperties[i],
-                color:
-                    HomeLocalRepo().featuredProperties[i].tierColor ??
-                    VeriRentColors.tierBasic,
-              ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -279,10 +271,11 @@ class _ListingThumb extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: 168,
+    return GestureDetector(
+      onTap: () => context.push('/listing_details', extra: property),
       child: Container(
-        padding: const EdgeInsets.all(10),
+        width: 168,
+        padding: const EdgeInsets.all(3),
         decoration: BoxDecoration(
           color: cs.surface,
           borderRadius: BorderRadius.circular(VeriRentRadius.lg),
@@ -291,30 +284,49 @@ class _ListingThumb extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 56,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(VeriRentRadius.md),
-                border: Border.all(color: color.withOpacity(0.2)),
-              ),
-              child: Center(
-                child: CustomNetworkImage(imgUrl: property.imageUrls!.first),
+            Expanded(
+              child: Stack(
+                clipBehavior: Clip.hardEdge,
+                children: [
+                  Center(
+                    child: CustomNetworkImage(
+                      imgUrl: property.imageUrls!.first,
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 2,
+                    left: 2,
+                    child: SaveButton(item: property),
+                  ),
+                  if (property.isVerified!)
+                    Positioned(top: 8, right: 8, child: verifiedBadge()),
+                ],
               ),
             ),
-            const SizedBox(height: 6),
-            Text(
-              _titles[index % _titles.length],
-              style: VeriRentText.titleSmall.copyWith(color: cs.onSurface),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              _prices[index % _prices.length],
-              style: VeriRentText.labelMedium.copyWith(
-                color: color,
-                fontWeight: FontWeight.w700,
+            const SizedBox(height: 5),
+            Padding(
+              padding: const EdgeInsets.only(left: 3),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    property.title ?? 'No title',
+                    style: VeriRentText.titleSmall.copyWith(
+                      color: cs.onSurface,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    property.price ?? '0',
+                    style: VeriRentText.labelMedium.copyWith(
+                      color: color,
+                      fontWeight: FontWeight.w700,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

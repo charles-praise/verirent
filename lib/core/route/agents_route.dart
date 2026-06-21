@@ -26,6 +26,7 @@ import '../../features/home/ui/cubit/home_cubit.dart';
 import '../../features/home/ui/pages/home.dart';
 import '../../features/shell/ui/cubit/main_cubit.dart';
 import '../../features/shell/ui/pages/shell.dart';
+import '../shared/location/ui/cubit/location_cubit.dart';
 
 class _Route {
   static final String main = '/';
@@ -47,6 +48,23 @@ abstract final class _VeriRentRoute {
   static final GoRouter router = GoRouter(
     overridePlatformDefaultLocation: true,
     initialLocation: _Route.main,
+    redirect: (context, state) {
+      final locationState = GetIt.I<LocationCubit>().state;
+
+      // '/' self-gates inside Main — never redirect away from it.
+      // '/auth/*' must stay reachable regardless of location state.
+      final isMain = state.matchedLocation == _Route.main;
+      final isAuth = state.matchedLocation.startsWith(_Route.auth);
+
+      if (isMain || isAuth) return null;
+
+      if (!locationState.isComplete) {
+        // Bounce anything else back to '/' — Main will show the gate.
+        return _Route.main;
+      }
+
+      return null;
+    },
     routes: [
       // Shell Route
       GoRoute(
@@ -95,12 +113,12 @@ abstract final class _VeriRentRoute {
         path: _Route.seeAll,
         name: "See All",
         pageBuilder: (context, state) {
-          final listing = state.extra as List<PropertyModel>;
+          final listing = state.extra as List<dynamic>;
 
           return CustomTransitionPage(
             child: BlocProvider(
               create: (context) => GetIt.instance<SeeAllCubit>(),
-              child: SeeAllPage(properties: listing),
+              child: SeeAllPage(properties: listing[0], title: listing[1]),
             ),
             transitionsBuilder:
                 (

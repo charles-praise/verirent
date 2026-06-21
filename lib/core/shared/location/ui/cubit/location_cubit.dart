@@ -4,24 +4,44 @@
 //  Manages GPS permission, position resolution, reverse geocoding, and the
 //  State → LGA dropdown selection for the location picker widget.
 //
-//  Hydration behaviour
+//  Gating
+//  ──────
+//  Both state AND LGA are compulsory before geographical content may be
+//  shown. See [LocationState.isComplete] — that getter is the single
+//  source of truth consumed by the router guard.
+//
+//  Caching policy (avoid unnecessary GPS/network hits)
+//  ─────────────────────────────────────────────────────
+//  On cold start, [init] does NOT always re-run the full permission → GPS →
+//  geocode pipeline. If the cached state is already [LocationState.isComplete]
+//  and was confirmed within [_cacheValidity], init() short-circuits and emits
+//  [LocationPhase.ready] immediately using cached data — no GPS call, no
+//  permission prompt, no geocoding. The pipeline only runs:
+//    - on first-ever launch (no confirmed selection yet),
+//    - when the cache has expired,
+//    - when explicitly forced via [refresh] (e.g. user pulls to refresh,
+//      or taps "update my location").
+//
+//  Anti-jitter: 2 consecutive agreeing reads required to change state
+//  ──────────────────────────────────────────────────────────────────
+//  GPS near a state/LGA border can jitter between neighbouring values.
+//  Once the user has a CONFIRMED selectedState, a fresh GPS read that
+//  disagrees with it is never applied immediately. It is stored as
+//  [LocationState.pendingState]/[pendingLga]. Only if the *next* read also
+//  produces the same disagreeing value is it promoted to selectedState/Lga.
+//  A single noisy read therefore self-corrects on the following read instead
+//  of silently relocating the user.
+//
+//  This protection does not apply to a user's first-ever resolution (no
+//  confirmed state yet) — there's nothing to protect against overwriting.
+//
+//  Loose LGA fallback
 //  ───────────────────
-//  Extends [HydratedCubit] so that the user's last known location and
-//  dropdown selection survive app restarts. On cold start:
-//
-//    1. [fromJson] restores [selectedState], [selectedLga], and last GPS
-//       coordinates — the user sees their previous choice immediately.
-//    2. The cubit constructor calls [init], which re-runs the full permission
-//       → GPS → geocode pipeline in the background and updates the state
-//       with fresh coordinates when ready.
-//    3. [phase] is never restored from JSON — it always resets to
-//       [LocationPhase.initial] so init() always re-validates permissions.
-//
-//  Error resilience
-//  ────────────────
-//  [fromJson] is wrapped in try/catch. Any deserialization failure returns
-//  null, causing HydratedCubit to fall back to the default [LocationState],
-//  which is safe to operate from.
+//  When strict fuzzy matching fails to find an LGA, a secondary, non-strict
+//  guess is computed from the raw geocoder locality string and exposed as
+//  [LocationState.looseLgaSuggestion]. It is NEVER auto-applied — only
+//  offered to the user as a one-tap "not sure? use this" option in the
+//  forced confirmation prompt.
 //
 //  developer: charles praise diepriye
 // =============================================================================
@@ -35,42 +55,51 @@ import '../../data/mock.dart'; // NigeriaLocations
 import 'location_state.dart';
 
 class LocationCubit extends HydratedCubit<LocationState> {
-  /// Initializes with the default [LocationState] and immediately kicks off
-  /// the permission → GPS → geocode pipeline.
-  ///
-  /// If [HydratedCubit] restores a previous state from storage, [init] will
-  /// still run — refreshing GPS in the background while the restored
-  /// [selectedState] / [selectedLga] remain visible to the user.
   LocationCubit() : super(const LocationState()) {
     init();
   }
 
+  /// How long a confirmed location stays valid before init() will
+  /// silently re-check GPS in the background on next cold start.
+  static const _cacheValidity = Duration(hours: 24);
+
+  /// How long a pending (unconfirmed, disagreeing) GPS read remains
+  /// eligible to be confirmed by a second read. Past this window a fresh
+  /// disagreement starts a new pending cycle rather than chaining.
+  static const _pendingWindow = Duration(minutes: 10);
+
   // ── Public entry point ────────────────────────────────────────────────────
 
-  /// Runs the full location resolution pipeline:
-  ///   permission check → GPS fix → reverse geocode → dropdown pre-fill.
-  ///
-  /// Safe to call multiple times (e.g. after user fixes permissions).
-  /// Previous selection is preserved while loading.
+  /// Runs the permission → GPS → geocode pipeline, but SKIPS it entirely
+  /// if the cached selection is complete and still within [_cacheValidity].
+  /// This is what makes repeat app opens cheap and silent.
   Future<void> init() async {
-    // Retain the existing selection so the UI does not blank out during reload.
+    if (state.isComplete &&
+        state.lastConfirmedAt != null &&
+        DateTime.now().difference(state.lastConfirmedAt!) < _cacheValidity) {
+      // Cache hit — trust the confirmed selection, no GPS/network call.
+      emit(state.copyWith(phase: LocationPhase.ready, error: null));
+      return;
+    }
+    await _run();
+  }
+
+  /// Forces a fresh permission → GPS → geocode pass regardless of cache
+  /// validity. Call this from an explicit "refresh location" action, or
+  /// from a foreground/background lifecycle hook if you want periodic
+  /// silent re-validation — NOT from init().
+  Future<void> refresh() => _run();
+
+  Future<void> _run() async {
     emit(state.copyWith(phase: LocationPhase.loading));
-
     final granted = await _ensurePermission();
-    if (!granted)
-      return; // error state already emitted inside _ensurePermission
-
+    if (!granted) return;
     await _fetchAndApply();
   }
 
   // ── Permission ────────────────────────────────────────────────────────────
 
-  /// Checks location permission and requests it if not yet decided.
-  ///
-  /// Emits the appropriate error phase and returns false if permission
-  /// cannot be obtained, so [init] can short-circuit cleanly.
   Future<bool> _ensurePermission() async {
-    // Guard: device-level location service toggle (Settings → Location).
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       emit(
@@ -85,12 +114,10 @@ class LocationCubit extends HydratedCubit<LocationState> {
 
     PermissionStatus permission = await Permission.location.status;
 
-    // First-time or previously denied → show the OS dialog.
     if (permission.isDenied) {
       permission = await Permission.location.request();
     }
 
-    // User ticked "Never ask again" → must send them to app settings.
     if (permission.isPermanentlyDenied) {
       emit(
         state.copyWith(
@@ -104,7 +131,6 @@ class LocationCubit extends HydratedCubit<LocationState> {
       return false;
     }
 
-    // Any other non-granted result (dismissed dialog, etc.).
     if (!permission.isGranted) {
       emit(
         state.copyWith(
@@ -120,11 +146,6 @@ class LocationCubit extends HydratedCubit<LocationState> {
 
   // ── Position + Geocoding ──────────────────────────────────────────────────
 
-  /// Fetches the current GPS position and reverse-geocodes it to a placemark.
-  /// Pre-selects the matching Nigerian state in the dropdown if found.
-  ///
-  /// On success, emits [LocationPhase.ready] with coordinates and geocode
-  /// results. On failure, emits [LocationPhase.error].
   Future<void> _fetchAndApply() async {
     try {
       final position = await Geolocator.getCurrentPosition(
@@ -140,8 +161,6 @@ class LocationCubit extends HydratedCubit<LocationState> {
 
       final detectedState = _matchState(place?.administrativeArea);
 
-      // Attempt LGA detection only when we have a matched state,
-      // since lgasFor() needs a valid state name.
       final detectedLga = detectedState != null
           ? _matchLga(
               stateName: detectedState,
@@ -150,26 +169,17 @@ class LocationCubit extends HydratedCubit<LocationState> {
             )
           : null;
 
-      emit(
-        state.copyWith(
-          phase: LocationPhase.ready,
-          error: null,
-          permanentlyDenied: false,
-          latitude: position.latitude,
-          longitude: position.longitude,
-          country: place?.country,
-          detectedStateRaw: place?.administrativeArea,
-          city: place?.locality,
-          selectedState: state.selectedState ?? detectedState,
-          // Only auto-fill LGA if user has no existing selection.
-          // detectedLga may be null — that's fine, user picks manually.
-          selectedLga: state.selectedLga ?? detectedLga,
-          clearLga:
-              state.selectedState == null &&
-              detectedState != null &&
-              state.selectedLga == null &&
-              detectedLga == null,
-        ),
+      // Loose, unverified guess — only used as a suggestion, never applied.
+      final looseGuess = detectedState != null && detectedLga == null
+          ? _looseLgaGuess(place?.subAdministrativeArea, place?.locality)
+          : null;
+
+      _applyDetectedLocation(
+        position: position,
+        place: place,
+        detectedState: detectedState,
+        detectedLga: detectedLga,
+        looseGuess: looseGuess,
       );
     } catch (e) {
       emit(
@@ -181,18 +191,105 @@ class LocationCubit extends HydratedCubit<LocationState> {
     }
   }
 
-  /// Attempts to match the geocoder's [subAdministrativeArea] and [locality]
-  /// against the LGA list for [stateName].
-  ///
-  /// Tries in order:
-  ///   1. Direct match on subAdministrativeArea (e.g. "Obio-Akpor")
-  ///   2. Partial/fuzzy match on subAdministrativeArea
-  ///   3. Direct match on locality (e.g. "Port Harcourt" → "Port Harcourt")
-  ///   4. Partial/fuzzy match on locality
-  ///   5. Returns null — user must select manually
-  ///
-  /// Fuzzy matching strips common suffixes ("Local Government", "LGA", "-Akpor")
-  /// and compares lowercase to handle geocoder inconsistencies.
+  /// Decides whether a freshly detected state/LGA should be applied
+  /// immediately (no prior confirmed selection), held as pending awaiting
+  /// a second agreeing read (disagrees with a confirmed selection), or
+  /// promoted (a second read agreed with the pending value).
+  void _applyDetectedLocation({
+    required Position position,
+    required Placemark? place,
+    required String? detectedState,
+    required String? detectedLga,
+    required String? looseGuess,
+  }) {
+    final baseFields = state.copyWith(
+      phase: LocationPhase.ready,
+      error: null,
+      permanentlyDenied: false,
+      latitude: position.latitude,
+      longitude: position.longitude,
+      country: place?.country,
+      detectedStateRaw: place?.administrativeArea,
+      city: place?.locality,
+      looseLgaSuggestion: looseGuess,
+    );
+
+    // Case 1 — no confirmed selection yet. Apply immediately, no anti-jitter
+    // gate needed since there is nothing confirmed to protect.
+    if (state.selectedState == null) {
+      emit(
+        baseFields.copyWith(
+          selectedState: detectedState,
+          selectedLga: detectedLga,
+          clearLga: detectedLga == null,
+          lastConfirmedAt: detectedState != null ? DateTime.now() : null,
+          pendingState: null,
+          pendingLga: null,
+          pendingDetectedAt: null,
+        ),
+      );
+      return;
+    }
+
+    // Case 2 — detected state agrees with the confirmed state. Nothing to
+    // protect against; just refresh coordinates/city and clear any stale
+    // pending value. If LGA was previously unmatched and now resolves
+    // (e.g. better GPS fix), fill it in — never overwrite an existing LGA.
+    if (detectedState == state.selectedState) {
+      emit(
+        baseFields.copyWith(
+          selectedState: state.selectedState,
+          selectedLga: state.selectedLga ?? detectedLga,
+          pendingState: null,
+          pendingLga: null,
+          pendingDetectedAt: null,
+        ),
+      );
+      return;
+    }
+
+    // Case 3 — detected state DISAGREES with the confirmed state.
+    // Anti-jitter gate: require this exact disagreement to repeat on the
+    // next read before promoting it.
+    final pendingStillFresh =
+        state.pendingDetectedAt != null &&
+        DateTime.now().difference(state.pendingDetectedAt!) < _pendingWindow;
+
+    final secondReadAgreesWithPending =
+        pendingStillFresh &&
+        state.pendingState == detectedState &&
+        state.pendingLga == detectedLga;
+
+    if (secondReadAgreesWithPending) {
+      // Two consecutive reads agree — the user has genuinely moved.
+      // Promote pending → confirmed.
+      emit(
+        baseFields.copyWith(
+          selectedState: detectedState,
+          selectedLga: detectedLga,
+          clearLga: detectedLga == null,
+          lastConfirmedAt: DateTime.now(),
+          pendingState: null,
+          pendingLga: null,
+          pendingDetectedAt: null,
+        ),
+      );
+    } else {
+      // First disagreeing read (or pending expired/changed) — hold it,
+      // keep the existing confirmed selection untouched.
+      emit(
+        baseFields.copyWith(
+          selectedState: state.selectedState,
+          selectedLga: state.selectedLga,
+          pendingState: detectedState,
+          pendingLga: detectedLga,
+          pendingDetectedAt: DateTime.now(),
+        ),
+      );
+    }
+  }
+
+  /// Strict match — see class docs. Returns null if no confident match.
   String? _matchLga({
     required String stateName,
     String? subAdministrativeArea,
@@ -201,30 +298,20 @@ class LocationCubit extends HydratedCubit<LocationState> {
     final lgas = NigeriaLocations.lgasFor(stateName);
     if (lgas.isEmpty) return null;
 
-    // Try each geocoder field in priority order.
     for (final raw in [subAdministrativeArea, locality]) {
       if (raw == null || raw.trim().isEmpty) continue;
-
       final result = _fuzzyMatchLga(raw, lgas);
       if (result != null) return result;
     }
-
-    return null; // no match — dropdown stays unselected
+    return null;
   }
 
-  /// Fuzzy-matches [raw] against [lgas] using two passes:
-  ///   Pass 1 — exact match after normalization
-  ///   Pass 2 — contains match (raw contains lga name or vice versa)
   String? _fuzzyMatchLga(String raw, List<String> lgas) {
     final normalized = _normalizeLga(raw);
 
-    // Pass 1: exact normalized match.
     for (final lga in lgas) {
       if (_normalizeLga(lga) == normalized) return lga;
     }
-
-    // Pass 2: substring match — catches "Port Harcourt" matching
-    // "Port Harcourt" LGA, or "Obio" partially matching "Obio-Akpor".
     for (final lga in lgas) {
       final normalizedLga = _normalizeLga(lga);
       if (normalized.contains(normalizedLga) ||
@@ -232,28 +319,41 @@ class LocationCubit extends HydratedCubit<LocationState> {
         return lga;
       }
     }
-
     return null;
   }
 
-  /// Strips common geocoder noise from an LGA string for comparison.
+  /// Non-strict fallback guess for when [_matchLga] fails entirely.
+  /// Returns the geocoder's own locality/subAdministrativeArea string,
+  /// lightly cleaned — NOT guaranteed to be a valid entry in
+  /// [NigeriaLocations.lgasFor]. Purely a "here's our best guess" label
+  /// for the user to accept or reject; never written to selectedLga
+  /// without the user's explicit confirmation.
+  String? _looseLgaGuess(String? subAdministrativeArea, String? locality) {
+    final candidate = subAdministrativeArea?.trim().isNotEmpty == true
+        ? subAdministrativeArea
+        : locality;
+    if (candidate == null || candidate.trim().isEmpty) return null;
+
+    // Light cleanup only — title case, strip obvious noise words.
+    final cleaned = candidate
+        .replaceAll(
+          RegExp(r'local government( area)?', caseSensitive: false),
+          '',
+        )
+        .trim();
+    return cleaned.isEmpty ? null : cleaned;
+  }
+
   String _normalizeLga(String raw) {
     return raw
         .toLowerCase()
         .replaceAll('local government area', '')
         .replaceAll('local government', '')
         .replaceAll(' lga', '')
-        .replaceAll('-akpor', '') // Rivers State geocoder artefact
+        .replaceAll('-akpor', '')
         .trim();
   }
 
-  /// Fuzzy-matches the geocoder's [administrativeArea] string against
-  /// [NigeriaLocations.states].
-  ///
-  /// Handles common geocoder variations such as:
-  ///   - "Rivers State" → "Rivers"
-  ///   - "FCT" → no match (returns null)
-  ///   - "RIVERS" → "Rivers" (case-insensitive)
   String? _matchState(String? raw) {
     if (raw == null) return null;
     final normalized = raw.toLowerCase().replaceAll(' state', '').trim();
@@ -262,69 +362,86 @@ class LocationCubit extends HydratedCubit<LocationState> {
         (s) => s.toLowerCase() == normalized,
       );
     } catch (_) {
-      return null; // no match — dropdown stays at current value
+      return null;
     }
   }
 
   // ── Recovery actions ──────────────────────────────────────────────────────
 
-  /// Opens the OS app-settings page so the user can grant permanent permission.
-  /// Call this when [state.phase] is [LocationPhase.permanentlyDenied].
   Future<void> openSettings() => openAppSettings();
-
-  /// Opens the device location settings page.
-  /// Call this when [state.phase] is [LocationPhase.error] due to
-  /// location services being disabled.
   Future<void> openLocationSettings() => Geolocator.openLocationSettings();
 
-  /// Retries the full permission → GPS pipeline.
-  /// Typically called after the user returns from settings.
-  Future<void> retry() => init();
+  /// Retries the full pipeline, bypassing cache — same as [refresh].
+  Future<void> retry() => refresh();
 
   // ── Dropdown UI actions ───────────────────────────────────────────────────
 
-  /// Toggles the dropdown overlay open/closed.
   void toggleDropdown() => emit(state.copyWith(isOpen: !state.isOpen));
-
-  /// Closes the dropdown overlay without changing the selection.
   void closeDropdown() => emit(state.copyWith(isOpen: false));
 
-  /// Sets the selected Nigerian state and clears the LGA selection.
-  /// [isOpen] stays true so the LGA column becomes visible immediately.
+  /// Manual state selection — always clears LGA (state+LGA are compulsory
+  /// together; changing state invalidates any prior LGA) and confirms
+  /// immediately (manual input bypasses the anti-jitter gate by design).
   void selectState(String stateName) => emit(
-    state.copyWith(selectedState: stateName, clearLga: true, isOpen: true),
+    state.copyWith(
+      selectedState: stateName,
+      clearLga: true,
+      isOpen: true,
+      lastConfirmedAt: DateTime.now(),
+      pendingState: null,
+      pendingLga: null,
+      pendingDetectedAt: null,
+    ),
   );
 
-  /// Sets the selected LGA under the current [state.selectedState] and
-  /// closes the dropdown overlay.
-  void selectLga(String lga) =>
-      emit(state.copyWith(selectedLga: lga, isOpen: false));
+  /// Manual LGA selection — completes the compulsory pair and confirms.
+  void selectLga(String lga) => emit(
+    state.copyWith(
+      selectedLga: lga,
+      isOpen: false,
+      lastConfirmedAt: DateTime.now(),
+    ),
+  );
 
-  /// Clears both [selectedState] and [selectedLga] and closes the dropdown.
-  void clearSelection() =>
-      emit(state.copyWith(selectedState: null, clearLga: true, isOpen: false));
+  /// Accepts the loose, unverified suggestion as the confirmed LGA —
+  /// the "not sure? use our best guess" escape hatch. Requires an
+  /// explicit user tap; never called automatically.
+  void acceptLooseLgaSuggestion() {
+    final guess = state.looseLgaSuggestion;
+    if (guess == null) return;
+    emit(
+      state.copyWith(
+        selectedLga: guess,
+        isOpen: false,
+        lastConfirmedAt: DateTime.now(),
+        looseLgaSuggestion: null,
+      ),
+    );
+  }
+
+  void clearSelection() => emit(
+    state.copyWith(
+      selectedState: null,
+      clearLga: true,
+      isOpen: false,
+      lastConfirmedAt: null,
+      pendingState: null,
+      pendingLga: null,
+      pendingDetectedAt: null,
+    ),
+  );
 
   // ── HydratedCubit serialization ───────────────────────────────────────────
 
-  /// Restores state from the on-disk JSON written by [toJson].
-  ///
-  /// Returns null on any failure — HydratedCubit will then use the
-  /// default constructor state, which is always safe.
   @override
   LocationState? fromJson(Map<String, dynamic> json) {
     try {
       return LocationState.fromJson(json);
     } catch (_) {
-      // Corrupt or incompatible storage (e.g. after a field rename).
-      // Fall back to a clean default state rather than crashing.
       return null;
     }
   }
 
-  /// Writes the current state to disk for restoration on next launch.
-  ///
-  /// Delegates to [LocationState.toJson], which omits ephemeral fields.
-  /// Returns null if serialization throws — HydratedCubit will skip writing.
   @override
   Map<String, dynamic>? toJson(LocationState state) {
     try {

@@ -1,7 +1,7 @@
 // ── Agency Banner ─────────────────────────────────────────────────────────
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/agents_theme.dart';
+import '../../../../theme/agents_theme.dart';
 
 Widget buildAgencyBanner({required BuildContext context}) => Padding(
   padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),

@@ -29,8 +29,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:verirent/core/shared/location/ui/page/location_trigger.dart';
 
-import '../../../../core/shared/location/ui/page/location_dropdown.dart';
 import '../../../../core/theme/agents_theme.dart';
 import 'home_search_bar.dart';
 
@@ -124,7 +124,7 @@ class HomeAppBar extends SliverPersistentHeaderDelegate {
             // ── Top Row: Location · Notification · Avatar ───────────────
             Row(
               children: [
-                Expanded(child: LocationDropdown()),
+                Expanded(child: LocationTrigger()),
                 const SizedBox(width: VeriRentSpacing.sm),
                 _AppBarIconButton(
                   icon: Icons.notifications_none_rounded,

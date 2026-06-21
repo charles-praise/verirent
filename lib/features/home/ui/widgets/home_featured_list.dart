@@ -13,18 +13,19 @@
 // =============================================================================
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
-import 'package:verirent/features/saved/ui/cubit/saved_cubit.dart';
 
+import '../../../../core/shared/widgets/saveButton.dart';
+import '../../../../core/shared/widgets/verifiedBadge.dart';
 import '../../../../core/theme/agents_theme.dart';
 import '../../../../core/util/rating_formatter.dart';
-import '../../../saved/ui/cubit/saved_state.dart';
 import '../../domain/entities/property_model.dart';
 import 'home_tier_badge.dart';
+
+// =============== global variables ============================
+const double _width = 170;
+const double _height = 280;
 
 // =============================================================================
 //  DISPATCHER
@@ -49,74 +50,6 @@ abstract final class FeaturedCardFactory {
 // =============================================================================
 //  SHARED PRIVATE WIDGETS
 // =============================================================================
-
-class _SaveButton extends StatelessWidget {
-  const _SaveButton({required this.item, this.size = 28});
-
-  final PropertyModel item;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: GetIt.I<SavedCubit>(),
-      child: BlocBuilder<SavedCubit, SavedState>(
-        builder: (context, state) {
-          final isSaved = state.items.any((p) => p.id == item.id);
-
-          return GestureDetector(
-            onTap: () {
-              HapticFeedback.lightImpact();
-
-              if (isSaved) {
-                context.read<SavedCubit>().removeSaved(item.id!);
-              } else {
-                context.read<SavedCubit>().addSaved(item);
-              }
-            },
-            child: Container(
-              width: size,
-              height: size,
-              decoration: BoxDecoration(
-                color: VeriRentColors.black.withValues(alpha: 0.4),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                isSaved
-                    ? Icons.favorite_rounded
-                    : Icons.favorite_border_rounded,
-                size: size * .5,
-                color: isSaved ? VeriRentColors.red : VeriRentColors.textMuted,
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-Widget _verifiedBadge() => Container(
-  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-  decoration: BoxDecoration(
-    color: VeriRentColors.success500,
-    borderRadius: BorderRadius.circular(VeriRentRadius.full),
-  ),
-  child: Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      const Icon(Icons.verified_rounded, size: 9, color: Colors.white),
-      const SizedBox(width: 3),
-      Text(
-        'Verified',
-        style: VeriRentText.labelSmall.copyWith(
-          color: Colors.white,
-          fontSize: 9,
-        ),
-      ),
-    ],
-  ),
-);
 
 class _Chip extends StatelessWidget {
   const _Chip({required this.icon, required this.label, this.accent});
@@ -266,8 +199,8 @@ class ResidentialFeaturedCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => context.push('/listing_details', extra: card),
       child: SizedBox(
-        height: 280,
-        width: 180,
+        height: _height,
+        width: _width,
         child: Container(
           decoration: BoxDecoration(
             color: cs.surface,
@@ -345,11 +278,11 @@ class ResidentialFeaturedCard extends StatelessWidget {
                     ),
                   ),
                   if (card.isVerified!)
-                    Positioned(top: 8, right: 8, child: _verifiedBadge()),
+                    Positioned(top: 8, right: 8, child: verifiedBadge()),
                   Positioned(
                     bottom: 6,
                     right: 6,
-                    child: _SaveButton(item: card),
+                    child: SaveButton(item: card),
                   ),
                 ],
               ),
@@ -443,8 +376,8 @@ class LandFeaturedCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => context.push('/listing_details', extra: card),
       child: SizedBox(
-        height: 280,
-        width: 180,
+        height: _height,
+        width: _width,
         child: Container(
           decoration: BoxDecoration(
             color: cs.surface,
@@ -557,11 +490,11 @@ class LandFeaturedCard extends StatelessWidget {
                     ),
                   ),
                   if (card.isVerified!)
-                    Positioned(top: 8, right: 8, child: _verifiedBadge()),
+                    Positioned(top: 8, right: 8, child: verifiedBadge()),
                   Positioned(
                     bottom: 6,
                     right: 6,
-                    child: _SaveButton(item: card),
+                    child: SaveButton(item: card),
                   ),
                 ],
               ),
@@ -656,8 +589,8 @@ class CommercialFeaturedCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => context.push('/listing_details', extra: card),
       child: SizedBox(
-        height: 280,
-        width: 180,
+        height: _height,
+        width: _width,
         child: Container(
           decoration: BoxDecoration(
             color: cs.surface,
@@ -741,7 +674,7 @@ class CommercialFeaturedCard extends StatelessWidget {
                     ),
                   ),
                   if (card.isVerified!)
-                    Positioned(top: 8, right: 8, child: _verifiedBadge()),
+                    Positioned(top: 8, right: 8, child: verifiedBadge()),
                   // Floor + area overlay
                   Positioned(
                     bottom: 7,
@@ -758,7 +691,7 @@ class CommercialFeaturedCard extends StatelessWidget {
                   Positioned(
                     bottom: 6,
                     right: 6,
-                    child: _SaveButton(item: card),
+                    child: SaveButton(item: card),
                   ),
                 ],
               ),
@@ -847,8 +780,8 @@ class EstateFeaturedCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => context.push('/listing_details', extra: card),
       child: SizedBox(
-        height: 280,
-        width: 180,
+        height: _height,
+        width: _width,
         child: Container(
           decoration: BoxDecoration(
             color: cs.surface,
@@ -932,7 +865,7 @@ class EstateFeaturedCard extends StatelessWidget {
                     ),
                   ),
                   if (card.isVerified!)
-                    Positioned(top: 8, right: 8, child: _verifiedBadge()),
+                    Positioned(top: 8, right: 8, child: verifiedBadge()),
                   // Unit count
                   Positioned(
                     bottom: 8,
@@ -959,7 +892,7 @@ class EstateFeaturedCard extends StatelessWidget {
                   Positioned(
                     bottom: 6,
                     right: 6,
-                    child: _SaveButton(item: card),
+                    child: SaveButton(item: card),
                   ),
                 ],
               ),

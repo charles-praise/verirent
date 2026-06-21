@@ -19,6 +19,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
+import 'package:verirent/core/shared/widgets/verifiedBadge.dart';
 
 import '../../../../core/theme/agents_theme.dart';
 import '../../domain/entities/property_model.dart';
@@ -76,34 +77,11 @@ class _Thumbnail extends StatelessWidget {
           // Verified badge  top left-edge category
           if (item.verificationStatus == VerificationStatus.verified &&
               item.isVerified == true)
-            Positioned(top: 6, left: 6, child: _verifiedPill(context)),
+            Positioned(top: 6, left: 6, child: verifiedBadge()),
         ],
       ),
     );
   }
-}
-
-/// Small verified badge overlay (used top-right of thumbnail).
-Widget _verifiedPill(BuildContext context) {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-    decoration: BoxDecoration(
-      color: VeriRentColors.success500,
-      borderRadius: BorderRadius.circular(VeriRentRadius.full),
-    ),
-    child: Row(
-      children: [
-        const Icon(Icons.verified_rounded, size: 10, color: Colors.white),
-        const SizedBox(width: 2),
-        Text(
-          "Verified",
-          style: Theme.of(
-            context,
-          ).textTheme.labelSmall?.copyWith(color: VeriRentColors.white),
-        ),
-      ],
-    ),
-  );
 }
 
 // =============================================================================

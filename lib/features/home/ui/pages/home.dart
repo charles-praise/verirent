@@ -31,14 +31,13 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
 import 'package:verirent/features/home/data/local_repo.dart';
 import 'package:verirent/features/home/domain/entities/property_model.dart';
 import 'package:verirent/features/home/ui/widgets/home_featured_list.dart';
 
 import '../../../../core/api/data/mock_data.dart';
+import '../../../../core/shared/ads/ui/pages/recentAds.dart';
 import '../../../../core/theme/agents_theme.dart';
-import '../../../ads/ui/pages/recentAds.dart';
 import '../../../search/ui/cubit/search_cubit.dart';
 import '../../../search/ui/cubit/search_state.dart';
 import '../../domain/use_case/home_featured_listing.dart';
@@ -161,7 +160,6 @@ class _HomeState extends State<Home> {
                       controller: _searchController,
                     ),
                   ),
-
                   ...(isFiltering
                       ? _filteredViewList(
                           context: context,
@@ -271,13 +269,20 @@ List<Widget> _defaultViewList({
     // Featured
     const SliverToBoxAdapter(child: FeaturedListingsHorizontalUseCase()),
     // Property Options
+    SliverToBoxAdapter(
+      child: SectionHeader(
+        title: 'Discount & Promotions',
+        listing: HomeLocalRepo().featuredProperties,
+        showSeeAll: true,
+      ),
+    ),
     const SliverToBoxAdapter(child: PropertyOption()),
     // Recent
     SliverToBoxAdapter(
       child: SectionHeader(
         title: 'Recently Added',
-        onSeeAll: () =>
-            context.push("/see_all", extra: HomeLocalRepo().recentProperties),
+        showSeeAll: true,
+        listing: HomeLocalRepo().recentProperties,
       ),
     ),
     const RecentListingUseCase(),
@@ -287,10 +292,8 @@ List<Widget> _defaultViewList({
     SliverToBoxAdapter(
       child: SectionHeader(
         title: 'Residential',
-        onSeeAll: () => context.push(
-          "/see_all",
-          extra: HomeLocalRepo().residentialProperties,
-        ),
+        showSeeAll: true,
+        listing: HomeLocalRepo().residentialProperties,
       ),
     ),
     const ResidentialPropertiesListingUseCase(),
@@ -298,8 +301,8 @@ List<Widget> _defaultViewList({
     SliverToBoxAdapter(
       child: SectionHeader(
         title: 'Land & Plots',
-        onSeeAll: () =>
-            context.push("/see_all", extra: HomeLocalRepo().landedProperties),
+        showSeeAll: true,
+        listing: HomeLocalRepo().landedProperties,
       ),
     ),
     const LandedPropertiesUseCase(),
@@ -307,10 +310,8 @@ List<Widget> _defaultViewList({
     SliverToBoxAdapter(
       child: SectionHeader(
         title: 'Commercial',
-        onSeeAll: () => context.push(
-          "/see_all",
-          extra: HomeLocalRepo().commercialProperties,
-        ),
+        showSeeAll: true,
+        listing: HomeLocalRepo().commercialProperties,
       ),
     ),
     const CommercialPropertiesUseCase(),
@@ -318,8 +319,8 @@ List<Widget> _defaultViewList({
     SliverToBoxAdapter(
       child: SectionHeader(
         title: 'Estates & Housing',
-        onSeeAll: () =>
-            context.push("/see_all", extra: HomeLocalRepo().estateProperties),
+        showSeeAll: true,
+        listing: HomeLocalRepo().estateProperties,
       ),
     ),
     const EstatePropertiesUseCase(),
@@ -327,8 +328,8 @@ List<Widget> _defaultViewList({
     SliverToBoxAdapter(
       child: SectionHeader(
         title: 'Short Lets',
-        onSeeAll: () =>
-            context.push("/see_all", extra: HomeLocalRepo().shortletProperties),
+        showSeeAll: true,
+        listing: HomeLocalRepo().shortletProperties,
       ),
     ),
     const ShortLetPropertiesUseCase(),
@@ -470,7 +471,7 @@ List<Widget> _filteredViewList({
             crossAxisCount: 2,
             crossAxisSpacing: 8,
             mainAxisSpacing: 8,
-            childAspectRatio: 0.74,
+            mainAxisExtent: 260,
           ),
           delegate: SliverChildBuilderDelegate(
             (context, index) =>

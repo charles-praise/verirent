@@ -51,8 +51,9 @@ class ShellCustomBottomNavbar extends StatelessWidget {
         final activeColor = Theme.of(context).brightness == Brightness.light
             ? VeriRentColors.primary
             : VeriRentColors.accent400;
-        final inactiveColor =
-            isLight ? const Color(0xFF8E8E93) : const Color(0xFF8E8E93);
+        final inactiveColor = isLight
+            ? const Color(0xFF8E8E93)
+            : const Color(0xFF8E8E93);
 
         return SafeArea(
           top: false,
@@ -60,7 +61,7 @@ class ShellCustomBottomNavbar extends StatelessWidget {
           child: Align(
             alignment: Alignment.bottomCenter,
             child: Container(
-              height: 56,
+              height: 50,
               margin: const EdgeInsets.symmetric(horizontal: 24),
               decoration: BoxDecoration(
                 color: isLight
@@ -110,8 +111,9 @@ class ShellCustomBottomNavbar extends StatelessWidget {
                                 Icon(
                                   isSelected ? item.activeIcon : item.icon,
                                   size: 22,
-                                  color:
-                                      isSelected ? activeColor : inactiveColor,
+                                  color: isSelected
+                                      ? activeColor
+                                      : inactiveColor,
                                 ),
                                 const SizedBox(height: 2),
                                 Text(

@@ -1,5 +1,26 @@
 // shell.dart
-
+//
+// Location integration:
+//
+//   - The shell (Scaffold, IndexedStack, bottom nav) builds immediately,
+//     unconditionally, every time. It is never swapped out for a gate
+//     screen.
+//   - LocationLoadingOverlay is stacked on top during initial GPS
+//     resolution (LocationState.phase == loading).
+//   - LocationModal is mounted ONCE here, stacked on top of the shell.
+//     It is the SINGLE presentation surface for the location picker —
+//     used both for the compulsory startup gate (requiresManualSelection)
+//     and for casual manual editing later (isOpen, via LocationTrigger
+//     wherever that's placed, e.g. Home's app bar). LocationModal owns
+//     its own internal visibility via LocationState.showLocationModal,
+//     so this file does not need to branch on requiresManualSelection
+//     itself — it's always mounted, and shows/hides itself.
+//   - GPS-layer failures (denied/permanentlyDenied/error) do NOT produce
+//     a separate overlay here — LocationModal already covers them via
+//     requiresManualSelection (see LocationState). LocationGpsBanner,
+//     dropped into Home, remains for POST-gate background refresh
+//     failures only (non-blocking).
+//
 // Remove the global scaffoldKey — it causes the duplicate GlobalKey error.
 // The shell's Scaffold owns the key; Home reads it via the scaffold's context.
 import 'package:flutter/material.dart';
@@ -11,6 +32,10 @@ import 'package:verirent/features/message/ui/cubit/message_cubit.dart';
 import 'package:verirent/features/saved/ui/cubit/saved_cubit.dart';
 import 'package:verirent/features/settings/ui/cubit/settings_cubit.dart';
 
+import '../../../../core/shared/location/ui/cubit/location_cubit.dart';
+import '../../../../core/shared/location/ui/cubit/location_state.dart';
+import '../../../../core/shared/location/ui/page/location_modal.dart';
+import '../../../../core/shared/location/ui/widget/locationLoadingOverlay.dart';
 import '../../../home/ui/pages/home.dart';
 import '../../../message/ui/pages/messages.dart';
 import '../../../saved/ui/pages/saved.dart';
@@ -55,6 +80,7 @@ class Main extends StatelessWidget {
                 resizeToAvoidBottomInset: false,
                 body: Stack(
                   children: [
+                    // ── The real shell — always built, never swapped out ──
                     IndexedStack(
                       index: state.navigationIndex,
                       children: _mainScreens,
@@ -65,6 +91,23 @@ class Main extends StatelessWidget {
                       right: 0,
                       child: ShellCustomBottomNavbar(),
                     ),
+
+                    // ── Loading overlay — only during initial resolution.
+                    BlocBuilder<LocationCubit, LocationState>(
+                      bloc: GetIt.I<LocationCubit>(),
+                      buildWhen: (prev, curr) => prev.phase != curr.phase,
+                      builder: (context, locationState) {
+                        if (locationState.phase == LocationPhase.loading) {
+                          return const LocationLoadingOverlay();
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+
+                    // ── THE single location picker surface — handles both
+                    //    the compulsory gate and manual edits. Mounted
+                    //    once, owns its own visibility internally.
+                    const LocationModal(),
                   ],
                 ),
               ),
