@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../../../core/shared/network_image/ui/pages/network_image.dart';
 import '../../../../../../core/theme/agents_theme.dart';
 import '../../../../../message/ui/cubit/message_cubit.dart';
+import '../../../../../profile/ui/pages/view_profile.dart';
 import '../../../../domain/entities/property_model.dart';
-import '../../ui/pages/view_profile.dart';
 
 class AgencyBlock extends StatelessWidget {
   const AgencyBlock({super.key, required this.listing, required this.accent});
@@ -48,10 +48,10 @@ class AgencyBlock extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: accent.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(VeriRentRadius.md),
-                    border: Border.all(color: accent.withOpacity(0.3)),
                   ),
                   child: CustomNetworkImage(
                     imgUrl: listing.agentAvatarUrl ?? "",
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
               ),
@@ -116,7 +116,7 @@ class AgencyBlock extends StatelessWidget {
                   icon: const Icon(Icons.message_outlined, size: 16),
                   label: const Text('Message'),
                   style: OutlinedButton.styleFrom(
-                    backgroundColor: listing.tierColor!.withValues(alpha: 0.1),
+                    backgroundColor: VeriRentColors.transparent,
                   ),
                 ),
               ),
@@ -128,7 +128,7 @@ class AgencyBlock extends StatelessWidget {
                   icon: const Icon(Icons.call_rounded, size: 16),
                   label: const Text('Call'),
                   style: OutlinedButton.styleFrom(
-                    backgroundColor: listing.tierColor!.withValues(alpha: 0.1),
+                    backgroundColor: VeriRentColors.transparent,
                   ),
                 ),
               ),

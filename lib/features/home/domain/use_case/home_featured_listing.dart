@@ -8,10 +8,10 @@ import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
 import 'package:verirent/core/shared/widgets/verifiedBadge.dart';
 import 'package:verirent/features/home/domain/entities/property_model.dart';
 
+import '../../../../core/shared/widgets/card_listing_widget.dart';
 import '../../../../core/shared/widgets/saveButton.dart';
 import '../../../../core/theme/agents_theme.dart';
 import '../../data/local_repo.dart';
-import '../../ui/widgets/home_featured_list.dart';
 
 // ── All Listing  UseCase ─────────────────────────────────────────────────────────────────
 class AllListingUseCase extends StatelessWidget {

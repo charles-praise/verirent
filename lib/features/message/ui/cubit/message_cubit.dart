@@ -129,17 +129,12 @@ class MessagesCubit extends Cubit<MessagesState> {
       lastMessage: '',
       lastMessageTime: DateTime.now(),
       isVerifiedAgency: agency.verificationTier != VerificationTier.basic,
-      propertyTitle: agency.title,
-      avatarUrl: agency.agentAvatarUrl,
+      propertyTitle: agency.title ?? 'No property title',
+      avatarUrl: agency.agentAvatarUrl ?? '',
       isOnline: true,
     );
-
-    emit(
-      state.copyWith(
-        threads: [...state.threads, thread],
-        activeChatId: thread.id,
-      ),
-    );
+    final List<ChatThread> sortedThread = [...state.threads, thread];
+    emit(state.copyWith(threads: sortedThread, activeChatId: thread.id));
   }
 
   /// Open a chat thread (navigate to chat screen)

@@ -3,12 +3,12 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:verirent/features/home/domain/entities/property_model.dart';
-import 'package:verirent/features/home/ui/widgets/home_recent_listing.dart';
 
+import '../../../../core/shared/widgets/cylinder_listing_widget.dart';
 import '../../../../core/theme/agents_theme.dart';
 
-class SavedListItem extends StatelessWidget {
-  const SavedListItem({
+class SavedItems extends StatelessWidget {
+  const SavedItems({
     super.key,
     required this.index,
     required this.item,

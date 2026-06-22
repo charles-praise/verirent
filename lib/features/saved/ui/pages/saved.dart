@@ -113,7 +113,7 @@ class _SavedView extends StatelessWidget {
                             padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
                             sliver: SliverList(
                               delegate: SliverChildBuilderDelegate((ctx, i) {
-                                return SavedListItem(
+                                return SavedItems(
                                   index: i,
                                   key: ValueKey(state.filteredItems[i]),
                                   item: state.filteredItems,

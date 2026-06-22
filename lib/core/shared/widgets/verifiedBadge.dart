@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../theme/agents_theme.dart';
 
-Container verifiedBadge() => Container(
+Container verifiedBadge({double fontSize = 16}) => Container(
   padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
   decoration: BoxDecoration(
     color: VeriRentColors.white,
@@ -11,9 +11,9 @@ Container verifiedBadge() => Container(
   child: Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      const Icon(
+      Icon(
         Icons.verified_rounded,
-        size: 16,
+        size: fontSize,
         color: VeriRentColors.tierVerified,
       ),
       // const SizedBox(width: 3),

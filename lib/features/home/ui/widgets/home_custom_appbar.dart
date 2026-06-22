@@ -31,8 +31,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:verirent/core/shared/location/ui/page/location_trigger.dart';
 
+import '../../../../core/shared/widgets/custom_search_bar.dart';
 import '../../../../core/theme/agents_theme.dart';
-import 'home_search_bar.dart';
 
 class HomeAppBar extends SliverPersistentHeaderDelegate {
   HomeAppBar({
@@ -195,7 +195,7 @@ class HomeAppBar extends SliverPersistentHeaderDelegate {
             ),
             const SizedBox(height: VeriRentSpacing.sm),
             // ── Search Bar ───────────────────────────────────────────────
-            HomeSearchBar(controller: controller, focusNode: focusNode),
+            CustomSearchBar(controller: controller, focusNode: focusNode),
           ],
         ),
       ),

@@ -6,6 +6,7 @@ import 'package:verirent/features/auth/ui/cubit/auth_cubit.dart';
 import 'package:verirent/features/auth/ui/pages/login.dart';
 import 'package:verirent/features/home/domain/entities/property_model.dart';
 import 'package:verirent/features/home/features/listing/ui/cubit/listing_details_cubit.dart';
+import 'package:verirent/features/home/features/listing/ui/pages/create_listing.dart';
 import 'package:verirent/features/home/features/listing/ui/pages/listing_deatils.dart';
 import 'package:verirent/features/home/features/view/ui/cubit/see_all_cubit.dart';
 import 'package:verirent/features/home/features/view/ui/pages/see_all.dart';
@@ -42,6 +43,7 @@ class _Route {
   static final String saved = "/saved";
   static final String seeAll = "/see_all";
   static final String chatView = "/chat";
+  static final String uploadProperty = "/upload_property";
 }
 
 abstract final class _VeriRentRoute {
@@ -50,16 +52,10 @@ abstract final class _VeriRentRoute {
     initialLocation: _Route.main,
     redirect: (context, state) {
       final locationState = GetIt.I<LocationCubit>().state;
-
-      // '/' self-gates inside Main — never redirect away from it.
-      // '/auth/*' must stay reachable regardless of location state.
       final isMain = state.matchedLocation == _Route.main;
       final isAuth = state.matchedLocation.startsWith(_Route.auth);
-
       if (isMain || isAuth) return null;
-
       if (!locationState.isComplete) {
-        // Bounce anything else back to '/' — Main will show the gate.
         return _Route.main;
       }
 
@@ -170,6 +166,27 @@ abstract final class _VeriRentRoute {
               child: BlocProvider(
                 create: (context) => GetIt.instance<AuthCubit>(),
                 child: SignupPage(),
+              ),
+              transitionsBuilder:
+                  (
+                    BuildContext context,
+                    Animation<double> animation,
+                    Animation<double> secondaryAnimation,
+                    Widget child,
+                  ) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
+            ),
+          ),
+
+          // Create Listing
+          GoRoute(
+            path: _Route.uploadProperty,
+            name: "Upload Property",
+            pageBuilder: (context, state) => CustomTransitionPage(
+              child: BlocProvider(
+                create: (context) => GetIt.instance<AuthCubit>(),
+                child: CreateListingPage(),
               ),
               transitionsBuilder:
                   (

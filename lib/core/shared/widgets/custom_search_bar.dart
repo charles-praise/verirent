@@ -13,32 +13,36 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/api/data/mock_data.dart';
-import '../../../../core/theme/agents_theme.dart';
-import '../../../../core/util/filterOrUploadProperty.dart';
-import '../../../search/ui/cubit/search_cubit.dart';
-import '../../../search/ui/cubit/search_state.dart';
-import '../../../search/ui/widget/filter_panel.dart';
-import '../../../search/utils/kFormatPrice.dart';
-import '../cubit/home_cubit.dart';
+import '../../../features/home/ui/cubit/home_cubit.dart';
+import '../../../features/search/ui/cubit/search_cubit.dart';
+import '../../../features/search/ui/cubit/search_state.dart';
+import '../../../features/search/ui/widget/filter_panel.dart';
+import '../../../features/search/utils/kFormatPrice.dart';
+import '../../api/data/mock_data.dart';
+import '../../theme/agents_theme.dart';
+import '../../util/filterOrUploadProperty.dart';
 
-class HomeSearchBar extends StatefulWidget {
-  const HomeSearchBar({
+class CustomSearchBar extends StatefulWidget {
+  const CustomSearchBar({
     super.key,
     required this.controller,
     required this.focusNode,
     this.hintText = 'Search by location, type…',
+    this.showFilter = true,
+    this.cubit,
   });
 
   final TextEditingController controller;
   final FocusNode focusNode;
   final String hintText;
+  final bool showFilter;
+  final Cubit? cubit;
 
   @override
-  State<HomeSearchBar> createState() => _HomeSearchBarState();
+  State<CustomSearchBar> createState() => _CustomSearchBarState();
 }
 
-class _HomeSearchBarState extends State<HomeSearchBar> {
+class _CustomSearchBarState extends State<CustomSearchBar> {
   bool _sheetOpen = false;
 
   void _openSheet() {
@@ -184,67 +188,69 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                   ),
                 ),
               ),
-
-              const SizedBox(width: VeriRentSpacing.sm),
+              if (widget.showFilter) const SizedBox(width: VeriRentSpacing.sm),
 
               // ── Filter button ────────────────────────────────────────────
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      showCreateListingBottomSheet(
-                        context,
-                        onOpenFilter: () {
-                          _toggleSheet();
-                        },
-                        onUploadProperty: () {
-                          context.push('/upload_property');
-                        },
-                      );
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 180),
-                      width: 42,
-                      height: 42,
-                      decoration: BoxDecoration(
-                        color: _sheetOpen ? cs.primaryContainer : cs.surface,
-                        borderRadius: BorderRadius.circular(VeriRentRadius.sm),
-                        border: Border.all(
-                          color: _sheetOpen ? cs.primary : cs.outlineVariant,
+              if (widget.showFilter)
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        showCreateListingBottomSheet(
+                          context,
+                          onOpenFilter: () {
+                            _toggleSheet();
+                          },
+                          onUploadProperty: () {
+                            context.push("auth/upload_property");
+                          },
+                        );
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: _sheetOpen ? cs.primaryContainer : cs.surface,
+                          borderRadius: BorderRadius.circular(
+                            VeriRentRadius.sm,
+                          ),
+                          border: Border.all(
+                            color: _sheetOpen ? cs.primary : cs.outlineVariant,
+                          ),
                         ),
-                      ),
-                      child: Icon(
-                        Icons.tune_rounded,
-                        size: 18,
-                        color: _sheetOpen ? cs.primary : cs.onSurfaceVariant,
+                        child: Icon(
+                          Icons.tune_rounded,
+                          size: 18,
+                          color: _sheetOpen ? cs.primary : cs.onSurfaceVariant,
+                        ),
                       ),
                     ),
-                  ),
-                  if (state.activeFilterCount > 0)
-                    Positioned(
-                      top: -4,
-                      right: -4,
-                      child: Container(
-                        width: 16,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: VeriRentColors.primary,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            '${state.activeFilterCount}',
-                            style: VeriRentText.labelSmall.copyWith(
-                              color: Colors.white,
-                              fontSize: 9,
+                    if (state.activeFilterCount > 0)
+                      Positioned(
+                        top: -4,
+                        right: -4,
+                        child: Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: VeriRentColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Text(
+                              '${state.activeFilterCount}',
+                              style: VeriRentText.labelSmall.copyWith(
+                                color: Colors.white,
+                                fontSize: 9,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                ],
-              ),
+                  ],
+                ),
             ],
           );
         },

@@ -15,8 +15,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../../../../../core/api/domain/entities/agency_model.dart';
-import '../../../../../../core/theme/agents_theme.dart';
+import '../../../../core/api/domain/entities/agency_model.dart';
+import '../../../../core/theme/agents_theme.dart';
 
 // =============================================================================
 //  PAGE

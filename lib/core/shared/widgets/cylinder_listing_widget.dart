@@ -21,10 +21,10 @@ import 'package:go_router/go_router.dart';
 import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
 import 'package:verirent/core/shared/widgets/verifiedBadge.dart';
 
-import '../../../../core/theme/agents_theme.dart';
-import '../../domain/entities/property_model.dart';
-import 'home_room_chip.dart';
-import 'home_tier_badge.dart';
+import '../../../features/home/domain/entities/property_model.dart';
+import '../../../features/home/ui/widgets/home_room_chip.dart';
+import '../../../features/home/ui/widgets/home_tier_badge.dart';
+import '../../theme/agents_theme.dart';
 
 // =============================================================================
 //  DISPATCHER

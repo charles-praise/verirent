@@ -5,18 +5,18 @@ import 'package:go_router/go_router.dart';
 import 'package:verirent/core/shared/location/ui/cubit/location_cubit.dart';
 import 'package:verirent/features/home/domain/entities/property_model.dart';
 
-import '../../../../core/shared/location/ui/cubit/location_state.dart';
-import '../../../../core/theme/agents_theme.dart';
+import '../../theme/agents_theme.dart';
+import '../location/ui/cubit/location_state.dart';
 
 // ---------------------------------------------------------------------------
 //  Section header
 // ---------------------------------------------------------------------------
 
-class SectionHeader extends StatelessWidget {
+class Header extends StatelessWidget {
   final EdgeInsets? padding;
   final bool? showSeeAll;
 
-  const SectionHeader({
+  const Header({
     super.key,
     required this.title,
     this.padding,

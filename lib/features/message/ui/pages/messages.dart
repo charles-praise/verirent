@@ -9,6 +9,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
+import 'package:verirent/core/shared/widgets/custom_search_bar.dart';
+import 'package:verirent/core/shared/widgets/verifiedBadge.dart';
 
 import '../../../../core/theme/agents_theme.dart';
 import '../cubit/message_cubit.dart';
@@ -53,7 +55,11 @@ class ThreadListView extends StatelessWidget {
           : VeriRentColors.neutral900,
       body: BlocBuilder<MessagesCubit, MessagesState>(
         builder: (context, state) {
+          final TextEditingController textEditingController =
+              TextEditingController();
+          final FocusNode focusNode = FocusNode();
           return CustomScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             slivers: [
               // ── AppBar ────────────────────────────────────────────
               SliverAppBar(
@@ -72,7 +78,21 @@ class ThreadListView extends StatelessWidget {
 
                 title: state.isSelected
                     ? Text('${state.selectedChatId.length} selected')
-                    : const Text('Messages'),
+                    : Text(
+                        'Messages',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                bottom: PreferredSize(
+                  preferredSize: Size(double.infinity, 50),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+                    child: CustomSearchBar(
+                      controller: textEditingController,
+                      focusNode: focusNode,
+                      showFilter: false,
+                    ),
+                  ),
+                ),
 
                 actions: [
                   if (state.isSelected) ...[
@@ -91,21 +111,6 @@ class ThreadListView extends StatelessWidget {
                     ),
                   ],
                 ],
-              ),
-
-              // ── Search bar ────────────────────────────────────────
-              SliverToBoxAdapter(
-                child: Container(
-                  color: cs.surface,
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                  child: SearchBar(
-                    hintText: 'Search messages...',
-                    leading: Icon(
-                      Icons.search_rounded,
-                      color: cs.onSurfaceVariant,
-                    ),
-                  ),
-                ),
               ),
 
               // ── Content ───────────────────────────────────────────
@@ -277,11 +282,7 @@ class _ThreadTile extends StatelessWidget {
                   Row(
                     children: [
                       if (thread.isVerifiedAgency) ...[
-                        Icon(
-                          Icons.verified_rounded,
-                          size: 12,
-                          color: cs.primary,
-                        ),
+                        verifiedBadge(fontSize: 12),
                         const SizedBox(width: 4),
                       ],
                       Expanded(

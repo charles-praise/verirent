@@ -32,20 +32,20 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:verirent/features/home/data/local_repo.dart';
-import 'package:verirent/features/home/domain/entities/property_model.dart';
-import 'package:verirent/features/home/ui/widgets/home_featured_list.dart';
 
 import '../../../../core/api/data/mock_data.dart';
 import '../../../../core/shared/ads/ui/pages/recentAds.dart';
+import '../../../../core/shared/widgets/card_listing_widget.dart';
+import '../../../../core/shared/widgets/header.dart';
 import '../../../../core/theme/agents_theme.dart';
 import '../../../search/ui/cubit/search_cubit.dart';
 import '../../../search/ui/cubit/search_state.dart';
+import '../../domain/entities/property_model.dart';
 import '../../domain/use_case/home_featured_listing.dart';
 import '../../domain/use_case/home_recent_useCase.dart';
 import '../cubit/home_cubit.dart';
 import '../widgets/home_custom_appbar.dart';
 import '../widgets/home_filter.dart';
-import '../widgets/home_section_header.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key, required this.scaffoldKey});
@@ -270,7 +270,7 @@ List<Widget> _defaultViewList({
     const SliverToBoxAdapter(child: FeaturedListingsHorizontalUseCase()),
     // Property Options
     SliverToBoxAdapter(
-      child: SectionHeader(
+      child: Header(
         title: 'Discount & Promotions',
         listing: HomeLocalRepo().featuredProperties,
         showSeeAll: true,
@@ -279,7 +279,7 @@ List<Widget> _defaultViewList({
     const SliverToBoxAdapter(child: PropertyOption()),
     // Recent
     SliverToBoxAdapter(
-      child: SectionHeader(
+      child: Header(
         title: 'Recently Added',
         showSeeAll: true,
         listing: HomeLocalRepo().recentProperties,
@@ -290,7 +290,7 @@ List<Widget> _defaultViewList({
     SliverToBoxAdapter(child: buildAgencyBanner(context: context)),
     // Residential
     SliverToBoxAdapter(
-      child: SectionHeader(
+      child: Header(
         title: 'Residential',
         showSeeAll: true,
         listing: HomeLocalRepo().residentialProperties,
@@ -299,7 +299,7 @@ List<Widget> _defaultViewList({
     const ResidentialPropertiesListingUseCase(),
     // Land
     SliverToBoxAdapter(
-      child: SectionHeader(
+      child: Header(
         title: 'Land & Plots',
         showSeeAll: true,
         listing: HomeLocalRepo().landedProperties,
@@ -308,7 +308,7 @@ List<Widget> _defaultViewList({
     const LandedPropertiesUseCase(),
     // Commercial
     SliverToBoxAdapter(
-      child: SectionHeader(
+      child: Header(
         title: 'Commercial',
         showSeeAll: true,
         listing: HomeLocalRepo().commercialProperties,
@@ -317,7 +317,7 @@ List<Widget> _defaultViewList({
     const CommercialPropertiesUseCase(),
     // Estate's
     SliverToBoxAdapter(
-      child: SectionHeader(
+      child: Header(
         title: 'Estates & Housing',
         showSeeAll: true,
         listing: HomeLocalRepo().estateProperties,
@@ -326,7 +326,7 @@ List<Widget> _defaultViewList({
     const EstatePropertiesUseCase(),
     //  Short Let's
     SliverToBoxAdapter(
-      child: SectionHeader(
+      child: Header(
         title: 'Short Lets',
         showSeeAll: true,
         listing: HomeLocalRepo().shortletProperties,

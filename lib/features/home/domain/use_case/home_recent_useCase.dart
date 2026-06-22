@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/shared/widgets/cylinder_listing_widget.dart';
 import '../../../../core/theme/agents_theme.dart';
 import '../../data/local_repo.dart';
-import '../../ui/widgets/home_recent_listing.dart';
 
 // ── Recently Added Use Case ─────────────────────────────────────────────────────────────────
 class RecentListingUseCase extends StatelessWidget {
@@ -20,7 +20,9 @@ class RecentListingUseCase extends StatelessWidget {
             VeriRentSpacing.sm,
           ),
           child: RecentCardFactory.build(
-              context, HomeLocalRepo().recentProperties[index]),
+            context,
+            HomeLocalRepo().recentProperties[index],
+          ),
         );
       }, childCount: 4),
     );

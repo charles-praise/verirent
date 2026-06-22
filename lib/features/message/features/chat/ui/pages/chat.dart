@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:verirent/core/shared/widgets/verifiedBadge.dart';
 import 'package:verirent/features/home/data/local_repo.dart';
 import 'package:verirent/features/home/domain/entities/property_model.dart';
 
@@ -85,7 +86,8 @@ class _ChatViewState extends State<ChatView> {
                     itemBuilder: (_, i) {
                       final msg = thread.messages[i];
                       final prevMsg = i > 0 ? thread.messages[i - 1] : null;
-                      final showDateSeparator = prevMsg == null ||
+                      final showDateSeparator =
+                          prevMsg == null ||
                           !_isSameDay(prevMsg.timestamp, msg.timestamp);
 
                       return Column(
@@ -94,7 +96,8 @@ class _ChatViewState extends State<ChatView> {
                             _DateSeparator(date: msg.timestamp),
                           _MessageBubble(
                             message: msg,
-                            isLastInGroup: i == thread.messages.length - 1 ||
+                            isLastInGroup:
+                                i == thread.messages.length - 1 ||
                                 thread.messages[i + 1].senderId != msg.senderId,
                           ),
                         ],
@@ -221,11 +224,7 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                       if (thread.isVerifiedAgency)
                         Padding(
                           padding: const EdgeInsets.only(right: 3),
-                          child: Icon(
-                            Icons.verified_rounded,
-                            size: 12,
-                            color: cs.primary,
-                          ),
+                          child: verifiedBadge(fontSize: 12),
                         ),
                       Flexible(
                         child: Text(
@@ -328,8 +327,9 @@ class _MessageBubble extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(top: 2, bottom: isLastInGroup ? 8 : 2),
       child: Row(
-        mainAxisAlignment:
-            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isMe
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           // Incoming: avatar placeholder (only on last in group)
@@ -390,8 +390,9 @@ class _MessageBubble extends StatelessWidget {
                 ],
               ),
               child: Column(
-                crossAxisAlignment:
-                    isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                crossAxisAlignment: isMe
+                    ? CrossAxisAlignment.end
+                    : CrossAxisAlignment.start,
                 children: [
                   Text(
                     message.text,
@@ -438,20 +439,20 @@ class _StatusIcon extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return switch (status) {
       MessageStatus.sent => Icon(
-          Icons.check_rounded,
-          size: 12,
-          color: cs.onPrimary.withOpacity(0.6),
-        ),
+        Icons.check_rounded,
+        size: 12,
+        color: cs.onPrimary.withOpacity(0.6),
+      ),
       MessageStatus.delivered => Icon(
-          Icons.done_all_rounded,
-          size: 12,
-          color: cs.onPrimary.withOpacity(0.6),
-        ),
+        Icons.done_all_rounded,
+        size: 12,
+        color: cs.onPrimary.withOpacity(0.6),
+      ),
       MessageStatus.read => Icon(
-          Icons.done_all_rounded,
-          size: 12,
-          color: VeriRentColors.gold,
-        ),
+        Icons.done_all_rounded,
+        size: 12,
+        color: VeriRentColors.gold,
+      ),
     };
   }
 }
@@ -500,8 +501,8 @@ class _DateSeparator extends StatelessWidget {
     final label = diff == 0
         ? 'Today'
         : diff == 1
-            ? 'Yesterday'
-            : DateFormat('MMMM d, yyyy').format(date);
+        ? 'Yesterday'
+        : DateFormat('MMMM d, yyyy').format(date);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),

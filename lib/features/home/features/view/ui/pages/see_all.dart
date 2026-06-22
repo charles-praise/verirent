@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:verirent/core/shared/widgets/card_listing_widget.dart';
 import 'package:verirent/features/home/features/view/ui/cubit/see_all_cubit.dart';
-import 'package:verirent/features/home/ui/widgets/home_featured_list.dart';
 
 import '../../../../../../core/theme/agents_theme.dart';
 import '../../../../../../core/util/sentenceCase.dart';
