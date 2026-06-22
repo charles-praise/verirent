@@ -11,9 +11,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/api/data/mock_data.dart';
 import '../../../../core/theme/agents_theme.dart';
+import '../../../../core/util/filterOrUploadProperty.dart';
 import '../../../search/ui/cubit/search_cubit.dart';
 import '../../../search/ui/cubit/search_state.dart';
 import '../../../search/ui/widget/filter_panel.dart';
@@ -190,7 +192,17 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                 clipBehavior: Clip.none,
                 children: [
                   GestureDetector(
-                    onTap: _toggleSheet,
+                    onTap: () {
+                      showCreateListingBottomSheet(
+                        context,
+                        onOpenFilter: () {
+                          _toggleSheet();
+                        },
+                        onUploadProperty: () {
+                          context.push('/upload_property');
+                        },
+                      );
+                    },
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 180),
                       width: 42,

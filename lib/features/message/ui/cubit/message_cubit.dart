@@ -19,7 +19,10 @@ class MessagesCubit extends Cubit<MessagesState> {
     try {
       await Future.delayed(const Duration(milliseconds: 500));
       emit(
-        state.copyWith(status: MessagesStatus.loaded, threads: mockThreads()),
+        state.copyWith(
+          status: MessagesStatus.loaded,
+          threads: _sortThreadsByRecent(mockThreads()),
+        ),
       );
     } catch (e) {
       emit(
@@ -29,6 +32,14 @@ class MessagesCubit extends Cubit<MessagesState> {
         ),
       );
     }
+  }
+
+  List<ChatThread> _sortThreadsByRecent(List<ChatThread> threads) {
+    final sorted = [...threads];
+
+    sorted.sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
+
+    return sorted;
   }
 
   void clearSelection() {
@@ -81,7 +92,7 @@ class MessagesCubit extends Cubit<MessagesState> {
 
     emit(
       state.copyWith(
-        threads: updatedThreads,
+        threads: _sortThreadsByRecent(updatedThreads),
         selectedChatId: {},
         isSelected: false,
       ),
@@ -106,17 +117,21 @@ class MessagesCubit extends Cubit<MessagesState> {
     final existing = state.threads.where((t) => t.id == agency.id);
 
     if (existing.isNotEmpty) {
-      openChat(agency.id);
+      openChat(agency.id ?? '');
       return;
     }
 
     final thread = ChatThread(
-      id: agency.id,
+      id: agency.id ?? '',
       participantName: agency.name ?? 'Agency',
       participantRole: agency.verificationTier?.name ?? 'Agency',
       initials: agency.name?.substring(0, 2).toUpperCase() ?? 'AG',
       lastMessage: '',
       lastMessageTime: DateTime.now(),
+      isVerifiedAgency: agency.verificationTier != VerificationTier.basic,
+      propertyTitle: agency.title,
+      avatarUrl: agency.agentAvatarUrl,
+      isOnline: true,
     );
 
     emit(
@@ -174,7 +189,12 @@ class MessagesCubit extends Cubit<MessagesState> {
       return t;
     }).toList();
 
-    emit(state.copyWith(threads: updatedThreads, isSending: false));
+    emit(
+      state.copyWith(
+        threads: _sortThreadsByRecent(updatedThreads),
+        isSending: false,
+      ),
+    );
 
     // Simulate delivery status after 1s
     await Future.delayed(const Duration(seconds: 1));
@@ -234,6 +254,6 @@ class MessagesCubit extends Cubit<MessagesState> {
         lastMessageTime: DateTime.now(),
       );
     }).toList();
-    emit(state.copyWith(threads: updatedThreads));
+    emit(state.copyWith(threads: _sortThreadsByRecent(updatedThreads)));
   }
 }

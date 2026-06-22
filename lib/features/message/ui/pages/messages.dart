@@ -184,7 +184,9 @@ class _ThreadTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: state.selectedChatId.contains(thread.id)
-              ? Theme.of(context).colorScheme.primaryContainer
+              ? cs.brightness == Brightness.light
+                    ? Theme.of(context).colorScheme.primaryContainer
+                    : VeriRentColors.accent400.withValues(alpha: 0.3)
               : hasUnread
               ? cs.primaryContainer.withValues(alpha: 0.08)
               : Colors.transparent,

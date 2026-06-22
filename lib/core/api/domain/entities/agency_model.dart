@@ -1,25 +1,24 @@
+import 'package:verirent/features/home/domain/entities/property_model.dart';
+
 enum VerificationTier { professional, enterprise, starter, pro, basic }
 
-class AgencyModel {
+class AgencyModel extends PropertyModel {
   AgencyModel({
-    required this.id,
+    required super.id,
     this.name,
     this.verificationTier,
-    this.rating,
+    super.rating,
     this.transactions,
     this.esvarbon,
     this.phone,
     this.email,
-    this.address,
+    super.address,
   });
 
-  final String id;
   final String? name;
   final VerificationTier? verificationTier;
-  final double? rating;
   final int? transactions;
   final String? esvarbon;
   final String? phone;
   final String? email;
-  final String? address;
 }

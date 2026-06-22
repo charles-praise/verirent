@@ -253,21 +253,6 @@ class _ListingThumb extends StatelessWidget {
   final Color color;
   final PropertyModel property;
 
-  static const _titles = [
-    '3 Bed Flat, GRA Phase 2',
-    'Executive Duplex, Trans-Amadi',
-    'Office Space, D-Line',
-    'Studio Apt, Rumuola',
-    'Land 648m², Rumuigbo',
-  ];
-  static const _prices = [
-    '₦1.8M/yr',
-    '₦4.5M/yr',
-    '₦2.2M/yr',
-    '₦550k/yr',
-    '₦18.5M',
-  ];
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -276,6 +261,7 @@ class _ListingThumb extends StatelessWidget {
       child: Container(
         width: 168,
         padding: const EdgeInsets.all(3),
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: cs.surface,
           borderRadius: BorderRadius.circular(VeriRentRadius.lg),
@@ -288,9 +274,13 @@ class _ListingThumb extends StatelessWidget {
               child: Stack(
                 clipBehavior: Clip.hardEdge,
                 children: [
-                  Center(
+                  Positioned.fill(
                     child: CustomNetworkImage(
                       imgUrl: property.imageUrls!.first,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(VeriRentRadius.lg),
+                        topRight: Radius.circular(VeriRentRadius.lg),
+                      ),
                     ),
                   ),
                   Positioned(
