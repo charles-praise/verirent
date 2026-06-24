@@ -31,18 +31,13 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:verirent/features/home/data/local_repo.dart';
+import 'package:verirent/core/repo/local_repo.dart';
+import 'package:verirent/features/home/domain/use_case/listing_use_cases.dart';
 
-import '../../../../core/api/data/mock_data.dart';
-import '../../../../core/shared/ads/ui/pages/recentAds.dart';
-import '../../../../core/shared/widgets/card_listing_widget.dart';
-import '../../../../core/shared/widgets/header.dart';
+import '../../../../core/models/property_model.dart';
 import '../../../../core/theme/agents_theme.dart';
 import '../../../search/ui/cubit/search_cubit.dart';
 import '../../../search/ui/cubit/search_state.dart';
-import '../../domain/entities/property_model.dart';
-import '../../domain/use_case/home_featured_listing.dart';
-import '../../domain/use_case/home_recent_useCase.dart';
 import '../cubit/home_cubit.dart';
 import '../widgets/home_custom_appbar.dart';
 import '../widgets/home_filter.dart';
@@ -66,22 +61,19 @@ class _HomeState extends State<Home> {
     super.initState();
     _scrollController.addListener(_listenToScroll);
     _searchController.addListener(_onSearchChanged);
-
-    // FIX 1: Seed SearchCubit immediately so applyFilters() from the
-    // bottom sheet has a source list before the user types anything.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
-      GetIt.I<SearchCubit>().setAllProperties(kAllListings);
+      GetIt.I<SearchCubit>().setAllProperties(
+        await GetIt.I<LocalRepository>().all(),
+      );
     });
   }
 
-  // FIX 3: Pass kAllListings directly — never depend on HomeCubit.allProperties
-  // which is never populated and would always pass [] to the cubit.
   void _onSearchChanged() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       GetIt.I<SearchCubit>().searchProperties(
-        kAllListings,
+        await GetIt.I<LocalRepository>().all(),
         _searchController.text,
       );
     });
@@ -109,7 +101,7 @@ class _HomeState extends State<Home> {
 
   Future<void> _onRefresh() async {
     await Future.delayed(const Duration(milliseconds: 800));
-    // TODO: context.read<HomeCubit>().loadListings();
+    GetIt.I<HomeCubit>().loadListing();
   }
 
   void _onFilterTap(int i) {
@@ -128,9 +120,6 @@ class _HomeState extends State<Home> {
         return BlocProvider.value(
           value: GetIt.I<SearchCubit>(),
           child: BlocBuilder<SearchCubit, SearchState>(
-            // FIX 4: Only rebuild when the fields that drive layout actually change.
-            // filtersExpanded toggling (sheet open/close) should NOT trigger a
-            // full Home rebuild.
             buildWhen: (prev, curr) =>
                 prev.searchStage != curr.searchStage ||
                 prev.filteredProperties != curr.filteredProperties ||
@@ -138,12 +127,9 @@ class _HomeState extends State<Home> {
                 prev.selectedCategory != curr.selectedCategory ||
                 prev.activeFilterCount != curr.activeFilterCount,
             builder: (context, searchState) {
-              // FIX 2: activeFilterCount > 0 is the missing condition.
-              // Without it, a filter-only apply from the sheet (no query, no
-              // category chip) never switches Home to the filtered-grid view.
               final isFiltering =
                   searchState.query.isNotEmpty ||
-                  searchState.selectedCategory != PropertyCategory.initial ||
+                  searchState.selectedCategory != PropertyCategory.none ||
                   searchState.activeFilterCount > 0;
 
               return CustomScrollView(
@@ -254,7 +240,7 @@ List<Widget> _defaultViewList({
     SliverToBoxAdapter(
       child: ValueListenableBuilder<bool>(
         valueListenable: isVisible,
-        builder: (_, visible, __) => AnimatedOpacity(
+        builder: (context, visible, widget) => AnimatedOpacity(
           duration: const Duration(milliseconds: 220),
           opacity: visible ? 1 : 1,
           child: SearchFilter(
@@ -266,73 +252,31 @@ List<Widget> _defaultViewList({
         ),
       ),
     ),
-    // Featured
-    const SliverToBoxAdapter(child: FeaturedListingsHorizontalUseCase()),
-    // Property Options
-    SliverToBoxAdapter(
-      child: Header(
-        title: 'Discount & Promotions',
-        listing: HomeLocalRepo().featuredProperties,
-        showSeeAll: true,
-      ),
+    PropertyUseCase(
+      properties: homeState.listings[PropertyCategory.featured] ?? [],
     ),
-    const SliverToBoxAdapter(child: PropertyOption()),
-    // Recent
-    SliverToBoxAdapter(
-      child: Header(
-        title: 'Recently Added',
-        showSeeAll: true,
-        listing: HomeLocalRepo().recentProperties,
-      ),
+    PropertyUseCase(
+      properties: homeState.listings[PropertyCategory.option] ?? [],
     ),
-    const RecentListingUseCase(),
-    // Ads (become an agent)
-    SliverToBoxAdapter(child: buildAgencyBanner(context: context)),
-    // Residential
-    SliverToBoxAdapter(
-      child: Header(
-        title: 'Residential',
-        showSeeAll: true,
-        listing: HomeLocalRepo().residentialProperties,
-      ),
+    PropertyUseCase(
+      properties: homeState.listings[PropertyCategory.recent] ?? [],
     ),
-    const ResidentialPropertiesListingUseCase(),
-    // Land
-    SliverToBoxAdapter(
-      child: Header(
-        title: 'Land & Plots',
-        showSeeAll: true,
-        listing: HomeLocalRepo().landedProperties,
-      ),
+    PropertyUseCase(
+      properties: homeState.listings[PropertyCategory.residential] ?? [],
     ),
-    const LandedPropertiesUseCase(),
-    // Commercial
-    SliverToBoxAdapter(
-      child: Header(
-        title: 'Commercial',
-        showSeeAll: true,
-        listing: HomeLocalRepo().commercialProperties,
-      ),
+    PropertyUseCase(
+      properties: homeState.listings[PropertyCategory.land] ?? [],
     ),
-    const CommercialPropertiesUseCase(),
-    // Estate's
-    SliverToBoxAdapter(
-      child: Header(
-        title: 'Estates & Housing',
-        showSeeAll: true,
-        listing: HomeLocalRepo().estateProperties,
-      ),
+    PropertyUseCase(
+      properties: homeState.listings[PropertyCategory.commercial] ?? [],
     ),
-    const EstatePropertiesUseCase(),
-    //  Short Let's
-    SliverToBoxAdapter(
-      child: Header(
-        title: 'Short Lets',
-        showSeeAll: true,
-        listing: HomeLocalRepo().shortletProperties,
-      ),
+    PropertyUseCase(
+      properties: homeState.listings[PropertyCategory.estate] ?? [],
     ),
-    const ShortLetPropertiesUseCase(),
+    PropertyUseCase(
+      properties: homeState.listings[PropertyCategory.shortLet] ?? [],
+    ),
+    PropertyUseCase(properties: homeState.listings[PropertyCategory.all] ?? []),
     const SliverToBoxAdapter(child: SizedBox(height: 80)),
   ];
 }
@@ -406,34 +350,7 @@ List<Widget> _filteredViewList({
               const SizedBox(width: 8),
               GestureDetector(
                 onTap: onClearAll,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 9,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: cs.primaryContainer,
-                    borderRadius: BorderRadius.circular(VeriRentRadius.full),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '${searchState.activeFilterCount} filter${searchState.activeFilterCount > 1 ? 's' : ''}',
-                        style: VeriRentText.labelSmall.copyWith(
-                          color: cs.onPrimaryContainer,
-                          fontSize: 9,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.close_rounded,
-                        size: 9,
-                        color: cs.onPrimaryContainer,
-                      ),
-                    ],
-                  ),
-                ),
+                child: filterBadgeWithOneTapClear(cs, searchState),
               ),
             ],
 
@@ -464,23 +381,31 @@ List<Widget> _filteredViewList({
         ),
       )
     else
-      SliverPadding(
-        padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
-        sliver: SliverGrid(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-            mainAxisExtent: 260,
-          ),
-          delegate: SliverChildBuilderDelegate(
-            (context, index) =>
-                FeaturedCardFactory.build(context, results[index]),
-            childCount: results.length,
-          ),
-        ),
-      ),
-
+      PropertyUseCase(properties: results),
     const SliverToBoxAdapter(child: SizedBox(height: 80)),
   ];
+}
+
+Container filterBadgeWithOneTapClear(ColorScheme cs, SearchState searchState) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+    decoration: BoxDecoration(
+      color: cs.primaryContainer,
+      borderRadius: BorderRadius.circular(VeriRentRadius.full),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          '${searchState.activeFilterCount} filter${searchState.activeFilterCount > 1 ? 's' : ''}',
+          style: VeriRentText.labelSmall.copyWith(
+            color: cs.onPrimaryContainer,
+            fontSize: 9,
+          ),
+        ),
+        const SizedBox(width: 4),
+        Icon(Icons.close_rounded, size: 9, color: cs.onPrimaryContainer),
+      ],
+    ),
+  );
 }

@@ -21,9 +21,9 @@ import 'package:go_router/go_router.dart';
 import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
 import 'package:verirent/core/shared/widgets/verifiedBadge.dart';
 
-import '../../../features/home/domain/entities/property_model.dart';
 import '../../../features/home/ui/widgets/home_room_chip.dart';
 import '../../../features/home/ui/widgets/home_tier_badge.dart';
+import '../../models/property_model.dart';
 import '../../theme/agents_theme.dart';
 
 // =============================================================================
@@ -39,7 +39,7 @@ abstract final class RecentCardFactory {
         return CommercialCard(card: card);
       case PropertyCategory.estate:
         return EstateCard(card: card);
-      case PropertyCategory.shortlet:
+      case PropertyCategory.shortLet:
         return ShortletCard(card: card);
       case PropertyCategory.residential:
       default:

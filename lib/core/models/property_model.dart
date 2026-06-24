@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:verirent/core/api/domain/entities/agency_model.dart';
-
-import '../../../../core/api/domain/entities/document_model.dart';
-import 'nearby_facilities.dart';
 
 // ---------------------------
 enum PropertyCategory {
-  initial,
-  land,
-  commercial,
+  none,
+  all,
+  featured,
+  recent,
   residential,
   estate,
-  shortlet,
+  land,
+  commercial,
+  shortLet,
+  option,
 }
 
 // -------------------
@@ -28,6 +28,81 @@ enum VerificationStatus { verified, pending }
 
 //  ------------------
 enum PropertyCondition { good, new_property, renovated }
+
+//------------------------------
+enum VerificationTier { professional, enterprise, starter, pro, basic }
+
+// ----------------------------------------------
+enum OverallStatus { verified, unverified, pending }
+
+// ---------------- Document Model ------------------
+class DocumentModel {
+  DocumentModel({
+    this.overallStatus,
+    this.buildingApproval,
+    this.landRegistry,
+    this.surveyPlan,
+    this.titleDeed,
+  });
+
+  final OverallStatus? overallStatus;
+  final bool? titleDeed;
+  final bool? landRegistry;
+  final bool? buildingApproval;
+  final bool? surveyPlan;
+}
+
+// --------- Agency Model ------------------------
+class AgencyModel extends PropertyModel {
+  AgencyModel({
+    required super.id,
+    this.name,
+    this.verificationTier,
+    super.rating,
+    this.transactions,
+    this.esvarbon,
+    this.phone,
+    this.email,
+    super.address,
+  });
+
+  final String? name;
+  final VerificationTier? verificationTier;
+  final int? transactions;
+  final String? esvarbon;
+  final String? phone;
+  final String? email;
+}
+
+// ----------------- Nearby Facilities ------------
+class NearbyFacility {
+  final String name;
+  final String type; // School, Hospital, Market, Bank, etc.
+  final String distance;
+
+  // In nearby_facilities.dart
+  factory NearbyFacility.fromJson(Map<String, dynamic> json) {
+    return NearbyFacility(
+      name: json['name'] as String,
+      type: json['type'] as String,
+      distance: (json['distance'] as num?).toString(),
+      // add your actual fields here
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'type': type,
+    'distance': distance,
+    // mirror your actual fields
+  };
+
+  NearbyFacility({
+    required this.name,
+    required this.type,
+    required this.distance,
+  });
+}
 
 // ----------------- LEASE -----------------------
 class AsLease extends AsOffice {
@@ -293,7 +368,7 @@ class PropertyModel {
     // -------------------
     this.key,
     this.id,
-    this.category = PropertyCategory.initial,
+    this.category = PropertyCategory.none,
     this.reviewCount = 0,
     this.areaSqm = 2,
     this.propertyType = "House",
@@ -395,7 +470,7 @@ class PropertyModel {
       unitCount: json['unitCount'] as int?,
       category: json['category'] != null
           ? PropertyCategory.values[json['category'] as int]
-          : PropertyCategory.initial,
+          : PropertyCategory.none,
       listingType: json['listingType'] != null
           ? ListingType.values[json['listingType'] as int]
           : null,

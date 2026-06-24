@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:verirent/core/repo/local_repo.dart';
 import 'package:verirent/features/search/ui/cubit/search_cubit.dart';
 import 'package:verirent/features/search/ui/cubit/search_state.dart';
 
-import '../../../../../core/api/data/mock_data.dart';
 import '../../../../../core/theme/agents_theme.dart';
-import '../../../home/domain/entities/property_model.dart';
+import '../../../../core/models/property_model.dart';
 import '../../utils/kFormatPrice.dart';
 import '../widget/filter_panel.dart';
 
@@ -81,9 +81,12 @@ class _SearchView extends StatelessWidget {
                       searchCtrl: searchCtrl,
                       focusNode: focusNode,
                       state: state,
-                      onChanged: (value) => context
-                          .read<SearchCubit>()
-                          .searchProperties(kAllListings, value),
+                      onChanged: (value) async {
+                        context.read<SearchCubit>().searchProperties(
+                          await GetIt.I<LocalRepository>().all(),
+                          value,
+                        );
+                      },
                       onSubmitted: (value) {
                         if (value.trim().isNotEmpty) {
                           context.read<SearchCubit>().saveSearch(value);
@@ -131,10 +134,10 @@ class _SearchView extends StatelessWidget {
                         onClearAll: context
                             .read<SearchCubit>()
                             .clearRecentSearches,
-                        onTap: (s) {
+                        onTap: (s) async {
                           searchCtrl.text = s;
                           context.read<SearchCubit>().searchProperties(
-                            kAllListings,
+                            await GetIt.I<LocalRepository>().all(),
                             s,
                           );
                           context.read<SearchCubit>().saveSearch(s);
@@ -714,7 +717,7 @@ class _CatPill extends StatelessWidget {
       PropertyCategory.land => 'Land',
       PropertyCategory.commercial => 'Comm.',
       PropertyCategory.estate => 'Estate',
-      PropertyCategory.shortlet => 'Shortlet',
+      PropertyCategory.shortLet => 'Shortlet',
       _ => 'Res.',
     };
     return Container(

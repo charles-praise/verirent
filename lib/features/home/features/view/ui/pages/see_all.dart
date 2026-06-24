@@ -5,10 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'package:verirent/core/shared/widgets/card_listing_widget.dart';
 import 'package:verirent/features/home/features/view/ui/cubit/see_all_cubit.dart';
 
+import '../../../../../../core/models/property_model.dart';
 import '../../../../../../core/theme/agents_theme.dart';
 import '../../../../../../core/util/sentenceCase.dart';
 import '../../../../../search/ui/cubit/search_cubit.dart';
-import '../../../../domain/entities/property_model.dart';
 
 class SeeAllPage extends StatefulWidget {
   final List<PropertyModel> properties;

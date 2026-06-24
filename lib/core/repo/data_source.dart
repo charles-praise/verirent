@@ -19,11 +19,8 @@
 //  NEARBY FACILITIES
 // =============================================================================
 
-import '../../../features/home/domain/entities/nearby_facilities.dart';
-import '../../../features/home/domain/entities/property_model.dart';
-import '../../theme/agents_theme.dart';
-import '../domain/entities/agency_model.dart';
-import '../domain/entities/document_model.dart';
+import '../models/property_model.dart';
+import '../theme/agents_theme.dart';
 
 final List<NearbyFacility> kNearbyFacilitiesGRA = [
   NearbyFacility(
@@ -1091,7 +1088,7 @@ final PropertyModel kEstate2 = PropertyModel(
 
 final PropertyModel kShortlet1 = PropertyModel(
   id: 'sht_01',
-  category: PropertyCategory.shortlet,
+  category: PropertyCategory.shortLet,
   type: PropertyType.apartment,
   listingType: ListingType.rent,
   title: 'Luxury 2-Bed Shortlet, Rumuola',
@@ -1181,7 +1178,7 @@ final PropertyModel kShortlet1 = PropertyModel(
 
 final PropertyModel kShortlet2 = PropertyModel(
   id: 'sht_02',
-  category: PropertyCategory.shortlet,
+  category: PropertyCategory.shortLet,
   type: PropertyType.apartment,
   listingType: ListingType.rent,
   title: 'Cozy Studio Shortlet, GRA Phase 1',

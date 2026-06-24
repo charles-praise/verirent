@@ -7,7 +7,7 @@ import '../../../../../../core/shared/network_image/ui/pages/network_image.dart'
 import '../../../../../../core/theme/agents_theme.dart';
 import '../../../../../saved/ui/cubit/saved_cubit.dart';
 import '../../../../../saved/ui/cubit/saved_state.dart';
-import '../../../../domain/entities/property_model.dart';
+import '../../../../../../core/models/property_model.dart';
 import '../activeListing.dart';
 import '../review.dart';
 import 'agency.dart';

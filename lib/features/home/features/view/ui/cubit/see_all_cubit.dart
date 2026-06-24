@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:verirent/features/home/domain/entities/property_model.dart';
+import 'package:verirent/core/models/property_model.dart';
 
 part 'see_all_state.dart';
 
@@ -48,7 +48,7 @@ class SeeAllCubit extends Cubit<SeeAllState> {
 
     // Early-return ONLY when there is genuinely nothing to filter on.
     if (query.isEmpty &&
-        snapshot.selectedCategory == PropertyCategory.initial &&
+        snapshot.selectedCategory == PropertyCategory.none &&
         !hasActiveFilters) {
       emit(
         snapshot.copyWith(
@@ -91,13 +91,14 @@ class SeeAllCubit extends Cubit<SeeAllState> {
       }
 
       // ── Category chip ────────────────────────────────────────────────
-      if (snapshot.selectedCategory != PropertyCategory.initial) {
+      if (snapshot.selectedCategory != PropertyCategory.none) {
         if (p.category != snapshot.selectedCategory) return false;
       }
 
       // ── Property type dropdown ───────────────────────────────────────
       if (snapshot.selectedType != 'Any') {
-        final match = p.propertyType?.toLowerCase() ==
+        final match =
+            p.propertyType?.toLowerCase() ==
             snapshot.selectedType.toLowerCase();
         if (!match) return false;
       }

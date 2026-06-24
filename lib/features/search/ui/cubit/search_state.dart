@@ -2,7 +2,7 @@
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:verirent/features/home/domain/entities/property_model.dart';
+import 'package:verirent/core/models/property_model.dart';
 
 enum SearchStage { initial, loading, loaded, error }
 
@@ -33,7 +33,7 @@ class SearchState extends Equatable {
     this.minBaths = 0,
     this.selectedType = 'Any',
     this.verifiedOnly = false,
-    this.selectedCategory = PropertyCategory.initial,
+    this.selectedCategory = PropertyCategory.none,
     this.recentSearches = const [
       'GRA Phase 2 apartments',
       'Trans Amadi furnished flat',
@@ -88,7 +88,7 @@ class SearchState extends Equatable {
     if (minBeds > 0) count++;
     if (minBaths > 0) count++;
     if (verifiedOnly) count++;
-    if (selectedCategory != PropertyCategory.initial) count++;
+    if (selectedCategory != PropertyCategory.none) count++;
     return count;
   }
 

@@ -2,7 +2,7 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:verirent/features/home/domain/entities/property_model.dart';
+import 'package:verirent/core/models/property_model.dart';
 
 import '../../../../core/shared/widgets/cylinder_listing_widget.dart';
 import '../../../../core/theme/agents_theme.dart';

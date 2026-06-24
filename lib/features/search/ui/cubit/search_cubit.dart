@@ -3,12 +3,12 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:verirent/features/home/domain/entities/property_model.dart';
+import 'package:verirent/core/models/property_model.dart';
 
 import 'search_state.dart';
 
 class SearchCubit extends Cubit<SearchState> {
-  SearchCubit() : super(const SearchState());
+  SearchCubit() : super(SearchState());
 
   List<PropertyModel> _allProperties = [];
 
@@ -91,7 +91,7 @@ class SearchCubit extends Cubit<SearchState> {
       minBeds: 0,
       minBaths: 0,
       verifiedOnly: false,
-      selectedCategory: PropertyCategory.initial,
+      selectedCategory: PropertyCategory.none,
     );
     emit(next);
     _applyFilters(next);
@@ -100,13 +100,13 @@ class SearchCubit extends Cubit<SearchState> {
   // ── Home category chips ────────────────────────────────────────────────
   void setHomeCategory(int chipIndex) {
     const map = {
-      0: PropertyCategory.initial,
+      0: PropertyCategory.none,
       1: PropertyCategory.residential,
       2: PropertyCategory.residential,
-      3: PropertyCategory.shortlet,
+      3: PropertyCategory.shortLet,
       4: PropertyCategory.commercial,
     };
-    final cat = map[chipIndex] ?? PropertyCategory.initial;
+    final cat = map[chipIndex] ?? PropertyCategory.none;
     final next = state.copyWith(selectedCategory: cat);
     emit(next);
     _applyFilters(next);
@@ -146,7 +146,7 @@ class SearchCubit extends Cubit<SearchState> {
 
     // Early-return ONLY when there is genuinely nothing to filter on.
     if (query.isEmpty &&
-        snapshot.selectedCategory == PropertyCategory.initial &&
+        snapshot.selectedCategory == PropertyCategory.none &&
         !hasActiveFilters) {
       emit(
         snapshot.copyWith(
@@ -189,7 +189,7 @@ class SearchCubit extends Cubit<SearchState> {
       }
 
       // ── Category chip ────────────────────────────────────────────────
-      if (snapshot.selectedCategory != PropertyCategory.initial) {
+      if (snapshot.selectedCategory != PropertyCategory.none) {
         if (p.category != snapshot.selectedCategory) return false;
       }
 

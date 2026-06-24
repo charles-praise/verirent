@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:verirent/core/models/property_model.dart';
+import 'package:verirent/core/repo/local_repo.dart';
 import 'package:verirent/core/shared/widgets/verifiedBadge.dart';
-import 'package:verirent/features/home/data/local_repo.dart';
-import 'package:verirent/features/home/domain/entities/property_model.dart';
 
 import '../../../../../../core/theme/agents_theme.dart';
 import '../../../../ui/cubit/message_cubit.dart';
@@ -131,10 +132,10 @@ class _ChatViewState extends State<ChatView> {
       a.year == b.year && a.month == b.month && a.day == b.day;
 }
 
-PropertyModel? _navigateToListingPage(String? propertyTitle) {
+Future<PropertyModel?> _navigateToListingPage(String? propertyTitle) async {
   if (propertyTitle == null) return null;
 
-  final properties = HomeLocalRepo().allListedProperties;
+  final properties = await GetIt.I<LocalRepository>().all();
 
   try {
     return properties.firstWhere(

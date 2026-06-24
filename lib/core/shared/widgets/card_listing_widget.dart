@@ -16,7 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
 
-import '../../../features/home/domain/entities/property_model.dart';
+import '../../models/property_model.dart';
 import '../../../features/home/ui/widgets/home_tier_badge.dart';
 import '../../theme/agents_theme.dart';
 import '../../util/rating_formatter.dart';

@@ -12,13 +12,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:verirent/core/repo/local_repo.dart';
 
-import '../../../features/home/ui/cubit/home_cubit.dart';
 import '../../../features/search/ui/cubit/search_cubit.dart';
 import '../../../features/search/ui/cubit/search_state.dart';
 import '../../../features/search/ui/widget/filter_panel.dart';
 import '../../../features/search/utils/kFormatPrice.dart';
-import '../../api/data/mock_data.dart';
 import '../../theme/agents_theme.dart';
 import '../../util/filterOrUploadProperty.dart';
 
@@ -45,12 +44,13 @@ class CustomSearchBar extends StatefulWidget {
 class _CustomSearchBarState extends State<CustomSearchBar> {
   bool _sheetOpen = false;
 
-  void _openSheet() {
+  Future<void> _openSheet() async {
     if (_sheetOpen) return;
     setState(() => _sheetOpen = true);
     FocusScope.of(context).unfocus();
 
     final searchCubit = context.read<SearchCubit>();
+    final getIt = GetIt.I<LocalRepository>();
 
     showModalBottomSheet(
       context: context,
@@ -82,16 +82,16 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                   onBedsChanged: searchCubit.updateBeds,
                   onBathsChanged: searchCubit.updateBaths,
                   onVerifiedChanged: searchCubit.updateVerified,
-                  onReset: () {
+                  onReset: () async {
                     searchCubit.resetFilters();
                     // After reset, re-run against full list so Home
                     // immediately reflects the cleared state.
-                    searchCubit.applyFilters(kAllListings);
+                    searchCubit.applyFilters(await getIt.all());
                   },
-                  onApply: () {
+                  onApply: () async {
                     // ✓ Apply current filter values against the full list.
                     // Does NOT reset anything. Does NOT touch the query.
-                    searchCubit.applyFilters(kAllListings);
+                    searchCubit.applyFilters(await getIt.all());
                     Navigator.of(sheetCtx).pop();
                   },
                   formatPrice: kFormatPrice,
@@ -118,7 +118,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-
+    final getIt = GetIt.I<LocalRepository>();
     return BlocProvider.value(
       value: GetIt.I<SearchCubit>(),
       child: BlocBuilder<SearchCubit, SearchState>(
@@ -132,9 +132,9 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                   child: TextField(
                     controller: widget.controller,
                     focusNode: widget.focusNode,
-                    onChanged: (value) {
+                    onChanged: (value) async {
                       GetIt.I<SearchCubit>().searchProperties(
-                        context.read<HomeCubit>().state.allProperties,
+                        await getIt.all(),
                         value,
                       );
                     },

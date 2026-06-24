@@ -1,13 +1,14 @@
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:verirent/features/home/domain/entities/property_model.dart';
+import 'package:verirent/core/models/property_model.dart';
 
-import '../../data/mock.dart';
 import 'saved_state.dart';
 
 class SavedCubit extends HydratedCubit<SavedState> {
   SavedCubit() : super(SavedState()) {
     loadSaved();
   }
+
+  final List<PropertyModel> savedProperties = [];
 
   Future<void> removeAllSaved() async {
     emit(state.copyWith(status: SavedStatus.loading));

@@ -29,8 +29,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../../../core/models/property_model.dart';
 import '../../../../../../core/theme/agents_theme.dart';
-import '../../../../domain/entities/property_model.dart';
 
 // =============================================================================
 //  ENTRY POINT
@@ -241,7 +241,7 @@ class _CreateListingPageState extends State<CreateListingPage> {
               _listingType = ListingType.sale;
               _propertyType = PropertyType.land;
             }
-            if (c == PropertyCategory.shortlet) {
+            if (c == PropertyCategory.shortLet) {
               _listingType = ListingType.rent;
               _propertyType = PropertyType.apartment;
             }
@@ -1108,7 +1108,7 @@ class _StepCategory extends StatelessWidget {
       'Pro+',
     ),
     (
-      PropertyCategory.shortlet,
+      PropertyCategory.shortLet,
       Icons.weekend_rounded,
       'Short-let',
       'Furnished daily/weekly rentals',
@@ -1335,7 +1335,7 @@ class _StepType extends StatelessWidget {
 
   bool get _lockListingType =>
       category == PropertyCategory.land ||
-      category == PropertyCategory.shortlet ||
+      category == PropertyCategory.shortLet ||
       category == PropertyCategory.estate;
 
   List<PropertyType> get _types {
@@ -1384,7 +1384,7 @@ class _StepType extends StatelessWidget {
               Row(
                 children: [
                   Icon(
-                    category == PropertyCategory.shortlet
+                    category == PropertyCategory.shortLet
                         ? Icons.key_rounded
                         : Icons.sell_rounded,
                     size: 16,
@@ -1393,7 +1393,7 @@ class _StepType extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      category == PropertyCategory.shortlet
+                      category == PropertyCategory.shortLet
                           ? 'Short-lets are always listed as For Rent.'
                           : category == PropertyCategory.estate
                           ? 'Estate units are always listed as For Sale.'
@@ -1587,7 +1587,7 @@ class _StepBasicDetails extends StatelessWidget {
 
   List<String> get _units {
     switch (category) {
-      case PropertyCategory.shortlet:
+      case PropertyCategory.shortLet:
         return ['per night', 'per week', 'per month'];
       case PropertyCategory.land:
         return ['asking price', 'per sqm'];
@@ -1999,7 +1999,7 @@ class _StepSpecific extends StatelessWidget {
         return 'Space details';
       case PropertyCategory.estate:
         return 'Estate details';
-      case PropertyCategory.shortlet:
+      case PropertyCategory.shortLet:
         return 'Short-let details';
       default:
         return 'Room & property details';
@@ -2083,7 +2083,7 @@ class _StepSpecific extends StatelessWidget {
           onEstatePlan: onEstatePlan,
           onEstateCof0: onEstateCof0,
         );
-      case PropertyCategory.shortlet:
+      case PropertyCategory.shortLet:
         return _ShortletFields(
           sltBeds: sltBeds,
           sltBaths: sltBaths,
@@ -2914,7 +2914,7 @@ class _StepAmenities extends StatelessWidget {
       'Estate Management Office',
       'Waste Management',
     ],
-    PropertyCategory.shortlet: [
+    PropertyCategory.shortLet: [
       'WiFi (100Mbps)',
       'Smart TV',
       'Netflix / Streaming',
@@ -3105,7 +3105,7 @@ class _StepPhotos extends StatelessWidget {
             ),
             itemCount: count + 1,
             itemBuilder: (_, i) {
-              if (i < count)
+              if (i < count) {
                 return Stack(
                   children: [
                     Container(
@@ -3168,6 +3168,7 @@ class _StepPhotos extends StatelessWidget {
                       ),
                   ],
                 );
+              }
               return GestureDetector(
                 onTap: onAdd,
                 child: Container(
@@ -3274,7 +3275,7 @@ class _StepReview extends StatelessWidget {
         return VeriRentColors.info500;
       case PropertyCategory.estate:
         return VeriRentColors.gold;
-      case PropertyCategory.shortlet:
+      case PropertyCategory.shortLet:
         return const Color(0xFF7C3AED);
       default:
         return VeriRentColors.primary;
@@ -3416,7 +3417,7 @@ class _StepReview extends StatelessWidget {
             ('Address', address.isEmpty ? '—' : address),
             ('LGA', lga),
             if (category == PropertyCategory.residential ||
-                category == PropertyCategory.shortlet) ...[
+                category == PropertyCategory.shortLet) ...[
               ('Bedrooms', '$bedrooms'),
               ('Bathrooms', '$bathrooms'),
             ],

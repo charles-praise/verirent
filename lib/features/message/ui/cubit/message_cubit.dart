@@ -4,15 +4,17 @@
 // =============================================================================
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:verirent/core/api/domain/entities/agency_model.dart';
 
+import '../../../../core/models/property_model.dart';
 import '../../data/mock.dart';
 import 'message_state.dart';
 
 // ── Cubit ─────────────────────────────────────────────────────────────────────
 
 class MessagesCubit extends Cubit<MessagesState> {
-  MessagesCubit() : super(const MessagesState());
+  MessagesCubit() : super(MessagesState()) {
+    loadThreads();
+  }
 
   Future<void> loadThreads() async {
     emit(state.copyWith(status: MessagesStatus.loading));

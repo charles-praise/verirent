@@ -33,7 +33,7 @@ class SeeAllState extends Equatable {
     this.minBaths = 0,
     this.selectedType = 'Any',
     this.verifiedOnly = false,
-    this.selectedCategory = PropertyCategory.initial,
+    this.selectedCategory = PropertyCategory.none,
     this.allProperties = const [],
     this.activeIndex = 0,
     this.filterIcons = const [
@@ -101,17 +101,17 @@ class SeeAllState extends Equatable {
 
   @override
   List<Object?> get props => [
-        allProperties,
-        query,
-        activeIndex,
-        priceRange,
-        minBeds,
-        minBaths,
-        selectedType,
-        verifiedOnly,
-        selectedCategory,
-        recentSearches,
-        propertyTypes,
-        seeAllStage,
-      ];
+    allProperties,
+    query,
+    activeIndex,
+    priceRange,
+    minBeds,
+    minBaths,
+    selectedType,
+    verifiedOnly,
+    selectedCategory,
+    recentSearches,
+    propertyTypes,
+    seeAllStage,
+  ];
 }

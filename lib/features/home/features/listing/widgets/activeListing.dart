@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/models/property_model.dart';
 import '../../../../../core/theme/agents_theme.dart';
-import '../../../domain/entities/property_model.dart';
 import 'shared/listingThumb.dart';
 
 // =============================================================================

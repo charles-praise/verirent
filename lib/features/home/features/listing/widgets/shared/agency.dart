@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../../core/models/property_model.dart';
 import '../../../../../../core/shared/network_image/ui/pages/network_image.dart';
 import '../../../../../../core/theme/agents_theme.dart';
 import '../../../../../message/ui/cubit/message_cubit.dart';
 import '../../../../../profile/ui/pages/view_profile.dart';
-import '../../../../domain/entities/property_model.dart';
 
 class AgencyBlock extends StatelessWidget {
   const AgencyBlock({super.key, required this.listing, required this.accent});

@@ -3,9 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../features/home/domain/entities/property_model.dart';
 import '../../../features/saved/ui/cubit/saved_cubit.dart';
 import '../../../features/saved/ui/cubit/saved_state.dart';
+import '../../models/property_model.dart';
 import '../../theme/agents_theme.dart';
 
 class SaveButton extends StatelessWidget {

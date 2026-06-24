@@ -16,7 +16,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../../core/theme/agents_theme.dart';
-import '../../../../domain/entities/property_model.dart';
+import '../../../../../../core/models/property_model.dart';
 import '../../domain/entities/statItems.dart';
 import '../../widgets/aminityPill.dart';
 import '../../widgets/boolRow.dart';
