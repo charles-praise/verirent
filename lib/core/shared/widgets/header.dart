@@ -8,9 +8,6 @@ import 'package:verirent/core/shared/location/ui/cubit/location_cubit.dart';
 import '../../theme/agents_theme.dart';
 import '../location/ui/cubit/location_state.dart';
 
-// ---------------------------------------------------------------------------
-//  Section header
-// ---------------------------------------------------------------------------
 class Header extends StatelessWidget {
   final EdgeInsets? padding;
   final bool? showSeeAll;
@@ -19,10 +16,10 @@ class Header extends StatelessWidget {
     super.key,
     this.padding,
     this.showSeeAll,
-    required this.listing,
+    required this.category,
   });
 
-  final List<PropertyModel> listing;
+  final PropertyCategory category;
 
   String _titleFromCategory(PropertyCategory category) {
     switch (category) {
@@ -60,7 +57,7 @@ class Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (listing.isEmpty) {
+    if (category == PropertyCategory.none) {
       return const SizedBox.shrink();
     }
 
@@ -70,11 +67,10 @@ class Header extends StatelessWidget {
         builder: (context, locationState) {
           final cs = Theme.of(context).colorScheme;
 
-          final title = _titleFromCategory(
-            listing.first.category ?? PropertyCategory.none,
-          );
+          final title = _titleFromCategory(category);
 
-          final text = '$title in ${locationState.selectedLga ?? "--"}';
+          final text =
+              '$title in ${locationState.selectedLga ?? "invalid location"}';
 
           return Padding(
             padding:
@@ -92,7 +88,7 @@ class Header extends StatelessWidget {
                     text,
                     style: VeriRentText.headlineSmall.copyWith(
                       color: cs.onSurface,
-                      fontSize: 13,
+                      fontSize: 14,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -101,7 +97,7 @@ class Header extends StatelessWidget {
                 if (showSeeAll == true)
                   TextButton(
                     onPressed: () =>
-                        context.push("/see_all", extra: [listing, text]),
+                        context.push("/see_all", extra: [category, text]),
                     child: Text(
                       'View all',
                       style: VeriRentText.labelMedium.copyWith(

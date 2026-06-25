@@ -50,17 +50,21 @@ class GetPropertiesUseCase {
 }
 
 class PropertyUseCase extends StatelessWidget {
-  const PropertyUseCase({super.key, required this.properties});
+  const PropertyUseCase({
+    super.key,
+    required this.properties,
+    required this.category,
+  });
 
   final List<PropertyModel> properties;
+  final PropertyCategory category;
 
   @override
   Widget build(BuildContext context) {
     if (properties.isEmpty) {
       return const SliverToBoxAdapter(child: SizedBox.shrink());
     }
-
-    switch (properties.first.category) {
+    switch (category) {
       case PropertyCategory.featured:
         return SliverToBoxAdapter(
           child: SizedBox(
@@ -71,86 +75,89 @@ class PropertyUseCase extends StatelessWidget {
                 horizontal: VeriRentSpacing.base,
               ),
               itemCount: properties.length,
-              separatorBuilder: (_, __) =>
+              separatorBuilder: (context, index) =>
                   const SizedBox(width: VeriRentSpacing.sm),
-              itemBuilder: (_, index) => Column(
-                children: [
-                  Header(listing: properties),
+              itemBuilder: (_, index) =>
                   FeaturedCardFactory.build(context, properties[index]),
-                ],
-              ),
             ),
           ),
         );
 
       case PropertyCategory.option:
-        return SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.only(left: 14),
-            child: SizedBox(
-              height: 120,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: properties.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 10),
-                itemBuilder: (_, index) => Column(
-                  children: [
-                    Header(listing: properties),
-                    _ListingThumb(
+        return SliverMainAxisGroup(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Header(category: category, showSeeAll: true),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 14),
+                child: SizedBox(
+                  height: 120,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: properties.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(width: 10),
+                    itemBuilder: (_, index) => _ListingThumb(
                       index: index,
                       property: properties[index],
                       color:
                           properties[index].tierColor ??
                           VeriRentColors.tierBasic,
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         );
 
       case PropertyCategory.recent:
-        return SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) => Padding(
-              padding: const EdgeInsets.fromLTRB(
-                VeriRentSpacing.base,
-                0,
-                VeriRentSpacing.base,
-                VeriRentSpacing.sm,
-              ),
-              child: Column(
-                children: [
-                  Header(listing: properties),
-                  RecentCardFactory.build(context, properties[index]),
-                ],
-              ),
+        return SliverMainAxisGroup(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Header(category: category, showSeeAll: true),
             ),
-            childCount: properties.length,
-          ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    VeriRentSpacing.base,
+                    0,
+                    VeriRentSpacing.base,
+                    VeriRentSpacing.sm,
+                  ),
+                  child: RecentCardFactory.build(context, properties[index]),
+                );
+              }, childCount: 3),
+            ),
+          ],
         );
 
       default:
-        return SliverPadding(
-          padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
-          sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-              mainAxisExtent: 260,
+        return SliverMainAxisGroup(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Header(category: category, showSeeAll: true),
             ),
-            delegate: SliverChildBuilderDelegate(
-              (context, index) => Column(
-                children: [
-                  Header(listing: properties),
-                  FeaturedCardFactory.build(context, properties[index]),
-                ],
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  mainAxisExtent: 260,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) =>
+                      FeaturedCardFactory.build(context, properties[index]),
+                  childCount: properties.length,
+                ),
               ),
-              childCount: properties.length,
             ),
-          ),
+          ],
         );
     }
   }
@@ -208,29 +215,32 @@ class _ListingThumb extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 5),
-            Padding(
-              padding: const EdgeInsets.only(left: 3),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    property.title ?? 'No title',
-                    style: VeriRentText.titleSmall.copyWith(
-                      color: cs.onSurface,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    property.price ?? '0',
-                    style: VeriRentText.labelMedium.copyWith(
-                      color: color,
-                      fontWeight: FontWeight.w700,
+            SizedBox(
+              height: 36,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 3),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      property.title ?? 'No title',
+                      style: VeriRentText.titleSmall.copyWith(
+                        color: cs.onSurface,
+                      ),
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 2),
+                    Text(
+                      property.price ?? '0',
+                      style: VeriRentText.labelMedium.copyWith(
+                        color: color,
+                        fontWeight: FontWeight.w700,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

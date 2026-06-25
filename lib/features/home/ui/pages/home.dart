@@ -33,6 +33,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:verirent/core/repo/local_repo.dart';
 import 'package:verirent/features/home/domain/use_case/listing_use_cases.dart';
+import 'package:verirent/features/home/ui/widgets/home_loading_skeleton.dart';
 
 import '../../../../core/models/property_model.dart';
 import '../../../../core/theme/agents_theme.dart';
@@ -106,8 +107,8 @@ class _HomeState extends State<Home> {
 
   void _onFilterTap(int i) {
     HapticFeedback.lightImpact();
-    context.read<HomeCubit>().activeIndex(i);
-    GetIt.I<SearchCubit>().setHomeCategory(i);
+    GetIt.I<HomeCubit>().activeIndex(i);
+    // GetIt.I<SearchCubit>().setHomeCategory(i);
   }
 
   @override
@@ -115,7 +116,8 @@ class _HomeState extends State<Home> {
     final topPad = MediaQuery.paddingOf(context).top;
 
     return BlocBuilder<HomeCubit, HomeState>(
-      buildWhen: (prev, curr) => prev.activeIndex != curr.activeIndex,
+      buildWhen: (prev, curr) =>
+          prev.activeIndex != curr.activeIndex || prev.phase != curr.phase,
       builder: (context, homeState) {
         return BlocProvider.value(
           value: GetIt.I<SearchCubit>(),
@@ -146,6 +148,19 @@ class _HomeState extends State<Home> {
                       controller: _searchController,
                     ),
                   ),
+
+                  // ── Loading ───────────────────────────────────────────────────
+                  if (homeState.phase == HomePhase.loading ||
+                      homeState.phase == HomePhase.initial)
+                    ...homeBodySkeletonSlivers(context)
+                  else
+                  // ── Error ─────────────────────────────────────────────────────
+                  if (homeState.phase == HomePhase.error)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: const Text('No State'),
+                    ),
+                  // ── Loaded ────────────────────────────────────────────────────
                   ...(isFiltering
                       ? _filteredViewList(
                           context: context,
@@ -154,7 +169,7 @@ class _HomeState extends State<Home> {
                           onFilterTap: _onFilterTap,
                           onClearAll: () {
                             GetIt.I<SearchCubit>().resetFilters();
-                            context.read<HomeCubit>().activeIndex(0);
+                            GetIt.I<HomeCubit>().activeIndex(0);
                             _searchController.clear();
                           },
                           filterIcons: homeState.filterIcons,
@@ -236,47 +251,97 @@ List<Widget> _defaultViewList({
   required HomeState homeState,
   required ValueChanged<int> onFilterTap,
 }) {
+  // Map chip index → which category section(s) to show
+  final listings = homeState.listings;
+
+  List<Widget> sections() {
+    switch (homeState.activeIndex) {
+      case 0: // All
+        return [
+          PropertyUseCase(
+            category: PropertyCategory.featured,
+            properties: listings[PropertyCategory.featured] ?? [],
+          ),
+          PropertyUseCase(
+            category: PropertyCategory.option,
+            properties: listings[PropertyCategory.option] ?? [],
+          ),
+          PropertyUseCase(
+            category: PropertyCategory.recent,
+            properties: listings[PropertyCategory.recent] ?? [],
+          ),
+          PropertyUseCase(
+            category: PropertyCategory.residential,
+            properties: listings[PropertyCategory.residential] ?? [],
+          ),
+          PropertyUseCase(
+            category: PropertyCategory.land,
+            properties: listings[PropertyCategory.land] ?? [],
+          ),
+          PropertyUseCase(
+            category: PropertyCategory.commercial,
+            properties: listings[PropertyCategory.commercial] ?? [],
+          ),
+          PropertyUseCase(
+            category: PropertyCategory.estate,
+            properties: listings[PropertyCategory.estate] ?? [],
+          ),
+          PropertyUseCase(
+            category: PropertyCategory.shortLet,
+            properties: listings[PropertyCategory.shortLet] ?? [],
+          ),
+        ];
+      case 1: // Apartment → residential
+        return [
+          PropertyUseCase(
+            category: PropertyCategory.residential,
+            properties: listings[PropertyCategory.residential] ?? [],
+          ),
+        ];
+      case 2: // Duplex → estate
+        return [
+          PropertyUseCase(
+            category: PropertyCategory.estate,
+            properties: listings[PropertyCategory.estate] ?? [],
+          ),
+        ];
+      case 3: // Furnished → shortLet
+        return [
+          PropertyUseCase(
+            category: PropertyCategory.shortLet,
+            properties: listings[PropertyCategory.shortLet] ?? [],
+          ),
+        ];
+      case 4: // Corporate → commercial
+        return [
+          PropertyUseCase(
+            category: PropertyCategory.commercial,
+            properties: listings[PropertyCategory.commercial] ?? [],
+          ),
+        ];
+      default:
+        return [
+          PropertyUseCase(
+            category: PropertyCategory.featured,
+            properties: listings[PropertyCategory.featured] ?? [],
+          ),
+        ];
+    }
+  }
+
   return [
     SliverToBoxAdapter(
       child: ValueListenableBuilder<bool>(
         valueListenable: isVisible,
-        builder: (context, visible, widget) => AnimatedOpacity(
-          duration: const Duration(milliseconds: 220),
-          opacity: visible ? 1 : 1,
-          child: SearchFilter(
-            filters: homeState.filters,
-            filterIcons: homeState.filterIcons,
-            activeIndex: homeState.activeIndex,
-            onFilterTap: onFilterTap,
-          ),
+        builder: (context, visible, _) => SearchFilter(
+          filters: homeState.filters,
+          filterIcons: homeState.filterIcons,
+          activeIndex: homeState.activeIndex,
+          onFilterTap: onFilterTap,
         ),
       ),
     ),
-    PropertyUseCase(
-      properties: homeState.listings[PropertyCategory.featured] ?? [],
-    ),
-    PropertyUseCase(
-      properties: homeState.listings[PropertyCategory.option] ?? [],
-    ),
-    PropertyUseCase(
-      properties: homeState.listings[PropertyCategory.recent] ?? [],
-    ),
-    PropertyUseCase(
-      properties: homeState.listings[PropertyCategory.residential] ?? [],
-    ),
-    PropertyUseCase(
-      properties: homeState.listings[PropertyCategory.land] ?? [],
-    ),
-    PropertyUseCase(
-      properties: homeState.listings[PropertyCategory.commercial] ?? [],
-    ),
-    PropertyUseCase(
-      properties: homeState.listings[PropertyCategory.estate] ?? [],
-    ),
-    PropertyUseCase(
-      properties: homeState.listings[PropertyCategory.shortLet] ?? [],
-    ),
-    PropertyUseCase(properties: homeState.listings[PropertyCategory.all] ?? []),
+    ...sections(),
     const SliverToBoxAdapter(child: SizedBox(height: 80)),
   ];
 }
@@ -381,7 +446,7 @@ List<Widget> _filteredViewList({
         ),
       )
     else
-      PropertyUseCase(properties: results),
+      PropertyUseCase(category: PropertyCategory.all, properties: results),
     const SliverToBoxAdapter(child: SizedBox(height: 80)),
   ];
 }
