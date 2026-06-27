@@ -1,30 +1,22 @@
 // home.dart
+// developer: charles praise diepriye
 //
-// Fixes vs home_fixed2.dart:
-//
-//   FIX 1 — Seed SearchCubit on init
-//     SearchCubit._allProperties was [] until the user typed something,
-//     so applyFilters() from the bottom sheet always got an empty source
-//     list and produced zero results.
-//     → initState now calls searchCubit.setAllProperties(kAllListings).
-//
-//   FIX 2 — isFiltering includes activeFilterCount
-//     The filtered-grid branch was only entered when query or category
-//     chip was active.  A filter-only apply (price, beds, verified) set
-//     neither, so Home stayed on the full-feed view and showed no change.
-//     → isFiltering now also checks searchState.activeFilterCount > 0.
-//
-//   FIX 3 — onSearchChanged passes kAllListings directly
-//     HomeSearchBar.onChanged was reading HomeCubit.state.allProperties
-//     which was never populated, passing [] to searchProperties every time.
-//     → _onSearchChanged passes kAllListings directly (same source of truth).
-//
-//   FIX 4 — BlocBuilder buildWhen for SearchCubit
-//     HomeCubit BlocBuilder had buildWhen that only rebuilt on activeIndex
-//     changes, but the outer SearchCubit BlocBuilder rebuilt on every
-//     SearchState change including filtersExpanded toggling, causing
-//     unnecessary full-tree rebuilds while the sheet was animating.
-//     → SearchCubit BlocBuilder now has its own targeted buildWhen.
+// Architecture notes
+// ──────────────────
+// • HomeCubit  → owns category chips, loading phase, paginated listings.
+// • SearchCubit → owns query, filter panel values, filteredProperties.
+// • "isFiltering" = any signal that the user wants a narrowed view
+//   (non-empty query | non-none category | activeFilterCount > 0).
+// • Three mutually-exclusive body modes:
+//     LOADING   – skeleton slivers
+//     ERROR     – error sliver
+//     LOADED    – category view  (searchStage == initial && !isFiltering)
+//              – filter view    (isFiltering, results available)
+//              – empty view     (isFiltering, results == [])
+// • BlocBuilders carry tight buildWhen predicates so the tree only
+//   rebuilds when the slice of state it actually cares about changes.
+// • BlocProvider.value is hoisted above both BlocBuilders to avoid
+//   re-wrapping on every rebuild.
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide RefreshCallback;
@@ -55,14 +47,17 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final ValueNotifier<bool> _isVisible = ValueNotifier(true);
+  final ValueNotifier<bool> _fabVisible = ValueNotifier(true);
   final FocusNode _searchFocus = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_listenToScroll);
+    _scrollController.addListener(_onScroll);
     _searchController.addListener(_onSearchChanged);
+
+    // Seed SearchCubit with the full local catalogue so applyFilters()
+    // always has a non-empty source list, even before the user types.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       GetIt.I<SearchCubit>().setAllProperties(
@@ -71,6 +66,32 @@ class _HomeState extends State<Home> {
     });
   }
 
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
+    _searchController
+      ..removeListener(_onSearchChanged)
+      ..dispose();
+    _searchFocus.dispose();
+    _fabVisible.dispose();
+    super.dispose();
+  }
+
+  // ── Scroll-direction tracker ───────────────────────────────────────────
+  void _onScroll() {
+    final dir = _scrollController.position.userScrollDirection;
+    if (dir == ScrollDirection.reverse && _fabVisible.value) {
+      _fabVisible.value = false;
+    } else if (dir == ScrollDirection.forward && !_fabVisible.value) {
+      _fabVisible.value = true;
+    }
+  }
+
+  // ── Search bar → SearchCubit ───────────────────────────────────────────
+  // Reads fresh data from LocalRepository every keystroke so the source
+  // list is always current (handles background refreshes / new listings).
   void _onSearchChanged() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
@@ -81,127 +102,344 @@ class _HomeState extends State<Home> {
     });
   }
 
-  @override
-  void dispose() {
-    _scrollController.removeListener(_listenToScroll);
-    _scrollController.dispose();
-    _searchController.removeListener(_onSearchChanged);
-    _searchController.dispose();
-    _searchFocus.dispose();
-    _isVisible.dispose();
-    super.dispose();
-  }
-
-  void _listenToScroll() {
-    final direction = _scrollController.position.userScrollDirection;
-    if (direction == ScrollDirection.reverse && _isVisible.value) {
-      _isVisible.value = false;
-    } else if (direction == ScrollDirection.forward && !_isVisible.value) {
-      _isVisible.value = true;
-    }
-  }
-
+  // ── Pull-to-refresh ────────────────────────────────────────────────────
   Future<void> _onRefresh() async {
     await Future.delayed(const Duration(milliseconds: 800));
     GetIt.I<HomeCubit>().loadListing();
   }
 
+  // ── Category chip tap ──────────────────────────────────────────────────
   void _onFilterTap(int i) {
     HapticFeedback.lightImpact();
     GetIt.I<HomeCubit>().activeIndex(i);
-    // GetIt.I<SearchCubit>().setHomeCategory(i);
+  }
+
+  // ── Reset all search/filter state ──────────────────────────────────────
+  void _onClearAll() {
+    GetIt.I<SearchCubit>().resetFilters();
+    GetIt.I<HomeCubit>().activeIndex(0);
+    _searchController.clear();
   }
 
   @override
   Widget build(BuildContext context) {
     final topPad = MediaQuery.paddingOf(context).top;
 
-    return BlocBuilder<HomeCubit, HomeState>(
-      buildWhen: (prev, curr) =>
-          prev.activeIndex != curr.activeIndex || prev.phase != curr.phase,
-      builder: (context, homeState) {
-        return BlocProvider.value(
-          value: GetIt.I<SearchCubit>(),
-          child: BlocBuilder<SearchCubit, SearchState>(
-            buildWhen: (prev, curr) =>
-                prev.searchStage != curr.searchStage ||
-                prev.filteredProperties != curr.filteredProperties ||
-                prev.query != curr.query ||
-                prev.selectedCategory != curr.selectedCategory ||
-                prev.activeFilterCount != curr.activeFilterCount,
+    // Hoist the BlocProvider above both BlocBuilders so it is never
+    // recreated on a rebuild of either inner builder.
+    return BlocProvider.value(
+      value: GetIt.I<SearchCubit>(),
+      child: BlocBuilder<HomeCubit, HomeState>(
+        // Only rebuild when loading phase or active category chip changes.
+        buildWhen: (p, c) =>
+            p.phase != c.phase || p.activeIndex != c.activeIndex,
+        builder: (context, homeState) {
+          return BlocBuilder<SearchCubit, SearchState>(
+            // Rebuild only when any visible search/filter output changes.
+            // filtersExpanded is intentionally excluded — it drives the
+            // bottom-sheet only and should not re-render the feed.
+            buildWhen: (p, c) =>
+                p.searchStage != c.searchStage ||
+                p.filteredProperties != c.filteredProperties ||
+                p.query != c.query ||
+                p.selectedCategory != c.selectedCategory ||
+                p.activeFilterCount != c.activeFilterCount,
             builder: (context, searchState) {
-              final isFiltering =
-                  searchState.query.isNotEmpty ||
-                  searchState.selectedCategory != PropertyCategory.none ||
-                  searchState.activeFilterCount > 0;
-
               return CustomScrollView(
                 controller: _scrollController,
                 keyboardDismissBehavior:
                     ScrollViewKeyboardDismissBehavior.onDrag,
-                slivers: [
-                  SliverPersistentHeader(
-                    pinned: true,
-                    delegate: HomeAppBar(
-                      topPadding: topPad,
-                      scaffoldKey: widget.scaffoldKey!,
-                      focusNode: _searchFocus,
-                      controller: _searchController,
-                    ),
-                  ),
-
-                  // ── Loading ───────────────────────────────────────────────────
-                  if (homeState.phase == HomePhase.loading ||
-                      homeState.phase == HomePhase.initial)
-                    ...homeBodySkeletonSlivers(context)
-                  else
-                  // ── Error ─────────────────────────────────────────────────────
-                  if (homeState.phase == HomePhase.error)
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: const Text('No State'),
-                    ),
-                  // ── Loaded ────────────────────────────────────────────────────
-                  ...(isFiltering
-                      ? _filteredViewList(
-                          context: context,
-                          searchState: searchState,
-                          filters: homeState.filters,
-                          onFilterTap: _onFilterTap,
-                          onRefresh: _onRefresh,
-                          onClearAll: () {
-                            GetIt.I<SearchCubit>().resetFilters();
-                            GetIt.I<HomeCubit>().activeIndex(0);
-                            _searchController.clear();
-                          },
-                          filterIcons: homeState.filterIcons,
-                          homeState: homeState,
-                        )
-                      : _defaultViewList(
-                          onRefresh: _onRefresh,
-                          context: context,
-                          isVisible: _isVisible,
-                          homeState: homeState,
-                          onFilterTap: _onFilterTap,
-                        )),
-                ],
+                slivers: _buildSlivers(
+                  context: context,
+                  homeState: homeState,
+                  searchState: searchState,
+                  topPad: topPad,
+                ),
               );
             },
+          );
+        },
+      ),
+    );
+  }
+
+  List<Widget> _buildSlivers({
+    required BuildContext context,
+    required HomeState homeState,
+    required SearchState searchState,
+    required double topPad,
+  }) {
+    return [
+      // ── Pinned app-bar / search bar ──────────────────────────────────
+      SliverPersistentHeader(
+        pinned: true,
+        delegate: HomeAppBar(
+          topPadding: topPad,
+          scaffoldKey: widget.scaffoldKey!,
+          focusNode: _searchFocus,
+          controller: _searchController,
+        ),
+      ),
+
+      // ── Phase: loading / initial ─────────────────────────────────────
+      if (homeState.phase == HomePhase.loading ||
+          homeState.phase == HomePhase.initial)
+        ...homeBodySkeletonSlivers(context)
+      // ── Phase: error ─────────────────────────────────────────────────
+      else if (homeState.phase == HomePhase.error)
+        const SliverFillRemaining(hasScrollBody: false, child: _ErrorState())
+      // ── Phase: loaded ─────────────────────────────────────────────────
+      else ...[
+        // Category chips are always visible in the loaded state.
+        SliverToBoxAdapter(
+          child: SearchFilter(
+            filters: homeState.filters,
+            filterIcons: homeState.filterIcons,
+            activeIndex: homeState.activeIndex,
+            onFilterTap: _onFilterTap,
           ),
-        );
-      },
+        ),
+
+        CupertinoSliverRefreshControl(onRefresh: _onRefresh),
+
+        // ── Body: determines which of the three modes to render ────────
+        ..._buildBody(
+          context: context,
+          homeState: homeState,
+          searchState: searchState,
+        ),
+
+        const SliverToBoxAdapter(child: SizedBox(height: 80)),
+      ],
+    ];
+  }
+
+  /// Returns the appropriate body slivers for the loaded phase.
+  ///
+  /// Three mutually-exclusive modes:
+  ///   1. Category view  — no active search/filters
+  ///   2. Filter view    — filtering active, results found
+  ///   3. Empty view     — filtering active, no results
+  List<Widget> _buildBody({
+    required BuildContext context,
+    required HomeState homeState,
+    required SearchState searchState,
+  }) {
+    final isFiltering = _isFiltering(searchState);
+    final isSearching = searchState.searchStage == SearchStage.loading;
+
+    // ── Mode 1: default category view ───────────────────────────────────
+    if (!isFiltering) {
+      return _categorySlivers(homeState);
+    }
+
+    // ── Modes 2 & 3: search/filter is active ────────────────────────────
+    final results = searchState.filteredProperties;
+    final hasResults = results.isNotEmpty;
+
+    return [
+      // Status bar: count + filter badge + clear button
+      SliverToBoxAdapter(
+        child: _StatusBar(
+          searchState: searchState,
+          isSearching: isSearching,
+          resultCount: results.length,
+          onClearAll: _onClearAll,
+        ),
+      ),
+
+      // ── Mode 3: empty ───────────────────────────────────────────────
+      if (!hasResults && !isSearching)
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: _EmptyState(
+            query: searchState.query,
+            hasFilters: searchState.activeFilterCount > 0,
+          ),
+        )
+      // ── Mode 2: results grid / list ─────────────────────────────────
+      else
+        PropertyUseCase(category: PropertyCategory.all, properties: results),
+    ];
+  }
+
+  // ── Category-view slivers (one per category section) ──────────────────
+  List<Widget> _categorySlivers(HomeState homeState) {
+    final listings = homeState.listings;
+
+    List<Widget> section(PropertyCategory cat) => [
+      PropertyUseCase(category: cat, properties: listings[cat] ?? []),
+    ];
+
+    switch (homeState.activeIndex) {
+      case 1: // Apartment → residential
+        return section(PropertyCategory.residential);
+      case 2: // Duplex → estate
+        return section(PropertyCategory.estate);
+      case 3: // Furnished → shortLet
+        return section(PropertyCategory.shortLet);
+      case 4: // Corporate → commercial
+        return section(PropertyCategory.commercial);
+      default: // All
+        return [
+              PropertyCategory.featured,
+              PropertyCategory.option,
+              PropertyCategory.recent,
+              PropertyCategory.residential,
+              PropertyCategory.land,
+              PropertyCategory.commercial,
+              PropertyCategory.estate,
+              PropertyCategory.shortLet,
+            ]
+            .map(
+              (cat) => PropertyUseCase(
+                category: cat,
+                properties: listings[cat] ?? [],
+              ),
+            )
+            .toList();
+    }
+  }
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────
+
+/// True when ANY search/filter signal is active.
+bool _isFiltering(SearchState s) =>
+    s.query.isNotEmpty ||
+    s.selectedCategory != PropertyCategory.none ||
+    s.activeFilterCount > 0;
+
+// ── Sub-widgets ───────────────────────────────────────────────────────────
+
+/// Status bar shown above search results.
+class _StatusBar extends StatelessWidget {
+  const _StatusBar({
+    required this.searchState,
+    required this.isSearching,
+    required this.resultCount,
+    required this.onClearAll,
+  });
+
+  final SearchState searchState;
+  final bool isSearching;
+  final int resultCount;
+  final VoidCallback onClearAll;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      color: cs.surfaceContainerHighest,
+      padding: const EdgeInsets.fromLTRB(14, 8, 14, 6),
+      child: Row(
+        children: [
+          // Left: spinner while searching, count when done
+          if (isSearching)
+            Row(
+              children: [
+                SizedBox(
+                  width: 12,
+                  height: 12,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 1.5,
+                    color: cs.primary,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Searching…',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                ),
+              ],
+            )
+          else
+            Expanded(
+              child: Text(
+                resultCount == 0
+                    ? 'No properties found'
+                    : '$resultCount propert${resultCount == 1 ? 'y' : 'ies'} found',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: cs.onSurface,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+
+          // Active filter badge
+          if (searchState.activeFilterCount > 0) ...[
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: onClearAll,
+              child: _FilterBadge(cs: cs, count: searchState.activeFilterCount),
+            ),
+          ],
+
+          // Clear query button
+          if (searchState.query.isNotEmpty) ...[
+            const SizedBox(width: 6),
+            GestureDetector(
+              onTap: onClearAll,
+              child: Icon(
+                Icons.close_rounded,
+                size: 16,
+                color: cs.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
 
+/// Pill badge showing active filter count with a close icon.
+class _FilterBadge extends StatelessWidget {
+  const _FilterBadge({required this.cs, required this.count});
+
+  final ColorScheme cs;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+      decoration: BoxDecoration(
+        color: cs.primaryContainer,
+        borderRadius: BorderRadius.circular(VeriRentRadius.full),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '$count filter${count > 1 ? 's' : ''}',
+            style: VeriRentText.labelSmall.copyWith(
+              color: cs.onPrimaryContainer,
+              fontSize: 9,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Icon(Icons.close_rounded, size: 9, color: cs.onPrimaryContainer),
+        ],
+      ),
+    );
+  }
+}
+
+/// Shown when the active search/filter pipeline returns zero results.
 class _EmptyState extends StatelessWidget {
   const _EmptyState({required this.query, required this.hasFilters});
+
   final String query;
   final bool hasFilters;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+
     final String title;
     final String subtitle;
 
@@ -248,238 +486,41 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
-List<Widget> _defaultViewList({
-  required BuildContext context,
-  required ValueNotifier<bool> isVisible,
-  required HomeState homeState,
-  required ValueChanged<int> onFilterTap,
-  required RefreshCallback onRefresh,
-}) {
-  // Map chip index → which category section(s) to show
-  final listings = homeState.listings;
+/// Shown when HomeCubit emits HomePhase.error.
+class _ErrorState extends StatelessWidget {
+  const _ErrorState();
 
-  List<Widget> sections() {
-    switch (homeState.activeIndex) {
-      case 0: // All
-        return [
-          PropertyUseCase(
-            category: PropertyCategory.featured,
-            properties: listings[PropertyCategory.featured] ?? [],
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.wifi_off_rounded,
+            size: 48,
+            color: cs.onSurfaceVariant.withValues(alpha: 0.4),
           ),
-          PropertyUseCase(
-            category: PropertyCategory.option,
-            properties: listings[PropertyCategory.option] ?? [],
+          const SizedBox(height: 14),
+          Text(
+            'Could not load listings',
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(color: cs.onSurface),
+            textAlign: TextAlign.center,
           ),
-          PropertyUseCase(
-            category: PropertyCategory.recent,
-            properties: listings[PropertyCategory.recent] ?? [],
+          const SizedBox(height: 6),
+          Text(
+            'Pull down to try again.',
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+            textAlign: TextAlign.center,
           ),
-          PropertyUseCase(
-            category: PropertyCategory.residential,
-            properties: listings[PropertyCategory.residential] ?? [],
-          ),
-          PropertyUseCase(
-            category: PropertyCategory.land,
-            properties: listings[PropertyCategory.land] ?? [],
-          ),
-          PropertyUseCase(
-            category: PropertyCategory.commercial,
-            properties: listings[PropertyCategory.commercial] ?? [],
-          ),
-          PropertyUseCase(
-            category: PropertyCategory.estate,
-            properties: listings[PropertyCategory.estate] ?? [],
-          ),
-          PropertyUseCase(
-            category: PropertyCategory.shortLet,
-            properties: listings[PropertyCategory.shortLet] ?? [],
-          ),
-        ];
-      case 1: // Apartment → residential
-        return [
-          PropertyUseCase(
-            category: PropertyCategory.residential,
-            properties: listings[PropertyCategory.residential] ?? [],
-          ),
-        ];
-      case 2: // Duplex → estate
-        return [
-          PropertyUseCase(
-            category: PropertyCategory.estate,
-            properties: listings[PropertyCategory.estate] ?? [],
-          ),
-        ];
-      case 3: // Furnished → shortLet
-        return [
-          PropertyUseCase(
-            category: PropertyCategory.shortLet,
-            properties: listings[PropertyCategory.shortLet] ?? [],
-          ),
-        ];
-      case 4: // Corporate → commercial
-        return [
-          PropertyUseCase(
-            category: PropertyCategory.commercial,
-            properties: listings[PropertyCategory.commercial] ?? [],
-          ),
-        ];
-      default:
-        return [
-          PropertyUseCase(
-            category: PropertyCategory.featured,
-            properties: listings[PropertyCategory.featured] ?? [],
-          ),
-        ];
-    }
+        ],
+      ),
+    );
   }
-
-  return [
-    SliverToBoxAdapter(
-      child: ValueListenableBuilder<bool>(
-        valueListenable: isVisible,
-        builder: (context, visible, _) => SearchFilter(
-          filters: homeState.filters,
-          filterIcons: homeState.filterIcons,
-          activeIndex: homeState.activeIndex,
-          onFilterTap: onFilterTap,
-        ),
-      ),
-    ),
-
-    CupertinoSliverRefreshControl(onRefresh: onRefresh),
-    ...sections(),
-    const SliverToBoxAdapter(child: SizedBox(height: 80)),
-  ];
-}
-
-List<Widget> _filteredViewList({
-  required BuildContext context,
-  required SearchState searchState,
-  required List<String> filters,
-  required ValueChanged<int> onFilterTap,
-  required VoidCallback onClearAll,
-  required List<IconData> filterIcons,
-  required HomeState homeState,
-  required RefreshCallback onRefresh,
-}) {
-  final cs = Theme.of(context).colorScheme;
-  final results = searchState.filteredProperties;
-  final isLoading = searchState.searchStage == SearchStage.loading;
-  return [
-    // Category chips stay visible
-    SliverToBoxAdapter(
-      child: SearchFilter(
-        filters: filters,
-        filterIcons: filterIcons,
-        activeIndex: homeState.activeIndex,
-        onFilterTap: onFilterTap,
-      ),
-    ),
-
-    CupertinoSliverRefreshControl(onRefresh: onRefresh),
-
-    // Status bar: count + active filter badge + clear
-    SliverToBoxAdapter(
-      child: Container(
-        color: cs.surfaceContainerHighest,
-        padding: const EdgeInsets.fromLTRB(14, 8, 14, 6),
-        child: Row(
-          children: [
-            // Result count / status label
-            if (isLoading)
-              Row(
-                children: [
-                  SizedBox(
-                    width: 12,
-                    height: 12,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 1.5,
-                      color: cs.primary,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Searching…',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                  ),
-                ],
-              )
-            else
-              Expanded(
-                child: Text(
-                  results.isEmpty
-                      ? 'No properties found'
-                      : '${results.length} property${results.length == 1 ? 'y' : 'ies'} found',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: cs.onSurface,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-
-            // Active filter badge with one-tap clear
-            if (searchState.activeFilterCount > 0) ...[
-              const SizedBox(width: 8),
-              GestureDetector(
-                onTap: onClearAll,
-                child: filterBadgeWithOneTapClear(cs, searchState),
-              ),
-            ],
-
-            // Clear search query button (separate from filter badge)
-            if (searchState.query.isNotEmpty) ...[
-              const SizedBox(width: 6),
-              GestureDetector(
-                onTap: onClearAll,
-                child: Icon(
-                  Icons.close_rounded,
-                  size: 16,
-                  color: cs.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    ),
-
-    // Results or empty state
-    if (results.isEmpty && !isLoading)
-      SliverFillRemaining(
-        hasScrollBody: false,
-        child: _EmptyState(
-          query: searchState.query,
-          hasFilters: searchState.activeFilterCount > 0,
-        ),
-      )
-    else
-      PropertyUseCase(category: PropertyCategory.all, properties: results),
-    const SliverToBoxAdapter(child: SizedBox(height: 80)),
-  ];
-}
-
-Container filterBadgeWithOneTapClear(ColorScheme cs, SearchState searchState) {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-    decoration: BoxDecoration(
-      color: cs.primaryContainer,
-      borderRadius: BorderRadius.circular(VeriRentRadius.full),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          '${searchState.activeFilterCount} filter${searchState.activeFilterCount > 1 ? 's' : ''}',
-          style: VeriRentText.labelSmall.copyWith(
-            color: cs.onPrimaryContainer,
-            fontSize: 9,
-          ),
-        ),
-        const SizedBox(width: 4),
-        Icon(Icons.close_rounded, size: 9, color: cs.onPrimaryContainer),
-      ],
-    ),
-  );
 }
