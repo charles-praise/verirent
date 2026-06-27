@@ -16,10 +16,12 @@ class Header extends StatelessWidget {
     super.key,
     this.padding,
     this.showSeeAll,
+    this.properties,
     required this.category,
   });
 
   final PropertyCategory category;
+  final List<PropertyModel>? properties;
 
   String _titleFromCategory(PropertyCategory category) {
     switch (category) {
@@ -77,7 +79,7 @@ class Header extends StatelessWidget {
                 padding ??
                 const EdgeInsets.fromLTRB(
                   VeriRentSpacing.base,
-                  VeriRentSpacing.base,
+                  VeriRentSpacing.sm,
                   VeriRentSpacing.sm,
                   VeriRentSpacing.sm,
                 ),
@@ -96,8 +98,10 @@ class Header extends StatelessWidget {
 
                 if (showSeeAll == true)
                   TextButton(
-                    onPressed: () =>
-                        context.push("/see_all", extra: [category, text]),
+                    onPressed: () => context.push(
+                      "/see_all",
+                      extra: [properties, text, category],
+                    ),
                     child: Text(
                       'View all',
                       style: VeriRentText.labelMedium.copyWith(

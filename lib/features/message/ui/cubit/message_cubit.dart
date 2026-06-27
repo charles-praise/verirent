@@ -4,9 +4,10 @@
 // =============================================================================
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:verirent/core/repo/local_repo.dart';
 
 import '../../../../core/models/property_model.dart';
-import '../../data/mock.dart';
 import 'message_state.dart';
 
 // ── Cubit ─────────────────────────────────────────────────────────────────────
@@ -16,6 +17,8 @@ class MessagesCubit extends Cubit<MessagesState> {
     loadThreads();
   }
 
+  final _localRepository = GetIt.I<LocalRepository>();
+
   Future<void> loadThreads() async {
     emit(state.copyWith(status: MessagesStatus.loading));
     try {
@@ -23,7 +26,7 @@ class MessagesCubit extends Cubit<MessagesState> {
       emit(
         state.copyWith(
           status: MessagesStatus.loaded,
-          threads: _sortThreadsByRecent(mockThreads()),
+          threads: _sortThreadsByRecent(await _localRepository.chatThreads()),
         ),
       );
     } catch (e) {
@@ -33,6 +36,20 @@ class MessagesCubit extends Cubit<MessagesState> {
           errorMessage: e.toString(),
         ),
       );
+    }
+  }
+
+  Future<PropertyModel?> getPropertyForThread(ChatThread thread) async {
+    if (thread.propertyTitle == null) return null;
+
+    final properties = await _localRepository.all();
+
+    try {
+      return properties.firstWhere(
+        (p) => p.title?.trim() == thread.propertyTitle!.trim(),
+      );
+    } catch (_) {
+      return null;
     }
   }
 
@@ -115,7 +132,10 @@ class MessagesCubit extends Cubit<MessagesState> {
     );
   }
 
-  Future<void> openChatFromListingPage(AgencyModel agency) async {
+  Future<void> openChatFromListingPage(
+    AgencyModel agency,
+    PropertyModel property,
+  ) async {
     final existing = state.threads.where((t) => t.id == agency.id);
 
     if (existing.isNotEmpty) {
@@ -131,7 +151,7 @@ class MessagesCubit extends Cubit<MessagesState> {
       lastMessage: '',
       lastMessageTime: DateTime.now(),
       isVerifiedAgency: agency.verificationTier != VerificationTier.basic,
-      propertyTitle: agency.title ?? 'No property title',
+      propertyTitle: property.title,
       avatarUrl: agency.agentAvatarUrl ?? '',
       isOnline: true,
     );

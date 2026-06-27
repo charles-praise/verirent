@@ -7,9 +7,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:verirent/features/settings/ui/cubit/settings_cubit.dart';
-import 'package:verirent/features/settings/ui/pages/sub_settings.dart';
+import 'package:verirent/features/settings/ui/pages/privacy.dart';
 
 import '../../../../core/theme/agents_theme.dart';
+import 'help_center.dart';
+import 'language.dart';
+import 'rate.dart';
+import 'support.dart';
+import 'terms_and_conditions.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});

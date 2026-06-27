@@ -7,13 +7,18 @@ import 'package:verirent/features/home/features/view/ui/cubit/see_all_cubit.dart
 
 import '../../../../../../core/models/property_model.dart';
 import '../../../../../../core/theme/agents_theme.dart';
-import '../../../../../../core/util/sentenceCase.dart';
 import '../../../../../search/ui/cubit/search_cubit.dart';
 
 class SeeAllPage extends StatefulWidget {
   final List<PropertyModel> properties;
+  final PropertyCategory category;
   final String title;
-  const SeeAllPage({super.key, required this.properties, required this.title});
+  const SeeAllPage({
+    super.key,
+    required this.properties,
+    required this.title,
+    required this.category,
+  });
 
   @override
   State<SeeAllPage> createState() => _SeeAllPageState();
@@ -22,12 +27,6 @@ class SeeAllPage extends StatefulWidget {
 class _SeeAllPageState extends State<SeeAllPage> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-    _searchController.addListener(_search);
-  }
 
   void _search() {
     GetIt.I<SearchCubit>().searchProperties(
@@ -39,23 +38,20 @@ class _SeeAllPageState extends State<SeeAllPage> {
   @override
   void dispose() {
     _searchController.dispose();
+    _focusNode.dispose();
     super.dispose();
-  }
-
-  String _categoryFinder(String category) {
-    debugPrint(category);
-    return category.toSentenceCase();
   }
 
   @override
   Widget build(BuildContext context) {
     final topPad = MediaQuery.of(context).padding.top;
     return Scaffold(
-      key: ValueKey("See All"),
       body: BlocBuilder<SeeAllCubit, SeeAllState>(
+        buildWhen: (prev, curr) => prev.seeAllStage != curr.seeAllStage,
         builder: (context, seeAllState) {
           return CustomScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            physics: BouncingScrollPhysics(),
             slivers: [
               // sticky search header
               SliverPersistentHeader(
@@ -81,19 +77,22 @@ class _SeeAllPageState extends State<SeeAllPage> {
                   onToggleFilters: () {},
                 ),
               ),
-              SliverAppBar(
-                pinned: true,
-                automaticallyImplyLeading: false,
-                automaticallyImplyActions: false,
-                title: _SearchFilter(
-                  filters: seeAllState.filters,
-                  filterIcons: seeAllState.filterIcons,
-                  activeIndex: seeAllState.activeIndex,
-                  onFilterTap: (index) {
-                    context.read<SeeAllCubit>().activeIndex(index);
-                  },
-                ),
-              ),
+              // SliverAppBar(
+              //   pinned: true,
+              //   automaticallyImplyLeading: false,
+              //   automaticallyImplyActions: false,
+              //   bottom: PreferredSize(
+              //     preferredSize: const Size.fromHeight(46),
+              //     child: _SearchFilter(
+              //       filters: seeAllState.filters,
+              //       filterIcons: seeAllState.filterIcons,
+              //       activeIndex: seeAllState.activeIndex,
+              //       onFilterTap: (index) {
+              //         context.read<SeeAllCubit>().activeIndex(index);
+              //       },
+              //     ),
+              //   ),
+              // ),
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(
@@ -103,20 +102,31 @@ class _SeeAllPageState extends State<SeeAllPage> {
                     VeriRentSpacing.sm,
                   ),
                   child: Text(
-                    widget.title.toSentenceCase(),
-                    style: Theme.of(context).textTheme.headlineSmall,
+                    widget.title,
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
               ),
-              // initial state
               if (seeAllState.seeAllStage == SeeAllStage.initial)
                 _PropertyGrid(properties: widget.properties),
-              // loading state
+
               if (seeAllState.seeAllStage == SeeAllStage.loading)
-                SliverToBoxAdapter(child: CircularProgressIndicator.adaptive()),
+                const SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(child: CircularProgressIndicator.adaptive()),
+                ),
+
               if (seeAllState.seeAllStage == SeeAllStage.loaded)
-                if (seeAllState.filteredProperties.isEmpty) _EmptyView(),
-              _PropertyGrid(properties: seeAllState.filteredProperties),
+                if (seeAllState.filteredProperties.isEmpty)
+                  const SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: SliverToBoxAdapter(
+                      child: SizedBox(height: 400, child: _EmptyView()),
+                    ),
+                  )
+                else
+                  _PropertyGrid(properties: seeAllState.filteredProperties),
+              SliverToBoxAdapter(child: const SizedBox(height: 20)),
             ],
           );
         },
@@ -307,13 +317,10 @@ class _SearchHeader extends SliverPersistentHeaderDelegate {
                       color: cs.primary,
                     ),
                     suffixIcon: state.query.isNotEmpty
-                        ? GestureDetector(
-                            onTap: onClear,
-                            child: Icon(
-                              Icons.close_rounded,
-                              size: 16,
-                              color: cs.onSurfaceVariant,
-                            ),
+                        ? IconButton(
+                            splashRadius: 18,
+                            icon: const Icon(Icons.close_rounded, size: 16),
+                            onPressed: onClear,
                           )
                         : null,
                     contentPadding: const EdgeInsets.symmetric(

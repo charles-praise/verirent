@@ -18,9 +18,8 @@ class LocationLoadingOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: VeriRentColors.black,
-      child: Center(
+    return Scaffold(
+      body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

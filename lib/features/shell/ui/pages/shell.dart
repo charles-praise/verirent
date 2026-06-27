@@ -80,7 +80,6 @@ class Main extends StatelessWidget {
                 resizeToAvoidBottomInset: false,
                 body: Stack(
                   children: [
-                    // ── The real shell — always built, never swapped out ──
                     IndexedStack(
                       index: state.navigationIndex,
                       children: _mainScreens,
@@ -104,9 +103,6 @@ class Main extends StatelessWidget {
                       },
                     ),
 
-                    // ── THE single location picker surface — handles both
-                    //    the compulsory gate and manual edits. Mounted
-                    //    once, owns its own visibility internally.
                     const LocationModal(),
                   ],
                 ),

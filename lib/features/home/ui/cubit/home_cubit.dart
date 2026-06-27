@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:verirent/core/util/cache.dart';
 
 import '../../../../core/models/property_model.dart';
 import '../../domain/use_case/listing_use_cases.dart';
@@ -12,6 +13,8 @@ class HomeCubit extends Cubit<HomeState> {
   HomeCubit() : super(HomeState()) {
     loadListing();
   }
+
+  final cache = Cache();
 
   Future<void> loadListing() async {
     try {

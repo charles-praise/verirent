@@ -5,6 +5,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:verirent/features/profile/ui/pages/change_password.dart';
+import 'package:verirent/features/profile/ui/pages/subscription.dart';
+import 'package:verirent/features/profile/ui/pages/verification.dart';
+import 'package:verirent/features/settings/ui/pages/help_center.dart';
+import 'package:verirent/features/settings/ui/pages/rate.dart';
 
 import '../../../../core/theme/agents_theme.dart';
 
@@ -49,19 +54,34 @@ class ProfilePage extends StatelessWidget {
                       label: 'Verified',
                       color: VeriRentColors.green,
                     ),
-                    onTap: () {},
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => VerificationKycPage(),
+                      ),
+                    ),
                   ),
                   _MenuItem(
                     icon: Icons.lock_outlined,
                     label: 'Change Password',
-                    onTap: () {},
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChangePasswordPage(),
+                      ),
+                    ),
                   ),
                   _MenuItem(
                     icon: Icons.workspace_premium_outlined,
                     iconColor: VeriRentColors.gold,
                     label: 'Subscription PLan',
                     subtitle: 'Pro Member · Renews Jun 2026',
-                    onTap: () {},
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SubscriptionPlanPage(),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -93,29 +113,29 @@ class ProfilePage extends StatelessWidget {
               ),
             ),
             // ── Preferences Section ────────────────────────────────────
-            SliverToBoxAdapter(
-              child: _MenuSection(
-                title: 'Preferences',
-                items: [
-                  _MenuItem(
-                    icon: Icons.notifications_outlined,
-                    label: 'Notifications',
-                    onTap: () {},
-                  ),
-                  _MenuItem(
-                    icon: Icons.palette_outlined,
-                    label: 'Appearance',
-                    subtitle: 'Theme · Language',
-                    onTap: () {},
-                  ),
-                  _MenuItem(
-                    icon: Icons.payment_outlined,
-                    label: 'Payment Methods',
-                    onTap: () {},
-                  ),
-                ],
-              ),
-            ),
+            // SliverToBoxAdapter(
+            //   child: _MenuSection(
+            //     title: 'Preferences',
+            //     items: [
+            //       _MenuItem(
+            //         icon: Icons.notifications_outlined,
+            //         label: 'Notifications',
+            //         onTap: () {},
+            //       ),
+            //       _MenuItem(
+            //         icon: Icons.palette_outlined,
+            //         label: 'Appearance',
+            //         subtitle: 'Theme · Language',
+            //         onTap: () {},
+            //       ),
+            //       _MenuItem(
+            //         icon: Icons.payment_outlined,
+            //         label: 'Payment Methods',
+            //         onTap: () {},
+            //       ),
+            //     ],
+            //   ),
+            // ),
             // ── Support Section ────────────────────────────────────────
             SliverToBoxAdapter(
               child: _MenuSection(
@@ -124,22 +144,32 @@ class ProfilePage extends StatelessWidget {
                   _MenuItem(
                     icon: Icons.help_outline_rounded,
                     label: 'Help Centre',
-                    onTap: () {},
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => HelpCentrePage()),
+                    ),
                   ),
                   _MenuItem(
                     icon: Icons.star_border_rounded,
                     label: 'Rate VeriRent NG',
-                    onTap: () {},
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RateAppPage()),
+                    ),
                   ),
                   _MenuItem(
                     icon: Icons.info_outline_rounded,
                     label: 'About',
                     subtitle: 'Version 1.0.0',
-                    onTap: () {},
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AboutDialog()),
+                    ),
                   ),
                 ],
               ),
             ),
+            SliverToBoxAdapter(child: SizedBox(height: 20)),
             // ── Sign Out ───────────────────────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
@@ -312,7 +342,7 @@ class _ProfileHero extends StatelessWidget {
           const SizedBox(height: 12),
 
           Text(
-            'Charles Pepple',
+            'Charles Praise',
             style: VeriRentText.headlineSmall.copyWith(
               color: VeriRentColors.white,
             ),
@@ -575,7 +605,8 @@ class _MenuItem extends StatelessWidget {
               ),
             )
           : null,
-      trailing: trailing ??
+      trailing:
+          trailing ??
           Icon(
             Icons.chevron_right_rounded,
             size: 18,
@@ -593,15 +624,15 @@ class _StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
-          borderRadius: BorderRadius.circular(VeriRentRadius.full),
-          border: Border.all(color: color.withOpacity(0.4)),
-        ),
-        child: Text(
-          label,
-          style: VeriRentText.labelSmall.copyWith(color: color, fontSize: 10),
-        ),
-      );
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+    decoration: BoxDecoration(
+      color: color.withOpacity(0.12),
+      borderRadius: BorderRadius.circular(VeriRentRadius.full),
+      border: Border.all(color: color.withOpacity(0.4)),
+    ),
+    child: Text(
+      label,
+      style: VeriRentText.labelSmall.copyWith(color: color, fontSize: 10),
+    ),
+  );
 }

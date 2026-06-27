@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../../../core/models/property_model.dart';
 import '../../../../../../core/shared/network_image/ui/pages/network_image.dart';
+import '../../../../../../core/shared/widgets/action_tile.dart';
 import '../../../../../../core/theme/agents_theme.dart';
 import '../../../../../message/ui/cubit/message_cubit.dart';
 import '../../../../../profile/ui/pages/view_profile.dart';
@@ -33,20 +34,20 @@ class AgencyBlock extends StatelessWidget {
             style: VeriRentText.titleMedium.copyWith(color: cs.onSurface),
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ViewProfile(agency: listing.agency!),
-                  ),
-                ),
-                child: Container(
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ViewProfile(agency: listing.agency!),
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: accent.withOpacity(0.1),
+                    color: accent.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(VeriRentRadius.md),
                   ),
                   child: CustomNetworkImage(
@@ -54,50 +55,51 @@ class AgencyBlock extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      agency.name ?? "",
-                      maxLines: 2,
-                      style: VeriRentText.titleSmall.copyWith(
-                        color: cs.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.star_rounded,
-                          size: 12,
-                          color: VeriRentColors.gold,
+
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        agency.name ?? "",
+                        maxLines: 2,
+                        style: VeriRentText.titleSmall.copyWith(
+                          color: cs.onSurface,
                         ),
-                        const SizedBox(width: 3),
-                        Expanded(
-                          child: Text(
-                            '${agency.rating}',
-                            style: VeriRentText.labelSmall.copyWith(
-                              color: cs.onSurface,
+                      ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.star_rounded,
+                            size: 12,
+                            color: VeriRentColors.gold,
+                          ),
+                          const SizedBox(width: 3),
+                          Expanded(
+                            child: Text(
+                              '${agency.rating}',
+                              style: VeriRentText.labelSmall.copyWith(
+                                color: cs.onSurface,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            ' · ${agency.transactions} sales',
+                            style: VeriRentText.bodySmall.copyWith(
+                              color: cs.onSurfaceVariant,
                               fontSize: 10,
                             ),
                           ),
-                        ),
-                        Text(
-                          ' · ${agency.transactions} sales',
-                          style: VeriRentText.bodySmall.copyWith(
-                            color: cs.onSurfaceVariant,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           const SizedBox(height: 12),
           Row(
@@ -105,11 +107,14 @@ class AgencyBlock extends StatelessWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    GetIt.I<MessagesCubit>().openChatFromListingPage(agency);
+                    GetIt.I<MessagesCubit>().openChatFromListingPage(
+                      listing.agency!,
+                      listing,
+                    );
                     if (context.mounted) {
                       context.push(
                         '/message/chat',
-                        extra: GetIt.I<MessagesCubit>(),
+                        extra: [GetIt.I<MessagesCubit>(), listing],
                       );
                     }
                   },
@@ -124,7 +129,13 @@ class AgencyBlock extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () => showListOfCallTypesBottomSheet(
+                    context,
+                    listing: listing,
+                    directPhoneCall: () {},
+                    inAppVoiceCall: () {},
+                    inAppVideoCall: () {},
+                  ),
                   icon: const Icon(Icons.call_rounded, size: 16),
                   label: const Text('Call'),
                   style: OutlinedButton.styleFrom(
@@ -138,4 +149,79 @@ class AgencyBlock extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> showListOfCallTypesBottomSheet(
+  BuildContext context, {
+  required PropertyModel listing,
+  required VoidCallback directPhoneCall,
+  required VoidCallback inAppVoiceCall,
+  required VoidCallback inAppVideoCall,
+}) {
+  final cs = Theme.of(context).colorScheme;
+
+  return showModalBottomSheet(
+    context: context,
+    useSafeArea: true,
+    isScrollControlled: true,
+    showDragHandle: true,
+    backgroundColor: cs.surface,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+    ),
+    builder: (context) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Call Action', style: Theme.of(context).textTheme.titleLarge),
+
+            const SizedBox(height: 8),
+
+            Text(
+              'Select Call Type.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+
+            const SizedBox(height: 24),
+
+            ActionTile(
+              icon: Icons.phone,
+              title: 'Direct Phone Call',
+              subtitle: 'Call ${listing.agency!.name} via, Direct phone call',
+              onTap: () {
+                Navigator.pop(context);
+                directPhoneCall();
+              },
+            ),
+
+            const SizedBox(height: 12),
+
+            ActionTile(
+              icon: Icons.wifi_calling_outlined,
+              title: 'Voice Call',
+              subtitle: 'Call ${listing.agency!.name} via, Voice call',
+              onTap: () {
+                Navigator.pop(context);
+                inAppVoiceCall();
+              },
+            ),
+            const SizedBox(height: 12),
+
+            ActionTile(
+              icon: Icons.video_call_outlined,
+              title: 'Video Call',
+              subtitle: 'Call ${listing.agency!.name} via, Video call',
+              onTap: () {
+                Navigator.pop(context);
+                inAppVideoCall();
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }

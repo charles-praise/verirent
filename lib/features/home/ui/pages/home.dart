@@ -26,7 +26,8 @@
 //     unnecessary full-tree rebuilds while the sheet was animating.
 //     → SearchCubit BlocBuilder now has its own targeted buildWhen.
 
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' hide RefreshCallback;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -167,6 +168,7 @@ class _HomeState extends State<Home> {
                           searchState: searchState,
                           filters: homeState.filters,
                           onFilterTap: _onFilterTap,
+                          onRefresh: _onRefresh,
                           onClearAll: () {
                             GetIt.I<SearchCubit>().resetFilters();
                             GetIt.I<HomeCubit>().activeIndex(0);
@@ -176,6 +178,7 @@ class _HomeState extends State<Home> {
                           homeState: homeState,
                         )
                       : _defaultViewList(
+                          onRefresh: _onRefresh,
                           context: context,
                           isVisible: _isVisible,
                           homeState: homeState,
@@ -250,6 +253,7 @@ List<Widget> _defaultViewList({
   required ValueNotifier<bool> isVisible,
   required HomeState homeState,
   required ValueChanged<int> onFilterTap,
+  required RefreshCallback onRefresh,
 }) {
   // Map chip index → which category section(s) to show
   final listings = homeState.listings;
@@ -341,6 +345,8 @@ List<Widget> _defaultViewList({
         ),
       ),
     ),
+
+    CupertinoSliverRefreshControl(onRefresh: onRefresh),
     ...sections(),
     const SliverToBoxAdapter(child: SizedBox(height: 80)),
   ];
@@ -354,6 +360,7 @@ List<Widget> _filteredViewList({
   required VoidCallback onClearAll,
   required List<IconData> filterIcons,
   required HomeState homeState,
+  required RefreshCallback onRefresh,
 }) {
   final cs = Theme.of(context).colorScheme;
   final results = searchState.filteredProperties;
@@ -368,6 +375,8 @@ List<Widget> _filteredViewList({
         onFilterTap: onFilterTap,
       ),
     ),
+
+    CupertinoSliverRefreshControl(onRefresh: onRefresh),
 
     // Status bar: count + active filter badge + clear
     SliverToBoxAdapter(

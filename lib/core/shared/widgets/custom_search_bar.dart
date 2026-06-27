@@ -19,7 +19,7 @@ import '../../../features/search/ui/cubit/search_state.dart';
 import '../../../features/search/ui/widget/filter_panel.dart';
 import '../../../features/search/utils/kFormatPrice.dart';
 import '../../theme/agents_theme.dart';
-import '../../util/filterOrUploadProperty.dart';
+import '../../util/filter_or_upload_property.dart';
 
 class CustomSearchBar extends StatefulWidget {
   const CustomSearchBar({
@@ -92,6 +92,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                     // ✓ Apply current filter values against the full list.
                     // Does NOT reset anything. Does NOT touch the query.
                     searchCubit.applyFilters(await getIt.all());
+                    if (!context.mounted) return;
                     Navigator.of(sheetCtx).pop();
                   },
                   formatPrice: kFormatPrice,
@@ -118,7 +119,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final getIt = GetIt.I<LocalRepository>();
+    final localRepo = GetIt.I<LocalRepository>();
     return BlocProvider.value(
       value: GetIt.I<SearchCubit>(),
       child: BlocBuilder<SearchCubit, SearchState>(
@@ -134,7 +135,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                     focusNode: widget.focusNode,
                     onChanged: (value) async {
                       GetIt.I<SearchCubit>().searchProperties(
-                        await getIt.all(),
+                        await localRepo.all(),
                         value,
                       );
                     },

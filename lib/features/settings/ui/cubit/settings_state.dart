@@ -29,7 +29,7 @@ class SettingsState extends Equatable {
     this.smsNotifs = false,
     this.emailNotifs = true,
     this.pushNotifs = true,
-    this.themeMode = ThemeMode.dark,
+    this.themeMode = ThemeMode.system,
     this.shareSearchData = false,
     this.locationEnabled = true,
     this.selectedLanguage = 'en_NG',

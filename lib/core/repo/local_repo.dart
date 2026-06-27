@@ -1,3 +1,5 @@
+import 'package:verirent/features/message/ui/cubit/message_state.dart';
+
 import '../models/property_model.dart';
 import 'data_source.dart';
 
@@ -11,6 +13,7 @@ abstract class LocalRepository {
   Future<List<PropertyModel>> estate();
   Future<List<PropertyModel>> shortLets();
   Future<List<PropertyModel>> option();
+  Future<List<ChatThread>> chatThreads();
 }
 
 class LocalRepoImpl implements LocalRepository {
@@ -75,5 +78,12 @@ class LocalRepoImpl implements LocalRepository {
     await Future.delayed(const Duration(seconds: 1));
     List<PropertyModel> allListedProperties = kAllListings;
     return allListedProperties;
+  }
+
+  @override
+  Future<List<ChatThread>> chatThreads() async {
+    await Future.delayed(const Duration(seconds: 1));
+    List<ChatThread> chatThreads = kChatThreads;
+    return chatThreads;
   }
 }

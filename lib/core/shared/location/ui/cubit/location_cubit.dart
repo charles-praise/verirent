@@ -46,6 +46,9 @@
 //  developer: charles praise diepriye
 // =============================================================================
 
+import 'dart:async';
+
+import 'package:flutter/cupertino.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
@@ -56,7 +59,7 @@ import 'location_state.dart';
 
 class LocationCubit extends HydratedCubit<LocationState> {
   LocationCubit() : super(const LocationState()) {
-    init();
+    WidgetsBinding.instance.addPostFrameCallback((_) => init());
   }
 
   /// How long a confirmed location stays valid before init() will
@@ -91,6 +94,33 @@ class LocationCubit extends HydratedCubit<LocationState> {
   Future<void> refresh() => _run();
 
   Future<void> _run() async {
+    emit(state.copyWith(phase: LocationPhase.loading));
+    try {
+      await Future.any([
+        _pipeline(),
+        Future.delayed(const Duration(seconds: 15), () {
+          throw TimeoutException('Location timed out');
+        }),
+      ]);
+    } catch (e) {
+      if (!isClosed) {
+        emit(
+          state.copyWith(
+            phase: LocationPhase.error,
+            error: 'Could not determine your location. Please select manually.',
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _pipeline() async {
+    final granted = await _ensurePermission();
+    if (!granted) return;
+    await _fetchAndApply();
+  }
+
+  Future<void> _pipeLine() async {
     emit(state.copyWith(phase: LocationPhase.loading));
     final granted = await _ensurePermission();
     if (!granted) return;
@@ -148,9 +178,15 @@ class LocationCubit extends HydratedCubit<LocationState> {
 
   Future<void> _fetchAndApply() async {
     try {
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+      final position =
+          await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high,
+            timeLimit: Duration(seconds: 10),
+          ).catchError((_) async {
+            // Fallback to last known position on timeout
+            return await Geolocator.getLastKnownPosition() ??
+                (throw Exception('Could not determine location'));
+          });
 
       final placemarks = await placemarkFromCoordinates(
         position.latitude,

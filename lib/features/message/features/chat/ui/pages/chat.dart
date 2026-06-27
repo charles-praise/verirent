@@ -5,10 +5,11 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:verirent/core/models/property_model.dart';
-import 'package:verirent/core/repo/local_repo.dart';
 import 'package:verirent/core/shared/widgets/verifiedBadge.dart';
 
 import '../../../../../../core/theme/agents_theme.dart';
+import '../../../../../home/features/listing/widgets/shared/agency.dart';
+import '../../../../../profile/ui/pages/view_profile.dart';
 import '../../../../ui/cubit/message_cubit.dart';
 import '../../../../ui/cubit/message_state.dart';
 
@@ -18,7 +19,12 @@ import '../../../../ui/cubit/message_state.dart';
 
 class ChatView extends StatefulWidget {
   final MessagesCubit messagesCubit;
-  const ChatView({super.key, required this.messagesCubit});
+  final PropertyModel listing;
+  const ChatView({
+    super.key,
+    required this.messagesCubit,
+    required this.listing,
+  });
 
   @override
   State<ChatView> createState() => _ChatViewState();
@@ -68,12 +74,15 @@ class _ChatViewState extends State<ChatView> {
             backgroundColor: cs.brightness == Brightness.light
                 ? VeriRentColors.neutral50
                 : VeriRentColors.neutral900,
-            appBar: _ChatAppBar(thread: thread),
+            appBar: _ChatAppBar(thread: thread, listing: widget.listing),
             body: Column(
               children: [
                 // ── Property context banner ──────────────────────────
                 if (thread.propertyTitle != null)
-                  _PropertyContextBanner(title: thread.propertyTitle!),
+                  _PropertyContextBanner(
+                    title: thread.propertyTitle!,
+                    property: widget.listing,
+                  ),
 
                 // ── Messages list ────────────────────────────────────
                 Expanded(
@@ -132,32 +141,20 @@ class _ChatViewState extends State<ChatView> {
       a.year == b.year && a.month == b.month && a.day == b.day;
 }
 
-Future<PropertyModel?> _navigateToListingPage(String? propertyTitle) async {
-  if (propertyTitle == null) return null;
-
-  final properties = await GetIt.I<LocalRepository>().all();
-
-  try {
-    return properties.firstWhere(
-      (p) => p.title?.trim() == propertyTitle.trim(),
-    );
-  } catch (_) {
-    return null;
-  }
-}
 // ── Chat App Bar ───────────────────────────────────────────────────────────────
 
 class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const _ChatAppBar({required this.thread});
+  const _ChatAppBar({required this.thread, required this.listing});
   final ChatThread thread;
+  final PropertyModel listing;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
   Widget build(BuildContext context) {
+    final messageCubit = GetIt.I<MessagesCubit>();
     final cs = Theme.of(context).colorScheme;
-    final property = _navigateToListingPage(thread.propertyTitle);
 
     return AppBar(
       backgroundColor: cs.surface,
@@ -167,13 +164,16 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
         icon: Icon(Icons.arrow_back_ios_rounded, color: cs.onSurface, size: 20),
         onPressed: () {
           context.pop();
-          context.read<MessagesCubit>().closeChat();
+          messageCubit.closeChat();
         },
       ),
       title: GestureDetector(
-        onTap: () {
-          context.push('/listing_details', extra: property);
-        },
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ViewProfile(agency: listing.agency!),
+          ),
+        ),
         child: Row(
           children: [
             // Avatar
@@ -257,7 +257,13 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(
           icon: Icon(Icons.call_rounded, color: cs.primary, size: 22),
-          onPressed: () {},
+          onPressed: () => showListOfCallTypesBottomSheet(
+            context,
+            listing: listing,
+            directPhoneCall: () {},
+            inAppVoiceCall: () {},
+            inAppVideoCall: () {},
+          ),
           tooltip: 'Call',
         ),
         IconButton(
@@ -277,33 +283,37 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
 // ── Property Context Banner ────────────────────────────────────────────────────
 
 class _PropertyContextBanner extends StatelessWidget {
-  const _PropertyContextBanner({required this.title});
+  const _PropertyContextBanner({required this.title, required this.property});
   final String title;
+  final PropertyModel property;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: cs.primaryContainer.withOpacity(0.3),
-      child: Row(
-        children: [
-          Icon(Icons.home_rounded, size: 14, color: cs.primary),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              title,
-              style: VeriRentText.labelSmall.copyWith(color: cs.primary),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+    return GestureDetector(
+      onTap: () => context.push('/listing_details', extra: property),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        color: cs.primaryContainer.withOpacity(0.3),
+        child: Row(
+          children: [
+            Icon(Icons.home_rounded, size: 14, color: cs.primary),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                title,
+                style: VeriRentText.labelSmall.copyWith(color: cs.primary),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          ),
-          Icon(
-            Icons.open_in_new_rounded,
-            size: 12,
-            color: cs.primary.withOpacity(0.7),
-          ),
-        ],
+            Icon(
+              Icons.open_in_new_rounded,
+              size: 12,
+              color: cs.primary.withOpacity(0.7),
+            ),
+          ],
+        ),
       ),
     );
   }

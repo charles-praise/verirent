@@ -11,7 +11,6 @@ import 'package:verirent/features/home/features/listing/ui/pages/listing_deatils
 import 'package:verirent/features/home/features/view/ui/cubit/see_all_cubit.dart';
 import 'package:verirent/features/home/features/view/ui/pages/see_all.dart';
 import 'package:verirent/features/message/features/chat/ui/pages/chat.dart';
-import 'package:verirent/features/message/ui/cubit/message_cubit.dart';
 import 'package:verirent/features/message/ui/pages/messages.dart';
 import 'package:verirent/features/profile/ui/cubit/profile_cubit.dart';
 import 'package:verirent/features/profile/ui/pages/profile.dart';
@@ -46,10 +45,12 @@ class _Route {
   static final String uploadProperty = "/upload_property";
 }
 
-abstract final class _VeriRentRoute {
+abstract final class _Routes {
+  static final _locationNotifier = _CubitListenable(GetIt.I<LocationCubit>());
   static final GoRouter router = GoRouter(
     overridePlatformDefaultLocation: true,
     initialLocation: _Route.main,
+    refreshListenable: _locationNotifier,
     redirect: (context, state) {
       final locationState = GetIt.I<LocationCubit>().state;
       final isMain = state.matchedLocation == _Route.main;
@@ -64,12 +65,15 @@ abstract final class _VeriRentRoute {
     routes: [
       // Shell Route
       GoRoute(
-        name: "Main or Landing page",
+        name: "Shell or Landing page",
         path: _Route.main,
         pageBuilder: (context, state) => CustomTransitionPage(
-          child: BlocProvider(
-            create: (context) => GetIt.instance<MainCubit>(),
-            child: Main(),
+          child: BlocProvider.value(
+            value: GetIt.I<LocationCubit>(),
+            child: BlocProvider(
+              create: (context) => GetIt.I<MainCubit>(),
+              child: Main(),
+            ),
           ),
           transitionsBuilder:
               (
@@ -114,7 +118,11 @@ abstract final class _VeriRentRoute {
           return CustomTransitionPage(
             child: BlocProvider(
               create: (context) => GetIt.instance<SeeAllCubit>(),
-              child: SeeAllPage(properties: listing[0], title: listing[1]),
+              child: SeeAllPage(
+                properties: listing[0],
+                title: listing[1],
+                category: listing[2],
+              ),
             ),
             transitionsBuilder:
                 (
@@ -336,11 +344,12 @@ abstract final class _VeriRentRoute {
             name: "Chat Page",
             path: _Route.chatView,
             pageBuilder: (context, state) {
-              final sameContext = state.extra as MessagesCubit;
+              final list = state.extra as List<dynamic>;
               return CustomTransitionPage(
                 child: ChatView(
                   key: const ValueKey('chat'),
-                  messagesCubit: sameContext,
+                  messagesCubit: list[0],
+                  listing: list[1],
                 ),
                 transitionsBuilder:
                     (
@@ -360,4 +369,10 @@ abstract final class _VeriRentRoute {
   );
 }
 
-GoRouter get agentNgRoute => _VeriRentRoute.router;
+GoRouter get agentNgRoute => _Routes.router;
+
+class _CubitListenable extends ChangeNotifier {
+  _CubitListenable(LocationCubit cubit) {
+    cubit.stream.listen((_) => notifyListeners());
+  }
+}

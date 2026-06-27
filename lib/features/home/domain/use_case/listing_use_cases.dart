@@ -87,7 +87,11 @@ class PropertyUseCase extends StatelessWidget {
         return SliverMainAxisGroup(
           slivers: [
             SliverToBoxAdapter(
-              child: Header(category: category, showSeeAll: true),
+              child: Header(
+                category: category,
+                showSeeAll: true,
+                properties: properties,
+              ),
             ),
             SliverToBoxAdapter(
               child: Padding(
@@ -117,7 +121,11 @@ class PropertyUseCase extends StatelessWidget {
         return SliverMainAxisGroup(
           slivers: [
             SliverToBoxAdapter(
-              child: Header(category: category, showSeeAll: true),
+              child: Header(
+                category: category,
+                showSeeAll: true,
+                properties: properties,
+              ),
             ),
             SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
@@ -139,7 +147,11 @@ class PropertyUseCase extends StatelessWidget {
         return SliverMainAxisGroup(
           slivers: [
             SliverToBoxAdapter(
-              child: Header(category: category, showSeeAll: true),
+              child: Header(
+                category: category,
+                showSeeAll: true,
+                properties: properties,
+              ),
             ),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),

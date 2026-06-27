@@ -5,6 +5,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
 import 'package:verirent/core/theme/agents_theme.dart';
 
 // ── Animated Loading Logo ───────────────────────────────────────────────────
@@ -54,13 +55,7 @@ class _AnimatedLoadingLogoState extends State<AnimatedLoadingLogo>
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: ScaleTransition(
-        scale: _scale,
-        child: RotationTransition(
-          turns: Tween(begin: 0.0, end: 1.0).animate(_controller),
-          child: _buildLogo(),
-        ),
-      ),
+      child: ScaleTransition(scale: _scale, child: PulsingRingLoader()),
     );
   }
 
@@ -512,15 +507,7 @@ class _PulsingRingLoaderState extends State<PulsingRingLoader>
                 colors: [VeriRentColors.primary600, VeriRentColors.primary500],
               ),
             ),
-            child: Center(
-              child: Text(
-                'V',
-                style: VeriRentText.headlineMedium.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ),
+            child: CustomNetworkImage(imgUrl: ''),
           ),
         ],
       ),

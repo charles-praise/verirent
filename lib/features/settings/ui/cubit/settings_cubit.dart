@@ -2,7 +2,8 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:verirent/features/settings/ui/pages/sub_settings.dart';
+
+import '../pages/language.dart';
 
 part 'settings_state.dart';
 

@@ -64,6 +64,7 @@ class AgencyModel extends PropertyModel {
     this.phone,
     this.email,
     super.address,
+    super.title,
   });
 
   final String? name;

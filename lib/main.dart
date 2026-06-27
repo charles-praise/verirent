@@ -10,6 +10,7 @@ import 'package:verirent/features/settings/ui/cubit/settings_cubit.dart';
 import 'features/search/ui/cubit/search_cubit.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await injection();
   GetIt.I<LocationCubit>();
   runApp(
