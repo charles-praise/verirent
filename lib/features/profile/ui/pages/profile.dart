@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:verirent/features/profile/ui/pages/change_password.dart';
+import 'package:verirent/features/profile/ui/pages/edit_profile.dart';
+import 'package:verirent/features/profile/ui/pages/my_listing.dart';
+import 'package:verirent/features/profile/ui/pages/search_alerts.dart';
 import 'package:verirent/features/profile/ui/pages/subscription.dart';
 import 'package:verirent/features/profile/ui/pages/verification.dart';
 import 'package:verirent/features/settings/ui/pages/help_center.dart';
@@ -43,7 +46,12 @@ class ProfilePage extends StatelessWidget {
                     iconColor: cs.primary,
                     label: 'Edit Profile',
                     subtitle: 'Name, photo, bio',
-                    onTap: () {},
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditProfilePage(),
+                      ),
+                    ),
                   ),
                   _MenuItem(
                     icon: Icons.verified_user_outlined,
@@ -95,19 +103,21 @@ class ProfilePage extends StatelessWidget {
                     icon: Icons.home_work_outlined,
                     label: 'My Listings',
                     subtitle: '0 active properties',
-                    onTap: () {},
-                  ),
-                  _MenuItem(
-                    icon: Icons.bookmark_border_rounded,
-                    label: 'Saved Properties',
-                    subtitle: '4 saved',
-                    onTap: () {},
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MyListingsPage()),
+                    ),
                   ),
                   _MenuItem(
                     icon: Icons.search_rounded,
                     label: 'Search Alerts',
                     subtitle: '2 active alerts',
-                    onTap: () {},
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SearchAlertsPage(),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -169,6 +179,70 @@ class ProfilePage extends StatelessWidget {
                 ],
               ),
             ),
+
+            // ── Danger zone ────────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: _MenuSection(
+                title: 'Danger zone',
+                items: [
+                  _MenuItem(
+                    icon: Icons.delete_outline_rounded,
+                    iconColor: VeriRentColors.red,
+                    label: 'Delete Account',
+                    onTap: () => _showDeleteConfirm(context),
+                  ),
+                ],
+              ),
+            ),
+            // SliverToBoxAdapter(
+            //   child: Padding(
+            //     padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+            //     child: Container(
+            //       decoration: BoxDecoration(
+            //         color: cs.surface,
+            //         borderRadius: BorderRadius.circular(VeriRentRadius.lg),
+            //         border: Border.all(color: cs.outlineVariant),
+            //       ),
+            //       child: ListTile(
+            //         onTap: () => _showDeleteConfirm(context),
+            //         leading: Container(
+            //           width: 34,
+            //           height: 34,
+            //           decoration: BoxDecoration(
+            //             color: VeriRentColors.red.withOpacity(0.10),
+            //             borderRadius: BorderRadius.circular(VeriRentRadius.sm),
+            //           ),
+            //           child: const Icon(
+            //             Icons.delete_outline_rounded,
+            //             size: 16,
+            //             color: VeriRentColors.red,
+            //           ),
+            //         ),
+            //         title: Text(
+            //           'Delete Account',
+            //           style: VeriRentText.bodyMedium.copyWith(
+            //             color: VeriRentColors.red,
+            //           ),
+            //         ),
+            //         subtitle: Text(
+            //           'Permanently remove your account and data',
+            //           style: VeriRentText.bodySmall.copyWith(
+            //             color: cs.onSurfaceVariant,
+            //           ),
+            //         ),
+            //         trailing: const Icon(
+            //           Icons.chevron_right_rounded,
+            //           size: 18,
+            //           color: VeriRentColors.red,
+            //         ),
+            //         contentPadding: const EdgeInsets.symmetric(
+            //           horizontal: 16,
+            //           vertical: 4,
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
             SliverToBoxAdapter(child: SizedBox(height: 20)),
             // ── Sign Out ───────────────────────────────────────────────
             SliverToBoxAdapter(
@@ -216,6 +290,30 @@ class ProfilePage extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showDeleteConfirm(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: const Text('Delete Account?'),
+      content: const Text(
+        'This will permanently delete your Agent NG account, '
+        'all your listings, saved properties, and personal data. '
+        'This action cannot be undone.',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {},
+          child: Text('Delete', style: TextStyle(color: VeriRentColors.red)),
+        ),
+      ],
+    ),
+  );
 }
 
 // ── Profile Hero ──────────────────────────────────────────────────────────────

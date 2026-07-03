@@ -120,13 +120,6 @@ class LocationCubit extends HydratedCubit<LocationState> {
     await _fetchAndApply();
   }
 
-  Future<void> _pipeLine() async {
-    emit(state.copyWith(phase: LocationPhase.loading));
-    final granted = await _ensurePermission();
-    if (!granted) return;
-    await _fetchAndApply();
-  }
-
   // ── Permission ────────────────────────────────────────────────────────────
 
   Future<bool> _ensurePermission() async {
