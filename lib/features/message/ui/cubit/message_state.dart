@@ -1,6 +1,9 @@
 // ── Models ─────────────────────────────────────────────────────────────────────
 
+import 'dart:ui';
+
 import 'package:equatable/equatable.dart';
+import 'package:verirent/core/theme/agents_theme.dart';
 
 enum MessageStatus { sent, delivered, read }
 
@@ -49,6 +52,7 @@ class ChatThread extends Equatable {
   final bool isVerifiedAgency;
   final String? propertyTitle; // Context: which listing this chat is about
   final List<ChatMessage> messages;
+  final Color tierColor;
 
   const ChatThread({
     required this.id,
@@ -63,6 +67,7 @@ class ChatThread extends Equatable {
     this.isVerifiedAgency = false,
     this.propertyTitle,
     this.messages = const [],
+    this.tierColor = VeriRentColors.tierVerified,
   });
 
   ChatThread copyWith({
@@ -70,6 +75,7 @@ class ChatThread extends Equatable {
     String? lastMessage,
     DateTime? lastMessageTime,
     int? unreadCount,
+    Color? tierColor,
   }) => ChatThread(
     id: id,
     participantName: participantName,
@@ -83,6 +89,7 @@ class ChatThread extends Equatable {
     isVerifiedAgency: isVerifiedAgency,
     propertyTitle: propertyTitle,
     messages: messages ?? this.messages,
+    tierColor: tierColor ?? this.tierColor,
   );
 
   @override
@@ -93,6 +100,7 @@ class ChatThread extends Equatable {
     lastMessageTime,
     unreadCount,
     messages,
+    tierColor,
   ];
 }
 

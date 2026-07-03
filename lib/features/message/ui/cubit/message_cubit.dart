@@ -6,6 +6,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:verirent/core/repo/local_repo.dart';
+import 'package:verirent/core/theme/agents_theme.dart';
 
 import '../../../../core/models/property_model.dart';
 import 'message_state.dart';
@@ -154,6 +155,7 @@ class MessagesCubit extends Cubit<MessagesState> {
       propertyTitle: property.title,
       avatarUrl: agency.agentAvatarUrl ?? '',
       isOnline: true,
+      tierColor: property.tierColor ?? VeriRentColors.tierVerified,
     );
     final List<ChatThread> sortedThread = [...state.threads, thread];
     emit(state.copyWith(threads: sortedThread, activeChatId: thread.id));

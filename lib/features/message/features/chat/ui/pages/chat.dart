@@ -225,7 +225,10 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                       if (thread.isVerifiedAgency)
                         Padding(
                           padding: const EdgeInsets.only(right: 3),
-                          child: verifiedBadge(fontSize: 12),
+                          child: verifiedBadge(
+                            fontSize: 12,
+                            tierColor: thread.tierColor,
+                          ),
                         ),
                       Flexible(
                         child: Text(

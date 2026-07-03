@@ -77,7 +77,11 @@ class _Thumbnail extends StatelessWidget {
           // Verified badge  top left-edge category
           if (item.verificationStatus == VerificationStatus.verified &&
               item.isVerified == true)
-            Positioned(top: 6, right: 6, child: verifiedBadge()),
+            Positioned(
+              top: 6,
+              right: 6,
+              child: verifiedBadge(tierColor: item.tierColor),
+            ),
         ],
       ),
     );

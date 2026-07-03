@@ -16,8 +16,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
 
-import '../../models/property_model.dart';
 import '../../../features/home/ui/widgets/home_tier_badge.dart';
+import '../../models/property_model.dart';
 import '../../theme/agents_theme.dart';
 import '../../util/rating_formatter.dart';
 import 'saveButton.dart';
@@ -278,7 +278,11 @@ class ResidentialFeaturedCard extends StatelessWidget {
                     ),
                   ),
                   if (card.isVerified!)
-                    Positioned(top: 8, right: 8, child: verifiedBadge()),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: verifiedBadge(tierColor: card.tierColor),
+                    ),
                   Positioned(
                     bottom: 6,
                     right: 6,
@@ -490,7 +494,11 @@ class LandFeaturedCard extends StatelessWidget {
                     ),
                   ),
                   if (card.isVerified!)
-                    Positioned(top: 8, right: 8, child: verifiedBadge()),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: verifiedBadge(tierColor: card.tierColor),
+                    ),
                   Positioned(
                     bottom: 6,
                     right: 6,
@@ -674,7 +682,11 @@ class CommercialFeaturedCard extends StatelessWidget {
                     ),
                   ),
                   if (card.isVerified!)
-                    Positioned(top: 8, right: 8, child: verifiedBadge()),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: verifiedBadge(tierColor: card.tierColor),
+                    ),
                   // Floor + area overlay
                   Positioned(
                     bottom: 7,
@@ -865,7 +877,11 @@ class EstateFeaturedCard extends StatelessWidget {
                     ),
                   ),
                   if (card.isVerified!)
-                    Positioned(top: 8, right: 8, child: verifiedBadge()),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: verifiedBadge(tierColor: card.tierColor),
+                    ),
                   // Unit count
                   Positioned(
                     bottom: 8,

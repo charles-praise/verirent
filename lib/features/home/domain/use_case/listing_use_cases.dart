@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:verirent/core/models/property_model.dart';
 import 'package:verirent/core/repo/local_repo.dart';
+import 'package:verirent/core/shared/ads/ui/pages/recentAds.dart';
 import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
 import 'package:verirent/core/shared/widgets/header.dart';
 import 'package:verirent/core/shared/widgets/verifiedBadge.dart';
@@ -140,6 +141,8 @@ class PropertyUseCase extends StatelessWidget {
                 );
               }, childCount: 3),
             ),
+            SliverToBoxAdapter(child: SizedBox(height: 10)),
+            SliverToBoxAdapter(child: advert(context: context)),
           ],
         );
 

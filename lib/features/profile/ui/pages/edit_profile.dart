@@ -3,6 +3,7 @@
 // =============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:verirent/core/shared/widgets/profile_avatar.dart';
 
 import '../../../../core/theme/agents_theme.dart';
 import '../widget/sub_bar.dart';
@@ -91,59 +92,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ── Avatar ─────────────────────────────────────────────────
-              Center(
-                child: Stack(
-                  children: [
-                    Container(
-                      width: 96,
-                      height: 96,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: const LinearGradient(
-                          colors: [
-                            VeriRentColors.primary400,
-                            VeriRentColors.primary700,
-                          ],
-                        ),
-                        border: Border.all(
-                          color: VeriRentColors.gold,
-                          width: 2.5,
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'CP',
-                          style: VeriRentText.headlineMedium.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: GestureDetector(
-                        onTap: () {},
-                        child: Container(
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            color: cs.primary,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: cs.surface, width: 2),
-                          ),
-                          child: const Icon(
-                            Icons.camera_alt_rounded,
-                            size: 14,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              profileAvatar(context: context),
               const SizedBox(height: 6),
               Center(
                 child: TextButton(

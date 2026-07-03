@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../theme/agents_theme.dart';
 
-Widget buildAgencyBanner({required BuildContext context}) => Padding(
+Widget advert({required BuildContext context}) => Padding(
   padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
   child: Container(
     padding: const EdgeInsets.all(16),

@@ -126,7 +126,10 @@ class ThreadTile extends StatelessWidget {
                   Row(
                     children: [
                       if (thread.isVerifiedAgency) ...[
-                        verifiedBadge(fontSize: 12),
+                        verifiedBadge(
+                          fontSize: 12,
+                          tierColor: thread.tierColor,
+                        ),
                         const SizedBox(width: 4),
                       ],
                       Expanded(

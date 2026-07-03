@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:verirent/core/shared/widgets/profile_avatar.dart';
 import 'package:verirent/features/profile/ui/pages/change_password.dart';
 import 'package:verirent/features/profile/ui/pages/edit_profile.dart';
 import 'package:verirent/features/profile/ui/pages/my_listing.dart';
@@ -389,54 +390,7 @@ class _ProfileHero extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Avatar ring
-          Stack(
-            alignment: Alignment.bottomRight,
-            children: [
-              Container(
-                width: 88,
-                height: 88,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: VeriRentColors.secondary400,
-                    width: 3,
-                  ),
-                  gradient: const LinearGradient(
-                    colors: [
-                      VeriRentColors.secondary400,
-                      VeriRentColors.secondary600,
-                    ],
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    'CP',
-                    style: VeriRentText.headlineMedium.copyWith(
-                      color: VeriRentColors.white,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                width: 26,
-                height: 26,
-                decoration: BoxDecoration(
-                  color: VeriRentColors.success500,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: VeriRentColors.primary600,
-                    width: 2,
-                  ),
-                ),
-                child: const Icon(
-                  Icons.verified_rounded,
-                  size: 13,
-                  color: VeriRentColors.white,
-                ),
-              ),
-            ],
-          ),
+          profileAvatar(context: context),
           const SizedBox(height: 12),
 
           Text(

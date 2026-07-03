@@ -30,6 +30,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:verirent/core/shared/location/ui/page/location_trigger.dart';
+import 'package:verirent/core/shared/widgets/profile_avatar.dart';
 
 import '../../../../core/shared/widgets/custom_search_bar.dart';
 import '../../../../core/theme/agents_theme.dart';
@@ -148,28 +149,10 @@ class HomeAppBar extends SliverPersistentHeaderDelegate {
                       Container(
                         width: 38,
                         height: 38,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: VeriRentColors.secondary400,
-                            width: 2,
-                          ),
-                          gradient: LinearGradient(
-                            colors: [
-                              VeriRentColors.secondary400,
-                              VeriRentColors.secondary600,
-                            ],
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'CP',
-                            style: VeriRentText.labelSmall.copyWith(
-                              color: VeriRentColors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
+                        decoration: BoxDecoration(shape: BoxShape.circle),
+                        child: profileAvatar(
+                          context: context,
+                          showCameraIcon: false,
                         ),
                       ),
                       Positioned(
