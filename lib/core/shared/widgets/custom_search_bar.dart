@@ -150,7 +150,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                       hintText: widget.hintText,
                       prefixIcon: Icon(
                         Icons.search_rounded,
-                        color: cs.onSurfaceVariant,
+                        color: cs.primary,
                         size: 20,
                       ),
                       suffixIcon: state.query.isNotEmpty
@@ -165,7 +165,11 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                 color: cs.onSurfaceVariant,
                               ),
                             )
-                          : null,
+                          : Icon(
+                              Icons.mic_outlined,
+                              color: cs.primary,
+                              size: 23,
+                            ),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 12,
@@ -222,9 +226,9 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                           ),
                         ),
                         child: Icon(
-                          Icons.tune_rounded,
+                          Icons.category,
                           size: 18,
-                          color: _sheetOpen ? cs.primary : cs.onSurfaceVariant,
+                          color: _sheetOpen ? cs.onSurfaceVariant : cs.primary,
                         ),
                       ),
                     ),

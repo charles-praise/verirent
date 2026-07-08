@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:verirent/features/shell/feature/notification/ui/cubit/notification_cubit.dart';
 
 import '../../features/auth/ui/cubit/auth_cubit.dart';
-import '../../features/home/domain/use_case/listing_use_cases.dart';
+import '../../features/home/cache/home_cache_data_source.dart';
 import '../../features/home/features/listing/ui/cubit/listing_details_cubit.dart';
 import '../../features/home/features/view/ui/cubit/see_all_cubit.dart';
 import '../../features/home/ui/cubit/home_cubit.dart';
@@ -34,6 +36,12 @@ Future<void> injection() async {
             (await getApplicationDocumentsDirectory()).path,
           ),
   );
+
+  // ── Cache layer (Hive) ────────────────────────────────────────────
+  await Hive.initFlutter();
+  final homeCache = HomeCacheDataSource();
+  await homeCache.init();
+  getIt.registerLazySingleton<HomeCacheDataSource>(() => homeCache);
 
   // ── Infrastructure ────────────────────────────────────────────────
   getIt.registerLazySingleton<ApiClient>(
@@ -70,13 +78,12 @@ Future<void> injection() async {
   getIt.registerFactory<MainCubit>(() => MainCubit(getIt<LocationCubit>()));
 
   // ── Data layer (must be before HomeCubit) ─────────────────────────
-  getIt.registerLazySingleton<LocalRepository>(() => LocalRepoImpl());
-  getIt.registerLazySingleton<GetPropertiesUseCase>(
-    () => GetPropertiesUseCase(getIt<LocalRepository>()),
+  getIt.registerLazySingleton<LocalRepository>(
+    () => LocalRepoImpl(cache: getIt<HomeCacheDataSource>()),
   );
 
   // ── Feature cubits ────────────────────────────────────────────────
-  getIt.registerSingleton<HomeCubit>(HomeCubit());
+  getIt.registerFactory<HomeCubit>(() => HomeCubit(GetIt.I<LocalRepository>()));
   getIt.registerSingleton<SearchCubit>(SearchCubit());
   getIt.registerSingleton<ProfileCubit>(ProfileCubit());
   getIt.registerSingleton<SettingsCubit>(SettingsCubit());
@@ -84,6 +91,7 @@ Future<void> injection() async {
   getIt.registerSingleton<SavedCubit>(SavedCubit());
   getIt.registerSingleton<SeeAllCubit>(SeeAllCubit());
   getIt.registerSingleton<MessagesCubit>(MessagesCubit());
+  getIt.registerSingleton<NotificationCubit>(NotificationCubit());
 
   await getIt<AuthCubit>().initialise();
 }

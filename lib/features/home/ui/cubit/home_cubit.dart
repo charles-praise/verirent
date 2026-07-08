@@ -1,58 +1,44 @@
-import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:verirent/core/util/cache.dart';
+import 'dart:async';
 
-import '../../../../core/models/property_model.dart';
-import '../../domain/use_case/listing_use_cases.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-part 'home_state.dart';
+import '../../../../core/repo/local_repo.dart';
+import '../../domain/home_response.dart';
+import 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
-  HomeCubit() : super(HomeState()) {
-    loadListing();
+  HomeCubit(this._repository) : super(HomeState()) {
+    _subscribeToBackgroundUpdates();
   }
 
-  final cache = Cache();
+  final LocalRepository _repository;
+  StreamSubscription<HomeResponse>? _updatesSub;
 
-  Future<void> loadListing() async {
-    try {
-      emit(state.copyWith(phase: HomePhase.loading));
-
-      final useCase = GetIt.I<GetPropertiesUseCase>();
-
-      final featured = await useCase(PropertyCategory.featured);
-      final residential = await useCase(PropertyCategory.residential);
-      final commercial = await useCase(PropertyCategory.commercial);
-      final estate = await useCase(PropertyCategory.estate);
-      final land = await useCase(PropertyCategory.land);
-      final recent = await useCase(PropertyCategory.recent);
-      final shortLet = await useCase(PropertyCategory.shortLet);
-      final option = await useCase(PropertyCategory.option);
-
+  void _subscribeToBackgroundUpdates() {
+    _updatesSub = _repository.homeUpdates.listen((home) {
       emit(
-        state.copyWith(
-          phase: HomePhase.loaded,
-          listings: {
-            PropertyCategory.featured: featured,
-            PropertyCategory.residential: residential,
-            PropertyCategory.commercial: commercial,
-            PropertyCategory.estate: estate,
-            PropertyCategory.land: land,
-            PropertyCategory.recent: recent,
-            PropertyCategory.shortLet: shortLet,
-            PropertyCategory.option: option,
-          },
-        ),
-      );
+        state.copyWith(home: home.categories),
+      ); // no loading flicker — silent swap
+    });
+  }
+
+  Future<void> load() async {
+    emit(state.copyWith(phase: HomePhase.loading));
+    try {
+      final home = await _repository.home();
+      emit(state.copyWith(home: home.categories, phase: HomePhase.loaded));
     } catch (e) {
       emit(state.copyWith(phase: HomePhase.error));
     }
   }
 
-  void activeIndex(int index) => emit(state.copyWith(activeIndex: index));
+  void activeIndex(int value) => emit(state.copyWith(activeIndex: value));
 
-  void filterVisibility(bool isFilterVisible) =>
-      emit(state.copyWith(isFilterVisible: isFilterVisible));
+  void loadListing() {}
+
+  @override
+  Future<void> close() {
+    _updatesSub?.cancel();
+    return super.close();
+  }
 }

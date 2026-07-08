@@ -33,6 +33,7 @@ import '../../../../core/theme/agents_theme.dart';
 import '../../../search/ui/cubit/search_cubit.dart';
 import '../../../search/ui/cubit/search_state.dart';
 import '../cubit/home_cubit.dart';
+import '../cubit/home_state.dart';
 import '../widgets/home_custom_appbar.dart';
 import '../widgets/home_filter.dart';
 
@@ -119,6 +120,7 @@ class _HomeState extends State<Home> {
     GetIt.I<SearchCubit>().resetFilters();
     GetIt.I<HomeCubit>().activeIndex(0);
     _searchController.clear();
+    FocusScope.of(context).unfocus();
   }
 
   @override
@@ -169,6 +171,7 @@ class _HomeState extends State<Home> {
     required SearchState searchState,
     required double topPad,
   }) {
+    final isFiltering = _isFiltering(searchState);
     return [
       // ── Pinned app-bar / search bar ──────────────────────────────────
       SliverPersistentHeader(
@@ -191,14 +194,15 @@ class _HomeState extends State<Home> {
       // ── Phase: loaded ─────────────────────────────────────────────────
       else ...[
         // Category chips are always visible in the loaded state.
-        SliverToBoxAdapter(
-          child: SearchFilter(
-            filters: homeState.filters,
-            filterIcons: homeState.filterIcons,
-            activeIndex: homeState.activeIndex,
-            onFilterTap: _onFilterTap,
+        if (!isFiltering)
+          SliverToBoxAdapter(
+            child: SearchFilter(
+              filters: homeState.filters,
+              filterIcons: homeState.filterIcons,
+              activeIndex: homeState.activeIndex,
+              onFilterTap: _onFilterTap,
+            ),
           ),
-        ),
 
         CupertinoSliverRefreshControl(onRefresh: _onRefresh),
 
@@ -259,13 +263,16 @@ class _HomeState extends State<Home> {
         )
       // ── Mode 2: results grid / list ─────────────────────────────────
       else
-        PropertyUseCase(category: PropertyCategory.all, properties: results),
+        PropertyUseCase(
+          category: results.first.category ?? PropertyCategory.all,
+          properties: results,
+        ),
     ];
   }
 
   // ── Category-view slivers (one per category section) ──────────────────
   List<Widget> _categorySlivers(HomeState homeState) {
-    final listings = homeState.listings;
+    final listings = homeState.home;
 
     List<Widget> section(PropertyCategory cat) => [
       PropertyUseCase(category: cat, properties: listings[cat] ?? []),
@@ -330,67 +337,96 @@ class _StatusBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return Container(
-      color: cs.surfaceContainerHighest,
-      padding: const EdgeInsets.fromLTRB(14, 8, 14, 6),
-      child: Row(
-        children: [
-          // Left: spinner while searching, count when done
-          if (isSearching)
-            Row(
-              children: [
-                SizedBox(
-                  width: 12,
-                  height: 12,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 1.5,
-                    color: cs.primary,
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+      child: Container(
+        color: cs.surfaceContainerHighest,
+        padding: const EdgeInsets.fromLTRB(14, 8, 14, 6),
+        child: Row(
+          children: [
+            // Left: spinner while searching, count when done
+            if (isSearching)
+              Row(
+                children: [
+                  SizedBox(
+                    width: 12,
+                    height: 12,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 1.5,
+                      color: cs.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Searching…',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                  ),
+                ],
+              )
+            else
+              Expanded(
+                child: Text(
+                  resultCount == 0
+                      ? 'No properties found'
+                      : '$resultCount propert${resultCount == 1 ? 'y' : 'ies'} found',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: cs.onSurface,
+                    fontSize: 12,
                   ),
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  'Searching…',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                ),
-              ],
-            )
-          else
-            Expanded(
-              child: Text(
-                resultCount == 0
-                    ? 'No properties found'
-                    : '$resultCount propert${resultCount == 1 ? 'y' : 'ies'} found',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: cs.onSurface,
-                  fontSize: 12,
+              ),
+
+            // Active filter badge
+            if (searchState.activeFilterCount > 0) ...[
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: onClearAll,
+                child: _FilterBadge(
+                  cs: cs,
+                  count: searchState.activeFilterCount,
                 ),
               ),
-            ),
+            ],
 
-          // Active filter badge
-          if (searchState.activeFilterCount > 0) ...[
-            const SizedBox(width: 8),
-            GestureDetector(
-              onTap: onClearAll,
-              child: _FilterBadge(cs: cs, count: searchState.activeFilterCount),
-            ),
-          ],
-
-          // Clear query button
-          if (searchState.query.isNotEmpty) ...[
-            const SizedBox(width: 6),
-            GestureDetector(
-              onTap: onClearAll,
-              child: Icon(
-                Icons.close_rounded,
-                size: 16,
-                color: cs.onSurfaceVariant,
+            // Clear query button
+            if (searchState.query.isNotEmpty) ...[
+              const SizedBox(width: 6),
+              GestureDetector(
+                onTap: onClearAll,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: cs.primaryContainer,
+                    borderRadius: BorderRadius.circular(VeriRentRadius.full),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Clear',
+                        style: VeriRentText.labelSmall.copyWith(
+                          color: cs.onPrimaryContainer,
+                          fontSize: 9,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.close_rounded,
+                        size: 9,
+                        color: cs.onPrimaryContainer,
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -405,24 +441,42 @@ class _FilterBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-      decoration: BoxDecoration(
-        color: cs.primaryContainer,
-        borderRadius: BorderRadius.circular(VeriRentRadius.full),
-      ),
+    return SizedBox(
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             '$count filter${count > 1 ? 's' : ''}',
-            style: VeriRentText.labelSmall.copyWith(
+            style: VeriRentText.labelMedium.copyWith(
               color: cs.onPrimaryContainer,
               fontSize: 9,
             ),
           ),
           const SizedBox(width: 4),
-          Icon(Icons.close_rounded, size: 9, color: cs.onPrimaryContainer),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+            decoration: BoxDecoration(
+              color: cs.primaryContainer,
+              borderRadius: BorderRadius.circular(VeriRentRadius.full),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Clear',
+                  style: VeriRentText.labelSmall.copyWith(
+                    color: cs.onPrimaryContainer,
+                    fontSize: 9,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.close_rounded,
+                  size: 9,
+                  color: cs.onPrimaryContainer,
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

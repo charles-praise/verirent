@@ -44,7 +44,7 @@ class SaveButton extends StatelessWidget {
                     ? Icons.favorite_rounded
                     : Icons.favorite_border_rounded,
                 size: size * .5,
-                color: isSaved ? VeriRentColors.red : VeriRentColors.textMuted,
+                color: isSaved ? item.tierColor : VeriRentColors.textMuted,
               ),
             ),
           );

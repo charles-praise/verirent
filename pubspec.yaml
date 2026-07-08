@@ -41,7 +41,7 @@ dependencies:
   go_router: ^17.2.3
   get_it: ^9.2.1
   shared_preferences: ^2.5.5
-  file_picker: ^11.0.2
+  file_picker: ^10.3.8
   path_provider: ^2.1.5
   cached_network_image: ^3.4.1
   permission_handler: ^12.0.1
@@ -56,6 +56,12 @@ dependencies:
   hydrated_bloc: ^11.0.0
   shimmer: ^3.0.0
   flutter_secure_storage: ^10.3.1
+  internet_connection_checker_plus: ^3.1.1
+  video_player: ^2.11.1
+  zego_uikit_prebuilt_live_streaming: ^3.15.6
+  connectivity_plus: ^6.1.5
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
 
 dev_dependencies:
   flutter_test:

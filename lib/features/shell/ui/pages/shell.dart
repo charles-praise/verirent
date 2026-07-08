@@ -40,7 +40,7 @@ import '../../../home/ui/pages/home.dart';
 import '../../../message/ui/pages/messages.dart';
 import '../../../saved/ui/pages/saved.dart';
 import '../../../settings/ui/pages/settings.dart';
-import '../../data/localRepo.dart';
+import '../../feature/notification/ui/pages/notification.dart';
 import '../cubit/main_cubit.dart';
 import '../cubit/main_state.dart';
 import '../widgets/shell_custom_bottom_navbar.dart';

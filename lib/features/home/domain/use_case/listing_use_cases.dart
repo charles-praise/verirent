@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:verirent/core/models/property_model.dart';
-import 'package:verirent/core/repo/local_repo.dart';
 import 'package:verirent/core/shared/ads/ui/pages/recentAds.dart';
 import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
 import 'package:verirent/core/shared/widgets/header.dart';
@@ -11,44 +10,6 @@ import '../../../../core/shared/widgets/card_listing_widget.dart';
 import '../../../../core/shared/widgets/cylinder_listing_widget.dart';
 import '../../../../core/shared/widgets/saveButton.dart';
 import '../../../../core/theme/agents_theme.dart';
-
-class GetPropertiesUseCase {
-  final LocalRepository repository;
-
-  GetPropertiesUseCase(this.repository);
-
-  Future<List<PropertyModel>> call(PropertyCategory category) {
-    switch (category) {
-      case PropertyCategory.all:
-        return repository.all();
-
-      case PropertyCategory.featured:
-        return repository.featured();
-
-      case PropertyCategory.residential:
-        return repository.residential();
-
-      case PropertyCategory.commercial:
-        return repository.commercial();
-
-      case PropertyCategory.estate:
-        return repository.estate();
-
-      case PropertyCategory.land:
-        return repository.land();
-
-      case PropertyCategory.recent:
-        return repository.recent();
-
-      case PropertyCategory.shortLet:
-        return repository.shortLets();
-      case PropertyCategory.option:
-        return repository.option();
-      case PropertyCategory.none:
-        return repository.all();
-    }
-  }
-}
 
 class PropertyUseCase extends StatelessWidget {
   const PropertyUseCase({
@@ -180,7 +141,6 @@ class PropertyUseCase extends StatelessWidget {
 
 class _ListingThumb extends StatelessWidget {
   const _ListingThumb({
-    super.key,
     required this.index,
     required this.color,
     required this.property,

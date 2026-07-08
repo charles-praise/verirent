@@ -28,9 +28,12 @@
 // If your search bar height or greeting text changes, update _contentH.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:verirent/core/shared/location/ui/page/location_trigger.dart';
 import 'package:verirent/core/shared/widgets/profile_avatar.dart';
+import 'package:verirent/features/shell/feature/notification/ui/cubit/notification_cubit.dart';
 
 import '../../../../core/shared/widgets/custom_search_bar.dart';
 import '../../../../core/theme/agents_theme.dart';
@@ -129,7 +132,6 @@ class HomeAppBar extends SliverPersistentHeaderDelegate {
                 const SizedBox(width: VeriRentSpacing.sm),
                 _AppBarIconButton(
                   icon: Icons.notifications_none_rounded,
-                  badgeCount: 3,
                   onTap: () {
                     final scaffold = scaffoldKey.currentState;
                     if (scaffold == null) return;
@@ -195,54 +197,60 @@ class HomeAppBar extends SliverPersistentHeaderDelegate {
 // =============================================================================
 
 class _AppBarIconButton extends StatelessWidget {
-  const _AppBarIconButton({
-    required this.icon,
-    required this.onTap,
-    this.badgeCount = 0,
-  });
+  const _AppBarIconButton({required this.icon, required this.onTap});
+
   final IconData icon;
   final VoidCallback onTap;
-  final int badgeCount;
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: onTap,
-    child: Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(
-            color: VeriRentColors.white.withOpacity(0.12),
-            borderRadius: BorderRadius.circular(VeriRentRadius.sm),
-            border: Border.all(color: VeriRentColors.white.withOpacity(0.15)),
-          ),
-          child: Icon(icon, size: 20, color: VeriRentColors.white),
-        ),
-        if (badgeCount > 0)
-          Positioned(
-            top: -3,
-            right: -3,
-            child: Container(
-              width: 17,
-              height: 17,
-              decoration: BoxDecoration(
-                color: VeriRentColors.secondary500,
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  '$badgeCount',
-                  style: VeriRentText.labelSmall.copyWith(
-                    color: VeriRentColors.white,
-                    fontSize: 9,
+  Widget build(BuildContext context) => BlocProvider.value(
+    value: GetIt.I<NotificationCubit>(),
+    child: BlocBuilder<NotificationCubit, NotificationState>(
+      buildWhen: (prev, curr) => prev.phase != curr.phase,
+      builder: (context, state) {
+        return GestureDetector(
+          onTap: onTap,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: VeriRentColors.white.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(VeriRentRadius.sm),
+                  border: Border.all(
+                    color: VeriRentColors.white.withOpacity(0.15),
                   ),
                 ),
+                child: Icon(icon, size: 20, color: VeriRentColors.white),
               ),
-            ),
+              if (state.unreadCount() > 0)
+                Positioned(
+                  top: -3,
+                  right: -3,
+                  child: Container(
+                    width: 17,
+                    height: 17,
+                    decoration: BoxDecoration(
+                      color: VeriRentColors.secondary500,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${state.unreadCount()}',
+                        style: VeriRentText.labelSmall.copyWith(
+                          color: VeriRentColors.white,
+                          fontSize: 9,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
-      ],
+        );
+      },
     ),
   );
 }

@@ -24,6 +24,28 @@ class ChatMessage extends Equatable {
     this.isSystem = false,
   });
 
+  factory ChatMessage.fromJson(Map<String, dynamic> json) {
+    return ChatMessage(
+      id: json['id'] as String,
+      senderId: json['senderId'] as String,
+      text: json['text'] as String,
+      timestamp: DateTime.parse(json['timestamp'] as String),
+      status: json['status'] != null
+          ? MessageStatus.values[json['status'] as int]
+          : MessageStatus.sent,
+      isSystem: json['isSystem'] as bool? ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'senderId': senderId,
+    'text': text,
+    'timestamp': timestamp.toIso8601String(),
+    'status': status.index,
+    'isSystem': isSystem,
+  };
+
   ChatMessage copyWith({MessageStatus? status}) => ChatMessage(
     id: id,
     senderId: senderId,
@@ -69,6 +91,46 @@ class ChatThread extends Equatable {
     this.messages = const [],
     this.tierColor = VeriRentColors.tierVerified,
   });
+
+  factory ChatThread.fromJson(Map<String, dynamic> json) {
+    return ChatThread(
+      id: json['id'] as String,
+      participantName: json['participantName'] as String,
+      participantRole: json['participantRole'] as String,
+      avatarUrl: json['avatarUrl'] as String?,
+      initials: json['initials'] as String,
+      lastMessage: json['lastMessage'] as String,
+      lastMessageTime: DateTime.parse(json['lastMessageTime'] as String),
+      unreadCount: json['unreadCount'] as int? ?? 0,
+      isOnline: json['isOnline'] as bool? ?? false,
+      isVerifiedAgency: json['isVerifiedAgency'] as bool? ?? false,
+      propertyTitle: json['propertyTitle'] as String?,
+      messages:
+          (json['messages'] as List<dynamic>?)
+              ?.map((e) => ChatMessage.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      tierColor: json['tierColor'] != null
+          ? Color(json['tierColor'] as int)
+          : VeriRentColors.tierVerified,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'participantName': participantName,
+    'participantRole': participantRole,
+    'avatarUrl': avatarUrl,
+    'initials': initials,
+    'lastMessage': lastMessage,
+    'lastMessageTime': lastMessageTime.toIso8601String(),
+    'unreadCount': unreadCount,
+    'isOnline': isOnline,
+    'isVerifiedAgency': isVerifiedAgency,
+    'propertyTitle': propertyTitle,
+    'messages': messages.map((m) => m.toJson()).toList(),
+    'tierColor': tierColor.value,
+  };
 
   ChatThread copyWith({
     List<ChatMessage>? messages,

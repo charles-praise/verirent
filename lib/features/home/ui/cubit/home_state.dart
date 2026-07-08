@@ -1,4 +1,7 @@
-part of 'home_cubit.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
+
+import '../../../../core/models/property_model.dart';
 
 enum HomePhase { initial, loading, loaded, error }
 
@@ -7,14 +10,14 @@ class HomeState extends Equatable {
   final bool isFilterVisible;
   final List<IconData> filterIcons;
   final List<String> filters;
-  final Map<PropertyCategory, List<PropertyModel>> listings;
+  final Map<PropertyCategory, List<PropertyModel>> home;
   final HomePhase phase;
 
   const HomeState({
     this.phase = HomePhase.initial,
     this.activeIndex = 0,
     this.isFilterVisible = false,
-    this.listings = const {},
+    this.home = const {},
     this.filterIcons = const [
       Icons.star_rounded,
       Icons.house_rounded,
@@ -34,13 +37,13 @@ class HomeState extends Equatable {
   HomeState copyWith({
     int? activeIndex,
     bool? isFilterVisible,
-    Map<PropertyCategory, List<PropertyModel>>? listings,
+    Map<PropertyCategory, List<PropertyModel>>? home,
     HomePhase? phase,
   }) {
     return HomeState(
       activeIndex: activeIndex ?? this.activeIndex,
       isFilterVisible: isFilterVisible ?? this.isFilterVisible,
-      listings: listings ?? this.listings,
+      home: home ?? this.home,
       phase: phase ?? this.phase,
     );
   }
@@ -49,7 +52,7 @@ class HomeState extends Equatable {
   List<Object?> get props => [
     activeIndex,
     isFilterVisible,
-    listings,
+    home,
     filterIcons,
     filters,
     phase,
