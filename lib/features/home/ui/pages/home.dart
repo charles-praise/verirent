@@ -24,11 +24,12 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:verirent/core/di/injection.dart';
 import 'package:verirent/core/repo/local_repo.dart';
 import 'package:verirent/features/home/domain/use_case/listing_use_cases.dart';
 import 'package:verirent/features/home/ui/widgets/home_loading_skeleton.dart';
 
-import '../../../../core/models/property_model.dart';
+import '../../../../core/models/property/property_model.dart';
 import '../../../../core/theme/agents_theme.dart';
 import '../../../search/ui/cubit/search_cubit.dart';
 import '../../../search/ui/cubit/search_state.dart';
@@ -56,9 +57,7 @@ class _HomeState extends State<Home> {
     super.initState();
     _scrollController.addListener(_onScroll);
     _searchController.addListener(_onSearchChanged);
-
-    // Seed SearchCubit with the full local catalogue so applyFilters()
-    // always has a non-empty source list, even before the user types.
+    Dependencies.homeCubit.load();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       GetIt.I<SearchCubit>().setAllProperties(
@@ -106,7 +105,7 @@ class _HomeState extends State<Home> {
   // ── Pull-to-refresh ────────────────────────────────────────────────────
   Future<void> _onRefresh() async {
     await Future.delayed(const Duration(milliseconds: 800));
-    GetIt.I<HomeCubit>().loadListing();
+    GetIt.I<HomeCubit>().load();
   }
 
   // ── Category chip tap ──────────────────────────────────────────────────

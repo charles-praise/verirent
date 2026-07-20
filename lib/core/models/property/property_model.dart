@@ -270,7 +270,7 @@ class AsOffice extends AsResidential {
     super.address,
     super.condition,
     super.isFeatured,
-    super.imageUrls,
+    super.mediaUrls,
     super.description,
     super.amenities,
     super.features,
@@ -351,7 +351,7 @@ class AsOffice extends AsResidential {
       address: json['address'] as String?,
       condition: json['condition'] as String?,
       isFeatured: json['isFeatured'] as bool?,
-      imageUrls: (json['imageUrls'] as List<dynamic>?)
+      mediaUrls: (json['imageUrls'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
       description: json['description'] as String?,
@@ -413,7 +413,7 @@ class AsOffice extends AsResidential {
     'address': address,
     'condition': condition,
     'isFeatured': isFeatured,
-    'imageUrls': imageUrls,
+    'imageUrls': mediaUrls,
     'description': description,
     'amenities': amenities,
     'features': features,
@@ -467,7 +467,7 @@ class AsResidential extends AsLand {
     super.address,
     super.condition,
     super.isFeatured,
-    super.imageUrls,
+    super.mediaUrls,
     super.description,
     super.amenities,
     super.features,
@@ -531,7 +531,7 @@ class AsResidential extends AsLand {
       address: json['address'] as String?,
       condition: json['condition'] as String?,
       isFeatured: json['isFeatured'] as bool?,
-      imageUrls: (json['imageUrls'] as List<dynamic>?)
+      mediaUrls: (json['imageUrls'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
       description: json['description'] as String?,
@@ -589,7 +589,7 @@ class AsResidential extends AsLand {
     'address': address,
     'condition': condition,
     'isFeatured': isFeatured,
-    'imageUrls': imageUrls,
+    'imageUrls': mediaUrls,
     'description': description,
     'amenities': amenities,
     'features': features,
@@ -637,7 +637,7 @@ class AsLand extends PropertyModel {
     super.address,
     super.condition,
     super.isFeatured,
-    super.imageUrls,
+    super.mediaUrls,
     super.description,
     super.amenities,
     super.features,
@@ -709,7 +709,7 @@ class AsLand extends PropertyModel {
       address: json['address'] as String?,
       condition: json['condition'] as String?,
       isFeatured: json['isFeatured'] as bool?,
-      imageUrls: (json['imageUrls'] as List<dynamic>?)
+      mediaUrls: (json['imageUrls'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
       description: json['description'] as String?,
@@ -768,7 +768,7 @@ class AsLand extends PropertyModel {
     'address': address,
     'condition': condition,
     'isFeatured': isFeatured,
-    'imageUrls': imageUrls,
+    'imageUrls': mediaUrls,
     'description': description,
     'amenities': amenities,
     'features': features,
@@ -854,7 +854,7 @@ class PropertyModel {
     this.isFeatured,
     this.isRecent,
     this.showInOptions,
-    this.imageUrls,
+    this.mediaUrls,
     this.description,
 
     this.amenities,
@@ -919,7 +919,7 @@ class PropertyModel {
       verificationStatus: json['verificationStatus'] != null
           ? VerificationStatus.values[json['verificationStatus'] as int]
           : null,
-      imageUrls: (json['imageUrls'] as List<dynamic>?)
+      mediaUrls: (json['imageUrls'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
       amenities: (json['amenities'] as List<dynamic>?)
@@ -1007,7 +1007,7 @@ class PropertyModel {
       'type': type?.index,
       'listedBy': listedBy?.index,
       'verificationStatus': verificationStatus?.index,
-      'imageUrls': imageUrls,
+      'imageUrls': mediaUrls,
       'amenities': amenities,
       'features': features,
       'utilities': utilities,
@@ -1079,7 +1079,7 @@ class PropertyModel {
   final bool? showInOptions;
   final double? rating;
 
-  final List<String>? imageUrls; //
+  final List<String>? mediaUrls; //
   final String? description; //
 
   final List<String>? amenities; //

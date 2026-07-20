@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:hive/hive.dart';
 
-import '../../../core/models/property_model.dart';
+import '../../../core/models/property/property_model.dart';
 import '../domain/home_response.dart';
 
 /// Caches the Home screen's [HomeResponse] as a JSON string in Hive.

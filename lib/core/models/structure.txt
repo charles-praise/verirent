@@ -1,0 +1,35 @@
+core/
+│
+├── models/
+│
+│   ├── property/
+│   │
+│   ├── property_model.dart
+│   ├── property_type.dart
+│   ├── property_media.dart
+│   ├── property_features.dart
+│   ├── property_location.dart
+│   ├── property_pricing.dart
+│   ├── property_stats.dart
+│   └── nearby_facility.dart
+│
+├── agency/
+│
+│   ├── agency_model.dart
+│   ├── verification_tier.dart
+│   └── agency_statistics.dart
+│
+├── address/
+│
+│   └── address_model.dart
+│
+├── documents/
+│
+│   └── document_model.dart
+│
+├── details/
+│
+│   ├── residential_details.dart
+│   ├── land_details.dart
+│   ├── office_details.dart
+│   └── lease_details.dart

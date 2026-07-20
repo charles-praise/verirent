@@ -5,7 +5,7 @@ import 'package:verirent/features/message/ui/cubit/message_state.dart';
 import 'package:verirent/features/shell/feature/notification/domain/notification_model.dart';
 
 import '../../features/home/cache/home_cache_data_source.dart';
-import '../models/property_model.dart';
+import '../models/property/property_model.dart';
 import 'data_source.dart';
 
 abstract class LocalRepository {

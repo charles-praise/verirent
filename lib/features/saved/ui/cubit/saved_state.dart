@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../../core/models/property_model.dart';
+import '../../../../core/models/property/property_model.dart';
 
 enum SavedStatus { initial, loading, loaded, empty, error }
 

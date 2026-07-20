@@ -5,6 +5,12 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:verirent/features/shell/feature/notification/ui/cubit/notification_cubit.dart';
 
+import '../../features/auth/domain/service/auth_service/auth_service.dart';
+import '../../features/auth/domain/service/auth_service/auth_service_impl.dart';
+import '../../features/auth/domain/service/secure_storage_service/secure_storage_service.dart';
+import '../../features/auth/domain/service/secure_storage_service/secure_storage_service_impl.dart';
+import '../../features/auth/domain/service/token_refresh_service/token_refresh.dart';
+import '../../features/auth/domain/service/token_refresh_service/token_refresh_service_impl.dart';
 import '../../features/auth/ui/cubit/auth_cubit.dart';
 import '../../features/home/cache/home_cache_data_source.dart';
 import '../../features/home/features/listing/ui/cubit/listing_details_cubit.dart';
@@ -18,17 +24,33 @@ import '../../features/settings/ui/cubit/settings_cubit.dart';
 import '../../features/shell/ui/cubit/main_cubit.dart';
 import '../repo/api_client.dart';
 import '../repo/local_repo.dart';
-import '../service/auth_service.dart';
-import '../service/auth_service_impl.dart';
-import '../service/secure_storage_service.dart';
-import '../service/secure_storage_service_impl.dart';
-import '../service/token_refresh.dart';
-import '../service/token_refresh_service_impl.dart';
 import '../shared/location/ui/cubit/location_cubit.dart';
+
+class Dependencies {
+  static final main = GetIt.I<MainCubit>();
+  static final locationCubit = GetIt.I<LocationCubit>();
+  static final localRepository = GetIt.I<LocalRepository>();
+  static final homeCubit = GetIt.I<HomeCubit>();
+  static final profileCubit = GetIt.I<ProfileCubit>();
+  static final settingsCubit = GetIt.I<SettingsCubit>();
+  static final listingDetailsCubit = GetIt.I<ListingDetailsCubit>();
+  static final savedCubit = GetIt.I<SavedCubit>();
+  static final searchCubit = GetIt.I<SearchCubit>();
+  static final seeAllCubit = GetIt.I<SeeAllCubit>();
+  static final messageCubit = GetIt.I<MessagesCubit>();
+  static final notificationCubit = GetIt.I<NotificationCubit>();
+  static final authCubit = GetIt.I<AuthCubit>();
+  static final homeCacheDataSource = GetIt.I<HomeCacheDataSource>();
+  static final apiClient = GetIt.I<ApiClient>();
+  static final authService = GetIt.I<AuthService>();
+  static final secureStorageService = GetIt.I<SecureStorageService>();
+  static final tokenRefreshService = GetIt.I<TokenRefreshService>();
+}
 
 Future<void> injection() async {
   final GetIt getIt = GetIt.I;
 
+  // ── Hydrated Bloc Storage   ────────────────────────────────────────────
   HydratedBloc.storage = await HydratedStorage.build(
     storageDirectory: kIsWeb
         ? HydratedStorageDirectory.web
@@ -56,42 +78,47 @@ Future<void> injection() async {
     () => SecureStorageServiceImpl(),
   );
   getIt.registerLazySingleton<AuthService>(
-    () => AuthServiceImpl(getIt<ApiClient>()),
+    () => AuthServiceImpl(Dependencies.apiClient),
   );
   getIt.registerLazySingleton<TokenRefreshService>(
-    () => TokenRefreshServiceImpl(getIt<ApiClient>()),
+    () => TokenRefreshServiceImpl(Dependencies.apiClient),
   );
 
   // ── Auth (singleton — needed early for routing) ───────────────────
   getIt.registerSingleton<AuthCubit>(
     AuthCubit(
-      authService: getIt<AuthService>(),
-      secureStorage: getIt<SecureStorageService>(),
-      tokenRefreshService: getIt<TokenRefreshService>(),
+      authService: Dependencies.authService,
+      secureStorage: Dependencies.secureStorageService,
+      tokenRefreshService: Dependencies.tokenRefreshService,
     ),
   );
 
   // ── Location (must be before MainCubit) ───────────────────────────
   getIt.registerSingleton<LocationCubit>(LocationCubit());
 
-  // ── Shell ─────────────────────────────────────────────────────────
-  getIt.registerFactory<MainCubit>(() => MainCubit(getIt<LocationCubit>()));
+  // ── Main ─────────────────────────────────────────────────────────
+  getIt.registerLazySingleton<MainCubit>(
+    () => MainCubit(Dependencies.locationCubit, Dependencies.authCubit),
+  );
 
   // ── Data layer (must be before HomeCubit) ─────────────────────────
   getIt.registerLazySingleton<LocalRepository>(
-    () => LocalRepoImpl(cache: getIt<HomeCacheDataSource>()),
+    () => LocalRepoImpl(cache: Dependencies.homeCacheDataSource),
   );
 
   // ── Feature cubits ────────────────────────────────────────────────
-  getIt.registerFactory<HomeCubit>(() => HomeCubit(GetIt.I<LocalRepository>()));
-  getIt.registerSingleton<SearchCubit>(SearchCubit());
+  getIt.registerLazySingleton<HomeCubit>(
+    () => HomeCubit(Dependencies.localRepository),
+  );
+  getIt.registerFactory<SearchCubit>(() => SearchCubit());
   getIt.registerSingleton<ProfileCubit>(ProfileCubit());
   getIt.registerSingleton<SettingsCubit>(SettingsCubit());
-  getIt.registerSingleton<ListingDetailsCubit>(ListingDetailsCubit());
+  getIt.registerFactory<ListingDetailsCubit>(() => ListingDetailsCubit());
   getIt.registerSingleton<SavedCubit>(SavedCubit());
-  getIt.registerSingleton<SeeAllCubit>(SeeAllCubit());
-  getIt.registerSingleton<MessagesCubit>(MessagesCubit());
+  getIt.registerFactory<SeeAllCubit>(() => SeeAllCubit());
+  getIt.registerSingleton<MessagesCubit>(MessagesCubit(Dependencies.authCubit));
   getIt.registerSingleton<NotificationCubit>(NotificationCubit());
 
-  await getIt<AuthCubit>().initialise();
+  Dependencies.locationCubit;
+  await Dependencies.authCubit.initialise();
 }

@@ -3,7 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:verirent/core/models/property_model.dart';
+import 'package:verirent/core/models/property/property_model.dart';
 
 import 'search_state.dart';
 

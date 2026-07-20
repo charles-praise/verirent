@@ -11,9 +11,9 @@
 
 import 'package:dio/dio.dart';
 
-import '../error/auth_exception.dart';
-import '../repo/api_client.dart';
-import 'auth_user.dart';
+import '../../../../../core/error/auth_exception.dart';
+import '../../../../../core/repo/api_client.dart';
+import '../../entity/auth_user.dart';
 import 'token_refresh.dart'; // AuthUser, UserTier
 
 class TokenRefreshServiceImpl implements TokenRefreshService {

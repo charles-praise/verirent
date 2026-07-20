@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:verirent/core/di/injection.dart';
+import 'package:verirent/core/shared/custom_network_media/ui/pages/network_media.dart';
+import 'package:verirent/features/router/route_args/chat_args.dart';
 
-import '../../../../../../core/models/property_model.dart';
-import '../../../../../../core/shared/network_image/ui/pages/network_image.dart';
+import '../../../../../../core/models/property/property_model.dart';
 import '../../../../../../core/shared/widgets/action_tile.dart';
 import '../../../../../../core/theme/agents_theme.dart';
-import '../../../../../message/ui/cubit/message_cubit.dart';
 import '../../../../../profile/ui/pages/view_profile.dart';
+import '../../../../../router/route_path/route_paths.dart';
 
 class AgencyBlock extends StatelessWidget {
-  const AgencyBlock({super.key, required this.listing, required this.accent});
-  final PropertyModel listing;
+  const AgencyBlock({super.key, required this.property, required this.accent});
+  final PropertyModel property;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final agency = listing.agency!;
+    final agency = property.agency!;
+    final messageCubit = Dependencies.messageCubit;
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(14),
@@ -38,7 +40,7 @@ class AgencyBlock extends StatelessWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ViewProfile(agency: listing.agency!),
+                builder: (context) => ViewProfile(agency: property.agency!),
               ),
             ),
             child: Row(
@@ -50,8 +52,8 @@ class AgencyBlock extends StatelessWidget {
                     color: accent.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(VeriRentRadius.md),
                   ),
-                  child: CustomNetworkImage(
-                    imgUrl: listing.agentAvatarUrl ?? "",
+                  child: CustomNetworkMedia(
+                    url: property.agentAvatarUrl ?? "",
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
@@ -107,14 +109,17 @@ class AgencyBlock extends StatelessWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    GetIt.I<MessagesCubit>().openChatFromListingPage(
-                      listing.agency!,
-                      listing,
+                    messageCubit.openChatFromListingPage(
+                      property.agency!,
+                      property,
                     );
                     if (context.mounted) {
                       context.push(
-                        '/message/chat',
-                        extra: [GetIt.I<MessagesCubit>(), listing],
+                        '${RoutePaths.message}/${RoutePaths.chat}',
+                        extra: ChatRouteArgs(
+                          cubit: messageCubit,
+                          property: property,
+                        ),
                       );
                     }
                   },
@@ -131,10 +136,10 @@ class AgencyBlock extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: () => showListOfCallTypesBottomSheet(
                     context,
-                    listing: listing,
-                    directPhoneCall: () {},
-                    inAppVoiceCall: () {},
-                    inAppVideoCall: () {},
+                    listing: property,
+                    directPhoneCall: () {}, //todo: implement direct phone call
+                    inAppVoiceCall: () {}, //todo: implement voice call
+                    inAppVideoCall: () {}, // todo: implement video call
                   ),
                   icon: const Icon(Icons.call_rounded, size: 16),
                   label: const Text('Call'),

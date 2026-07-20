@@ -1,4 +1,4 @@
-import '../../../core/models/property_model.dart';
+import '../../../core/models/property/property_model.dart';
 import '../../../core/repo/local_repo.dart';
 
 class HomeResponse {

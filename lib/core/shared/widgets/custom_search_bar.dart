@@ -165,11 +165,13 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                                 color: cs.onSurfaceVariant,
                               ),
                             )
-                          : Icon(
+                          : widget.showFilter
+                          ? Icon(
                               Icons.mic_outlined,
                               color: cs.primary,
                               size: 23,
-                            ),
+                            )
+                          : null,
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 12,

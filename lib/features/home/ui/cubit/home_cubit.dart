@@ -34,8 +34,6 @@ class HomeCubit extends Cubit<HomeState> {
 
   void activeIndex(int value) => emit(state.copyWith(activeIndex: value));
 
-  void loadListing() {}
-
   @override
   Future<void> close() {
     _updatesSub?.cancel();

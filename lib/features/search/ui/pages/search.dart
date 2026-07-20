@@ -7,7 +7,7 @@ import 'package:verirent/features/search/ui/cubit/search_cubit.dart';
 import 'package:verirent/features/search/ui/cubit/search_state.dart';
 
 import '../../../../../core/theme/agents_theme.dart';
-import '../../../../core/models/property_model.dart';
+import '../../../../core/models/property/property_model.dart';
 import '../../utils/kFormatPrice.dart';
 import '../widget/filter_panel.dart';
 
@@ -521,9 +521,9 @@ class _CompactCard extends StatelessWidget {
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(VeriRentRadius.lg),
                     ),
-                    child: (p.imageUrls?.isNotEmpty == true)
+                    child: (p.mediaUrls?.isNotEmpty == true)
                         ? Image.network(
-                            p.imageUrls!.first,
+                            p.mediaUrls!.first,
                             fit: BoxFit.cover,
                             errorBuilder: (_, __, ___) => _Placeholder(),
                           )

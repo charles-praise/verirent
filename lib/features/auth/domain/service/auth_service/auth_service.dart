@@ -4,7 +4,7 @@
 
 // ignore_for_file: one_member_abstracts
 
-import 'auth_user.dart';
+import '../../entity/auth_user.dart';
 
 abstract class AuthService {
   /// Sends OTP to [phoneNumber] (E.164). Returns server-side [verificationId].

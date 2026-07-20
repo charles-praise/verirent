@@ -18,12 +18,13 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
+import 'package:verirent/core/shared/custom_network_media/ui/pages/network_media.dart';
 import 'package:verirent/core/shared/widgets/verifiedBadge.dart';
 
 import '../../../features/home/ui/widgets/home_room_chip.dart';
 import '../../../features/home/ui/widgets/home_tier_badge.dart';
-import '../../models/property_model.dart';
+import '../../../features/router/route_path/route_paths.dart';
+import '../../models/property/property_model.dart';
 import '../../theme/agents_theme.dart';
 
 // =============================================================================
@@ -67,8 +68,8 @@ class _Thumbnail extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           ClipRect(
-            child: CustomNetworkImage(
-              imgUrl: imgUrl,
+            child: CustomNetworkMedia(
+              url: imgUrl,
               borderRadius: const BorderRadius.horizontal(
                 left: Radius.circular(VeriRentRadius.lg),
               ),
@@ -101,7 +102,7 @@ class ResidentialCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return GestureDetector(
-      onTap: () => context.push('/listing_details', extra: card),
+      onTap: () => context.push(RoutePaths.listingDetails, extra: card),
       child: Container(
         height: 100,
         decoration: BoxDecoration(
@@ -124,7 +125,7 @@ class ResidentialCard extends StatelessWidget {
         child: Row(
           children: [
             _Thumbnail(
-              imgUrl: card.imageUrls!.first,
+              imgUrl: card.mediaUrls!.first,
               stripColor: VeriRentColors.primary,
               item: card,
             ),
@@ -227,7 +228,7 @@ class LandCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return GestureDetector(
-      onTap: () => context.push('/listing_details', extra: card),
+      onTap: () => context.push(RoutePaths.listingDetails, extra: card),
       child: Container(
         height: 100,
         decoration: BoxDecoration(
@@ -250,7 +251,7 @@ class LandCard extends StatelessWidget {
         child: Row(
           children: [
             _Thumbnail(
-              imgUrl: card.imageUrls!.first,
+              imgUrl: card.mediaUrls!.first,
               stripColor: _green,
               item: card,
             ),
@@ -384,7 +385,7 @@ class CommercialCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return GestureDetector(
-      onTap: () => context.push('/listing_details', extra: card),
+      onTap: () => context.push(RoutePaths.listingDetails, extra: card),
       child: Container(
         height: 100,
         decoration: BoxDecoration(
@@ -407,7 +408,7 @@ class CommercialCard extends StatelessWidget {
         child: Row(
           children: [
             _Thumbnail(
-              imgUrl: card.imageUrls!.first,
+              imgUrl: card.mediaUrls!.first,
               stripColor: _blue,
               item: card,
             ),
@@ -540,7 +541,7 @@ class EstateCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return GestureDetector(
-      onTap: () => context.push('/listing_details', extra: card),
+      onTap: () => context.push(RoutePaths.listingDetails, extra: card),
       child: Container(
         height: 100,
         decoration: BoxDecoration(
@@ -561,7 +562,7 @@ class EstateCard extends StatelessWidget {
         child: Row(
           children: [
             _Thumbnail(
-              imgUrl: card.imageUrls!.first,
+              imgUrl: card.mediaUrls!.first,
               stripColor: VeriRentColors.gold,
               item: card,
             ),
@@ -694,7 +695,7 @@ class ShortletCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return GestureDetector(
-      onTap: () => context.push('/listing_details', extra: card),
+      onTap: () => context.push(RoutePaths.listingDetails, extra: card),
       child: Container(
         height: 100,
         decoration: BoxDecoration(
@@ -719,7 +720,7 @@ class ShortletCard extends StatelessWidget {
             Stack(
               children: [
                 _Thumbnail(
-                  imgUrl: card.imageUrls!.first,
+                  imgUrl: card.mediaUrls!.first,
                   stripColor: _purple,
                   item: card,
                 ),

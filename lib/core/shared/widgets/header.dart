@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:verirent/core/models/property_model.dart';
+import 'package:verirent/core/models/property/property_model.dart';
 import 'package:verirent/core/shared/location/ui/cubit/location_cubit.dart';
+import 'package:verirent/features/router/route_args/view_all_chat_args.dart';
 
 import '../../theme/agents_theme.dart';
 import '../location/ui/cubit/location_state.dart';
@@ -100,7 +101,11 @@ class Header extends StatelessWidget {
                   TextButton(
                     onPressed: () => context.push(
                       "/see_all",
-                      extra: [properties, text, category],
+                      extra: ViewAllChatArgs(
+                        category: category,
+                        properties: properties!,
+                        text: text,
+                      ),
                     ),
                     child: Text(
                       'View all',

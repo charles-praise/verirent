@@ -4,21 +4,22 @@
 // =============================================================================
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
-import 'package:verirent/core/repo/local_repo.dart';
+import 'package:verirent/core/di/injection.dart';
 import 'package:verirent/core/theme/agents_theme.dart';
+import 'package:verirent/features/auth/ui/cubit/auth_cubit.dart';
 
-import '../../../../core/models/property_model.dart';
+import '../../../../core/models/property/property_model.dart';
 import 'message_state.dart';
 
 // ── Cubit ─────────────────────────────────────────────────────────────────────
 
 class MessagesCubit extends Cubit<MessagesState> {
-  MessagesCubit() : super(MessagesState()) {
+  final AuthCubit authCubit;
+  MessagesCubit(this.authCubit) : super(MessagesState()) {
     loadThreads();
   }
 
-  final _localRepository = GetIt.I<LocalRepository>();
+  final _localRepository = Dependencies.localRepository;
 
   Future<void> loadThreads() async {
     emit(state.copyWith(status: MessagesStatus.loading));

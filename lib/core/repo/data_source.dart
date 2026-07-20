@@ -21,7 +21,7 @@
 // =============================================================================
 
 import '../../features/message/ui/cubit/message_state.dart';
-import '../models/property_model.dart';
+import '../models/property/property_model.dart';
 import '../theme/agents_theme.dart';
 
 final List<NearbyFacility> kNearbyFacilitiesGRA = [
@@ -320,7 +320,7 @@ final PropertyModel kResidential1 = PropertyModel(
   agentInitials: 'GE',
   location: 'GRA Phase 2, Port Harcourt',
   propertyType: 'Apartment',
-  imageUrls: [
+  mediaUrls: [
     'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600',
     'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600',
     'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=600',
@@ -405,7 +405,7 @@ final PropertyModel kResidential2 = PropertyModel(
   agentInitials: 'AR',
   location: 'Trans-Amadi, Port Harcourt',
   propertyType: 'Duplex',
-  imageUrls: [
+  mediaUrls: [
     'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600',
     'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600',
     'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600',
@@ -491,7 +491,7 @@ final PropertyModel kResidential3 = PropertyModel(
   agentInitials: 'HF',
   location: 'Rumuola, Port Harcourt',
   propertyType: 'Studio',
-  imageUrls: [
+  mediaUrls: [
     'https://images.unsplash.com/photo-1536376072261-38c75010e6c9?w=600',
     'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600',
   ],
@@ -556,7 +556,7 @@ final PropertyModel kResidential4 = PropertyModel(
   agentInitials: 'EP',
   location: 'Old GRA, Port Harcourt, Tombia Street',
   propertyType: 'Detached House Quite Environment',
-  imageUrls: [
+  mediaUrls: [
     'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600',
     'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600',
     'https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=600',
@@ -645,7 +645,7 @@ final PropertyModel kLand1 = PropertyModel(
   agentInitials: 'GE',
   location: 'Rumuigbo, Obio-Akpor bbbbb',
   propertyType: 'Residential Land',
-  imageUrls: [
+  mediaUrls: [
     'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600',
     'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600',
   ],
@@ -719,7 +719,7 @@ final PropertyModel kLand2 = PropertyModel(
   agentInitials: 'AR',
   location: 'D-Line, Port Harcourt',
   propertyType: 'Commercial Plot',
-  imageUrls: [
+  mediaUrls: [
     'https://images.unsplash.com/photo-1448630360428-65456885c650?w=600',
     'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600',
   ],
@@ -791,7 +791,7 @@ final PropertyModel kLand3 = PropertyModel(
   agentInitials: 'HF',
   location: 'Igwuruta, Ikwerre LGA',
   propertyType: 'Farm Land',
-  imageUrls: [
+  mediaUrls: [
     'https://images.unsplash.com/photo-1500076656116-558758f7f28c?w=600',
   ],
   amenities: ['Stream Access', 'Cleared Land', 'Road Access'],
@@ -858,7 +858,7 @@ final PropertyModel kCommercial1 = PropertyModel(
   agentInitials: 'EP',
   location: 'D-Line, Port Harcourt',
   propertyType: 'Office',
-  imageUrls: [
+  mediaUrls: [
     'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600',
     'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=600',
     'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600',
@@ -947,7 +947,7 @@ final PropertyModel kCommercial2 = PropertyModel(
   agentInitials: 'AR',
   location: 'Aba Road, Port Harcourt',
   propertyType: 'Office Suite',
-  imageUrls: [
+  mediaUrls: [
     'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=600',
     'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600',
   ],
@@ -1035,7 +1035,7 @@ final PropertyModel kCommercial3 = PropertyModel(
   agentInitials: 'HF',
   location: 'Rumuola Road, Port Harcourt',
   propertyType: 'Shop',
-  imageUrls: [
+  mediaUrls: [
     'https://images.unsplash.com/photo-1604719312566-8912e9c8a213?w=600',
   ],
   amenities: ['Street Access', 'Prepaid Meter', 'Security'],
@@ -1109,7 +1109,7 @@ final PropertyModel kEstate1 = PropertyModel(
   agentInitials: 'AR',
   location: 'Woji, Obio-Akpor',
   propertyType: 'Terrace Duplex',
-  imageUrls: [
+  mediaUrls: [
     'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=600',
     'https://images.unsplash.com/photo-1613977257592-4871e5fcd7c4?w=600',
     'https://images.unsplash.com/photo-1600607687939-ce8a6d731f89?w=600',
@@ -1181,7 +1181,9 @@ final PropertyModel kEstate2 = PropertyModel(
   agentInitials: 'GE',
   location: 'Eliozu, Obio-Akpor',
   propertyType: 'Flat',
-  imageUrls: [
+  mediaUrls: [
+    "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200",
+    "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=1200",
     'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600',
     'https://images.unsplash.com/photo-1560185007-5f0bb1866cab?w=600',
   ],
@@ -1248,7 +1250,8 @@ final PropertyModel kShortlet1 = PropertyModel(
   agentInitials: 'EP',
   location: 'Rumuola, Port Harcourt',
   propertyType: 'Shortlet Apartment',
-  imageUrls: [
+  mediaUrls: [
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
     'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600',
     'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600',
     'https://images.unsplash.com/photo-1556020685-ae41abfc9365?w=600',
@@ -1337,7 +1340,8 @@ final PropertyModel kShortlet2 = PropertyModel(
   agentInitials: 'HF',
   location: 'GRA Phase 1, Port Harcourt',
   propertyType: 'Studio Shortlet',
-  imageUrls: [
+  mediaUrls: [
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600',
     'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600',
   ],
@@ -1464,4 +1468,83 @@ final List<PropertyModel> kAllListings = [
   kShortlet2,
   kResidential3,
   kResidential4,
+];
+
+const mediaUrls = [
+  // Images
+  "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200",
+  "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=1200",
+
+  // Videos
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+
+  // HLS
+  "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+
+  // Invalid URL (to test error handling)
+  "https://example.com/invalid.mp4",
+];
+
+const testVideos = [
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscape.mp4",
+
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
+
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4",
+
+  "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+
+  "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_ts/master.m3u8",
+
+  "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
+];
+
+const unsplashProfiles = [
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600",
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600",
+  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=600",
+  "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600",
+  "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600",
+  "https://images.unsplash.com/photo-1504593811423-6dd665756598?w=600",
+  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600",
+  "https://images.unsplash.com/photo-1504257432389-52343af06ae3?w=600",
+];
+
+const femaleProfiles = [
+  "https://randomuser.me/api/portraits/women/1.jpg",
+  "https://randomuser.me/api/portraits/women/5.jpg",
+  "https://randomuser.me/api/portraits/women/10.jpg",
+  "https://randomuser.me/api/portraits/women/15.jpg",
+  "https://randomuser.me/api/portraits/women/20.jpg",
+  "https://randomuser.me/api/portraits/women/25.jpg",
+  "https://randomuser.me/api/portraits/women/30.jpg",
+  "https://randomuser.me/api/portraits/women/35.jpg",
+];
+
+const maleProfiles = [
+  "https://randomuser.me/api/portraits/men/1.jpg",
+  "https://randomuser.me/api/portraits/men/5.jpg",
+  "https://randomuser.me/api/portraits/men/10.jpg",
+  "https://randomuser.me/api/portraits/men/15.jpg",
+  "https://randomuser.me/api/portraits/men/20.jpg",
+  "https://randomuser.me/api/portraits/men/25.jpg",
+  "https://randomuser.me/api/portraits/men/30.jpg",
+  "https://randomuser.me/api/portraits/men/35.jpg",
 ];

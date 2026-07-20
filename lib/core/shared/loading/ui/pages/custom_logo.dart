@@ -5,7 +5,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
+import 'package:verirent/core/shared/custom_network_media/ui/pages/network_media.dart';
 import 'package:verirent/core/theme/agents_theme.dart';
 
 // ── Animated Loading Logo ───────────────────────────────────────────────────
@@ -507,7 +507,9 @@ class _PulsingRingLoaderState extends State<PulsingRingLoader>
                 colors: [VeriRentColors.primary600, VeriRentColors.primary500],
               ),
             ),
-            child: CustomNetworkImage(imgUrl: ''),
+            child: CustomNetworkMedia(
+              url: '',
+            ), //todo: replace with original logo image
           ),
         ],
       ),

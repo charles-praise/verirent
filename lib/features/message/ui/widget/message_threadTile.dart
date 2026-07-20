@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:verirent/core/shared/custom_network_media/ui/pages/network_media.dart';
 
-import '../../../../core/shared/network_image/ui/pages/network_image.dart';
 import '../../../../core/shared/widgets/verifiedBadge.dart';
 import '../../../../core/theme/agents_theme.dart';
 import '../cubit/message_state.dart';
@@ -84,8 +84,8 @@ class ThreadTile extends StatelessWidget {
                         ),
                         child: thread.avatarUrl != null
                             ? ClipOval(
-                                child: CustomNetworkImage(
-                                  imgUrl: thread.avatarUrl!,
+                                child: CustomNetworkMedia(
+                                  url: thread.avatarUrl!,
                                 ),
                               )
                             : Center(

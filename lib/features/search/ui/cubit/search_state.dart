@@ -2,7 +2,7 @@
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:verirent/core/models/property_model.dart';
+import 'package:verirent/core/models/property/property_model.dart';
 
 enum SearchStage { initial, loading, loaded, error }
 

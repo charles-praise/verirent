@@ -12,10 +12,10 @@
 
 import 'package:dio/dio.dart';
 
-import '../error/auth_exception.dart';
-import '../repo/api_client.dart';
+import '../../../../../core/error/auth_exception.dart';
+import '../../../../../core/repo/api_client.dart';
+import '../../entity/auth_user.dart'; // for AuthUser, UserTier
 import 'auth_service.dart';
-import 'auth_user.dart'; // for AuthUser, UserTier
 
 class AuthServiceImpl implements AuthService {
   const AuthServiceImpl(this._api);

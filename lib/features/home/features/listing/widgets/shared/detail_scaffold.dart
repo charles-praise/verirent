@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:verirent/core/shared/custom_network_media/ui/pages/network_media.dart';
 
-import '../../../../../../core/models/property_model.dart';
-import '../../../../../../core/shared/network_image/ui/pages/network_image.dart';
+import '../../../../../../core/models/property/property_model.dart';
 import '../../../../../../core/theme/agents_theme.dart';
 import '../../../../../../core/util/share.dart';
 import '../../../../../saved/ui/cubit/saved_cubit.dart';
@@ -63,7 +63,7 @@ class _DetailScaffoldState extends State<DetailScaffold> {
           ? SystemUiOverlayStyle.dark
           : SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: cs.surfaceVariant,
+        backgroundColor: cs.surfaceContainerHighest,
         body: CustomScrollView(
           slivers: [
             // ── App Bar ─────────────────────────────────────────
@@ -77,7 +77,7 @@ class _DetailScaffoldState extends State<DetailScaffold> {
                 child: Container(
                   margin: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: cs.surfaceVariant,
+                    color: cs.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(VeriRentRadius.sm),
                     border: Border.all(color: cs.outlineVariant),
                   ),
@@ -163,7 +163,9 @@ class _DetailScaffoldState extends State<DetailScaffold> {
                             borderRadius: BorderRadius.circular(5),
                             color: isSaved
                                 ? cs.brightness == Brightness.dark
-                                      ? VeriRentColors.red.withOpacity(0.15)
+                                      ? VeriRentColors.red.withValues(
+                                          alpha: 0.15,
+                                        )
                                       : VeriRentColors.transparent
                                 : Colors.transparent,
                           ),
@@ -208,11 +210,11 @@ class _DetailScaffoldState extends State<DetailScaffold> {
                     PageView(
                       controller: _pageCtrl,
                       onPageChanged: (i) => setState(() => _imgIndex = i),
-                      children: listing.imageUrls!
+                      children: listing.mediaUrls!
                           .map(
                             (img) => Container(
                               color: Colors.grey[900],
-                              child: CustomNetworkImage(imgUrl: img),
+                              child: CustomNetworkMedia(url: img),
                             ),
                           )
                           .toList(),
@@ -238,7 +240,9 @@ class _DetailScaffoldState extends State<DetailScaffold> {
                                 vertical: 5,
                               ),
                               decoration: BoxDecoration(
-                                color: VeriRentColors.gold.withOpacity(0.9),
+                                color: VeriRentColors.gold.withValues(
+                                  alpha: 0.9,
+                                ),
                                 borderRadius: BorderRadius.circular(
                                   VeriRentRadius.full,
                                 ),
@@ -312,13 +316,13 @@ class _DetailScaffoldState extends State<DetailScaffold> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
+                          color: Colors.black.withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(
                             VeriRentRadius.full,
                           ),
                         ),
                         child: Text(
-                          '${_imgIndex + 1} / ${listing.imageUrls!.length}',
+                          '${_imgIndex + 1} / ${listing.mediaUrls!.length}',
                           style: VeriRentText.labelSmall.copyWith(
                             color: Colors.white,
                             fontSize: 10,
@@ -334,7 +338,7 @@ class _DetailScaffoldState extends State<DetailScaffold> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: List.generate(
-                            listing.imageUrls!.length,
+                            listing.mediaUrls!.length,
                             (i) => Container(
                               width: 6,
                               height: 6,
@@ -373,7 +377,7 @@ class _DetailScaffoldState extends State<DetailScaffold> {
             if (listing.agency != null)
               SliverToBoxAdapter(
                 child: AgencyBlock(
-                  listing: listing,
+                  property: listing,
                   accent: widget.accentColor,
                 ),
               ),

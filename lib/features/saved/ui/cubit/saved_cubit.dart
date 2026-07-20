@@ -1,5 +1,5 @@
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:verirent/core/models/property_model.dart';
+import 'package:verirent/core/models/property/property_model.dart';
 
 import 'saved_state.dart';
 

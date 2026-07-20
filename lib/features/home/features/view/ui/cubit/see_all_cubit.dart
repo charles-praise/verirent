@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:verirent/core/models/property_model.dart';
+import 'package:verirent/core/models/property/property_model.dart';
 
 part 'see_all_state.dart';
 

@@ -6,10 +6,10 @@ import 'package:equatable/equatable.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 
 import '../../../../core/error/auth_exception.dart';
-import '../../../../core/service/auth_service.dart';
-import '../../../../core/service/auth_user.dart';
-import '../../../../core/service/secure_storage_service.dart';
-import '../../../../core/service/token_refresh.dart';
+import '../../domain/entity/auth_user.dart';
+import '../../domain/service/auth_service/auth_service.dart';
+import '../../domain/service/secure_storage_service/secure_storage_service.dart';
+import '../../domain/service/token_refresh_service/token_refresh.dart';
 
 part 'auth_state.dart';
 

@@ -1,5 +1,5 @@
 // =============================================================================
-//  VeriRent NG — Category Featured Cards
+//  Agent NG — Category Featured Cards
 //  Visually communicates property category BEFORE the user reads the title.
 //
 //  Factory usage:
@@ -14,10 +14,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
+import 'package:verirent/core/shared/custom_network_media/ui/pages/network_media.dart';
+import 'package:verirent/features/router/route_path/route_paths.dart';
 
 import '../../../features/home/ui/widgets/home_tier_badge.dart';
-import '../../models/property_model.dart';
+import '../../models/property/property_model.dart';
 import '../../theme/agents_theme.dart';
 import '../../util/rating_formatter.dart';
 import 'saveButton.dart';
@@ -64,7 +65,7 @@ class _Chip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(VeriRentRadius.xs),
       ),
       child: Row(
@@ -114,7 +115,7 @@ class _AgencyRow extends StatelessWidget {
           width: 16,
           height: 16,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.12),
+            color: color.withValues(alpha: 0.12),
             shape: BoxShape.circle,
           ),
           child: Icon(Icons.business_rounded, size: 9, color: color),
@@ -197,7 +198,7 @@ class ResidentialFeaturedCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return GestureDetector(
-      onTap: () => context.push('/listing_details', extra: card),
+      onTap: () => context.push(RoutePaths.listingDetails, extra: card),
       child: SizedBox(
         height: _height,
         width: _width,
@@ -207,13 +208,13 @@ class ResidentialFeaturedCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(VeriRentRadius.lg),
             border: Border.all(
               color: card.isVerified!
-                  ? VeriRentColors.primary.withOpacity(0.35)
+                  ? VeriRentColors.primary.withValues(alpha: 0.35)
                   : cs.outlineVariant,
               width: card.isVerified! ? 1.5 : 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: cs.shadow.withOpacity(0.06),
+                color: cs.shadow.withValues(alpha: 0.06),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -227,8 +228,8 @@ class ResidentialFeaturedCard extends StatelessWidget {
                   SizedBox(
                     height: 130,
                     width: double.infinity,
-                    child: CustomNetworkImage(
-                      imgUrl: card.imageUrls!.first,
+                    child: CustomNetworkMedia(
+                      url: card.mediaUrls![1],
                       borderRadius: _topRadius(),
                     ),
                   ),
@@ -249,7 +250,7 @@ class ResidentialFeaturedCard extends StatelessWidget {
                           VeriRentRadius.full,
                         ),
                         border: Border.all(
-                          color: Colors.white24.withOpacity(0.1),
+                          color: Colors.white24.withValues(alpha: 0.1),
                         ),
                       ),
                       child: Row(
@@ -378,7 +379,7 @@ class LandFeaturedCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return GestureDetector(
-      onTap: () => context.push('/listing_details', extra: card),
+      onTap: () => context.push(RoutePaths.listingDetails, extra: card),
       child: SizedBox(
         height: _height,
         width: _width,
@@ -388,13 +389,13 @@ class LandFeaturedCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(VeriRentRadius.lg),
             border: Border.all(
               color: card.isVerified!
-                  ? _green.withOpacity(0.45)
+                  ? _green.withValues(alpha: 0.45)
                   : cs.outlineVariant,
               width: card.isVerified! ? 1.5 : 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: cs.shadow.withOpacity(0.06),
+                color: cs.shadow.withValues(alpha: 0.06),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -408,8 +409,8 @@ class LandFeaturedCard extends StatelessWidget {
                   SizedBox(
                     height: 130,
                     width: double.infinity,
-                    child: CustomNetworkImage(
-                      imgUrl: card.imageUrls!.first,
+                    child: CustomNetworkMedia(
+                      url: card.mediaUrls![1],
                       borderRadius: _topRadius(),
                     ),
                   ),
@@ -425,7 +426,7 @@ class LandFeaturedCard extends StatelessWidget {
                           begin: Alignment.bottomCenter,
                           end: Alignment.topCenter,
                           colors: [
-                            Colors.black.withOpacity(0.65),
+                            Colors.black.withValues(alpha: 0.65),
                             Colors.transparent,
                           ],
                         ),
@@ -595,7 +596,7 @@ class CommercialFeaturedCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return GestureDetector(
-      onTap: () => context.push('/listing_details', extra: card),
+      onTap: () => context.push(RoutePaths.listingDetails, extra: card),
       child: SizedBox(
         height: _height,
         width: _width,
@@ -605,13 +606,13 @@ class CommercialFeaturedCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(VeriRentRadius.lg),
             border: Border.all(
               color: card.isVerified!
-                  ? _blue.withOpacity(0.4)
+                  ? _blue.withValues(alpha: 0.4)
                   : cs.outlineVariant,
               width: card.isVerified! ? 1.5 : 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: cs.shadow.withOpacity(0.06),
+                color: cs.shadow.withValues(alpha: 0.06),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -625,8 +626,8 @@ class CommercialFeaturedCard extends StatelessWidget {
                   SizedBox(
                     height: 130,
                     width: double.infinity,
-                    child: CustomNetworkImage(
-                      imgUrl: card.imageUrls!.first,
+                    child: CustomNetworkMedia(
+                      url: card.mediaUrls![1],
                       borderRadius: _topRadius(),
                     ),
                   ),
@@ -641,7 +642,10 @@ class CommercialFeaturedCard extends StatelessWidget {
                         gradient: LinearGradient(
                           begin: Alignment.bottomCenter,
                           end: Alignment.topCenter,
-                          colors: [_blue.withOpacity(0.7), Colors.transparent],
+                          colors: [
+                            _blue.withValues(alpha: 0.7),
+                            Colors.transparent,
+                          ],
                         ),
                       ),
                     ),
@@ -790,7 +794,7 @@ class EstateFeaturedCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return GestureDetector(
-      onTap: () => context.push('/listing_details', extra: card),
+      onTap: () => context.push(RoutePaths.listingDetails, extra: card),
       child: SizedBox(
         height: _height,
         width: _width,
@@ -799,12 +803,12 @@ class EstateFeaturedCard extends StatelessWidget {
             color: cs.surface,
             borderRadius: BorderRadius.circular(VeriRentRadius.lg),
             border: Border.all(
-              color: VeriRentColors.gold.withOpacity(0.5),
+              color: VeriRentColors.gold.withValues(alpha: 0.5),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: VeriRentColors.gold.withOpacity(0.08),
+                color: VeriRentColors.gold.withValues(alpha: 0.08),
                 blurRadius: 16,
                 offset: const Offset(0, 4),
               ),
@@ -818,8 +822,8 @@ class EstateFeaturedCard extends StatelessWidget {
                   SizedBox(
                     height: 130,
                     width: double.infinity,
-                    child: CustomNetworkImage(
-                      imgUrl: card.imageUrls!.first,
+                    child: CustomNetworkMedia(
+                      url: card.mediaUrls![1],
                       borderRadius: _topRadius(),
                     ),
                   ),
@@ -834,7 +838,7 @@ class EstateFeaturedCard extends StatelessWidget {
                           begin: Alignment.bottomCenter,
                           end: Alignment.topCenter,
                           colors: [
-                            Colors.black.withOpacity(0.7),
+                            Colors.black.withValues(alpha: 0.7),
                             Colors.transparent,
                           ],
                         ),

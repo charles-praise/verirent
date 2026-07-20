@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:verirent/core/models/property_model.dart';
+import 'package:verirent/core/models/property/property_model.dart';
 import 'package:verirent/core/shared/widgets/verifiedBadge.dart';
 
 import '../../../../../../core/theme/agents_theme.dart';
@@ -19,11 +19,11 @@ import '../../../../ui/cubit/message_state.dart';
 
 class ChatView extends StatefulWidget {
   final MessagesCubit messagesCubit;
-  final PropertyModel listing;
+  final PropertyModel property;
   const ChatView({
     super.key,
     required this.messagesCubit,
-    required this.listing,
+    required this.property,
   });
 
   @override
@@ -65,7 +65,7 @@ class _ChatViewState extends State<ChatView> {
         listenWhen: (prev, curr) =>
             prev.activeThread?.messages.length !=
             curr.activeThread?.messages.length,
-        listener: (_, __) => _scrollToBottom(),
+        listener: (context, listener) => _scrollToBottom(),
         builder: (context, state) {
           final thread = state.activeThread;
           if (thread == null) return const SizedBox.shrink();
@@ -74,14 +74,14 @@ class _ChatViewState extends State<ChatView> {
             backgroundColor: cs.brightness == Brightness.light
                 ? VeriRentColors.neutral50
                 : VeriRentColors.neutral900,
-            appBar: _ChatAppBar(thread: thread, listing: widget.listing),
+            appBar: _ChatAppBar(thread: thread, listing: widget.property),
             body: Column(
               children: [
                 // ── Property context banner ──────────────────────────
                 if (thread.propertyTitle != null)
                   _PropertyContextBanner(
                     title: thread.propertyTitle!,
-                    property: widget.listing,
+                    property: widget.property,
                   ),
 
                 // ── Messages list ────────────────────────────────────

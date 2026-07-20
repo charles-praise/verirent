@@ -15,12 +15,12 @@
 
 import 'package:flutter/material.dart';
 
+import '../../../../../../core/models/property/property_model.dart';
 import '../../../../../../core/theme/agents_theme.dart';
-import '../../../../../../core/models/property_model.dart';
 import '../../domain/entities/statItems.dart';
 import '../../widgets/aminityPill.dart';
 import '../../widgets/boolRow.dart';
-import '../../widgets/shared/detailScaffold.dart';
+import '../../widgets/shared/detail_scaffold.dart';
 import '../../widgets/shared/heroStatBar.dart';
 import '../../widgets/shared/infoCard.dart';
 import '../../widgets/shared/infoRow.dart';

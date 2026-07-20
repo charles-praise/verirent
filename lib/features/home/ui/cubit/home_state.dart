@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../core/models/property_model.dart';
+import '../../../../core/models/property/property_model.dart';
 
 enum HomePhase { initial, loading, loaded, error }
 

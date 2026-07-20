@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:verirent/core/models/property_model.dart';
+import 'package:verirent/core/models/property/property_model.dart';
 import 'package:verirent/core/shared/ads/ui/pages/recentAds.dart';
-import 'package:verirent/core/shared/network_image/ui/pages/network_image.dart';
+import 'package:verirent/core/shared/custom_network_media/ui/pages/network_media.dart';
 import 'package:verirent/core/shared/widgets/header.dart';
 import 'package:verirent/core/shared/widgets/verifiedBadge.dart';
 
@@ -171,8 +171,8 @@ class _ListingThumb extends StatelessWidget {
                 clipBehavior: Clip.hardEdge,
                 children: [
                   Positioned.fill(
-                    child: CustomNetworkImage(
-                      imgUrl: property.imageUrls!.first,
+                    child: CustomNetworkMedia(
+                      url: property.mediaUrls![1],
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(VeriRentRadius.lg),
                         topRight: Radius.circular(VeriRentRadius.lg),

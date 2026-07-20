@@ -15,7 +15,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../../../core/models/property_model.dart';
+import '../../../../core/models/property/property_model.dart';
 import '../../../../core/theme/agents_theme.dart';
 
 // =============================================================================
