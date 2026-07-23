@@ -429,7 +429,7 @@ class _VerificationStrip extends StatelessWidget {
                   style: VeriRentText.titleSmall.copyWith(color: cs.onSurface),
                 ),
                 Text(
-                  agency.esvarbon ?? 'Licence number not provided',
+                  agency.union ?? 'Licence number not provided',
                   style: VeriRentText.bodySmall.copyWith(
                     color: cs.onSurfaceVariant,
                   ),
